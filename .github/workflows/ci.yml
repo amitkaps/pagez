@@ -1,0 +1,37 @@
+# @prose
+# # CI
+#
+# Checks every pull request and every push to `main` with `pnpm run verify`.
+# The release workflow runs the same script before it stages a version.
+# The job is named `ci`, the check that branch protection requires.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Reads the pnpm version from package.json's `packageManager`.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verify
+        run: pnpm run verify
