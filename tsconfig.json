@@ -15,9 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "declaration": true,
-    "isolatedDeclarations": true
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "tests", "vite.config.ts"]
 }
