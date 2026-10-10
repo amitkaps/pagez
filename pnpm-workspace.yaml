@@ -1,3 +1,6 @@
+minimumReleaseAgeExclude:
+  - "@amitkaps/prose@0.4.1"
+
 # @prose
 # # pnpm's settings
 #

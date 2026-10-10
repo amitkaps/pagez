@@ -32,7 +32,7 @@
     "verify": "pnpm check && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "@amitkaps/prose": "^0.4.0",
+    "@amitkaps/prose": "^0.4.1",
     "@types/node": "^26.6.4",
     "publint": "^0.3.25",
     "vite-plus": "1.1.0"
