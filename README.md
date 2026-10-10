@@ -1,6 +1,6 @@
 # pagez
 
-pagez — one Markdown page, one HTML file.
+pagez — one Markdown page, one HTML file. It isn't built yet, and [the design](docs/design.md) says what it will be.
 
 ## Install
 
@@ -18,4 +18,4 @@ pnpm dev
 pnpm verify    # what CI runs
 ```
 
-It follows [ship's standard](https://ship.amitkaps.com) for how it builds, checks and releases.
+Read [the docs](docs/README.md) for its design, plan and lessons. It follows [ship's standard](https://ship.amitkaps.com/docs/standard.md) for how it builds, checks and releases.
