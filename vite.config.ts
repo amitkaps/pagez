@@ -11,7 +11,7 @@ export default defineConfig({
     entry: ["src/index.ts"],
     format: ["esm"],
     platform: "node",
-    dts: true,
+    dts: { generator: "oxc" },
     clean: true,
     fixedExtension: false,
     publint: { strict: true },
