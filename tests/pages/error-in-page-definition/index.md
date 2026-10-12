@@ -2,7 +2,7 @@
 title: in-page-definition
 ---
 
-<!-- Expect: fails at line 13 of page.md, where the named slot is, as elementz reports it in a file. -->
+<!-- Expect: fails at line 13 of index.md, where the named slot is, as elementz reports it in a file. -->
 
 {@call-out}
 Text.

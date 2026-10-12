@@ -40,7 +40,7 @@ const own = ["reset.css", "prose.css"].map((name) => ({
 }));
 
 function build(page: string): string {
-  const compiled = compile(join(pages, page, "page.md"));
+  const compiled = compile(join(pages, page, "index.md"));
   compiled.css = compiled.css.map((css) => {
     const found = own.find((file) => file.css === css);
     return found ? `/* Pagez's ${found.name} */` : css;

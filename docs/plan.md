@@ -2,6 +2,14 @@
 
 ## Where it is
 
+### `dist/` through Vite
+
+`pagez()`, from `@amitkaps/pagez/vite`, builds a folder's `index.md` through Vite, and
+`pagez build|dev|preview` runs Vite with it. The compiled HTML is handed to Vite in memory, so
+the folder is never written to, and an `index.html` in it fails. CSS, images, fonts and the favicon
+come out hashed in `dist/assets/`. Stories, built this way and served, sits block for block where
+the Jekyll page does. The test pages are `index.md` now, and a mistake is a `PagezError`.
+
 ### The compiler writes the folder
 
 `pagez index.md` writes `index.html` beside it, with its files linked as written and each checked,
@@ -65,11 +73,12 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **`dist/` through Vite.** Pagez as a Vite plugin, which `pagez` runs, building a page to
-   `dist/` with its CSS, images and fonts hashed, and `vp dev` serving it. Writing `index.html`
-   beside the page goes, and `public/` at the root is copied as it is.
-2. **Stories deploys from `dist/`.** Its repository becomes the folder, with a modernised
-   `style.css`, smaller images and a subset of its font, and the Jekyll files go.
+1. **The first release, by hand,** so amitkaps.github.io can install Pagez.
+2. **Stories moves into amitkaps.github.io,** as `stories/` in the folder layout, with its own
+   `style.css` and frame: the case of a section with its own design. Its SVGs through svgo, its
+   photos as WebP where that's smaller, and its font a subset. The site builds with Sitez, then
+   Pagez builds `stories/` into `dist/stories/`, until the rest of the site moves too. The stories
+   repository is retired.
 3. **The rest of the compiler.** Elementz's elements, one definition per name anywhere in the
    tree, `${…}` page paths in prose, and the bundler for the page's scripts. It's done when every
    test page builds to its reviewed snapshot, or fails with its reviewed error, and no todo is
@@ -80,8 +89,7 @@ site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step b
    folders, each with its own design.
 5. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived, and the
    elementz docs move here.
-6. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
-   through the workflow.
+6. **npm's trusted publisher,** so later releases go through the workflow.
 
 ## Later
 

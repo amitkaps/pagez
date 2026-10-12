@@ -20,6 +20,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
     "./reset.css": "./css/reset.css",
     "./prose.css": "./css/prose.css",
     "./package.json": "./package.json"
@@ -46,6 +50,9 @@
     "happy-dom": "20.14.5",
     "publint": "^0.3.25",
     "vite-plus": "1.1.0"
+  },
+  "peerDependencies": {
+    "vite-plus": "^1.1.0"
   },
   "devEngines": {
     "packageManager": {
