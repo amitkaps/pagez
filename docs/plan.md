@@ -2,6 +2,12 @@
 
 ## Where it is
 
+### Reset and prose
+
+`css/reset.css` and `css/prose.css`, exported by the package. Tried on the stories test page,
+whose CSS is now only its look, its sections and its figures, and on a page of every Markdown
+element, in light, dark and at a phone's width ([Reset and prose](design.md#reset-and-prose)).
+
 ### The head moved in
 
 Sitez's `head.ts` is `src/head.ts`: the frame's checks, and the head written from metadata. It
@@ -25,16 +31,14 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **Reset and prose.** `reset.css` and `prose.css`, tried on the stories test page until only
-   its look, its sections and its figures need CSS of their own.
-2. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
+1. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
    out, with `${…}` page paths, the frame and the head. The library returns the parts, and
    `pagez` writes them inline, with what the page references
    ([Standalone](design.md#standalone)). It comes first without elements, on the stories test
    page. It's done when every test page builds to its reviewed snapshot, or fails with its
    reviewed error.
-3. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-4. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+2. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
+3. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later
@@ -44,7 +48,6 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
-- **Prose's rules.** The exact measure, scale and defaults, settled on the stories test page.
 - **Embedded source.** Whether the output carries its own Markz source, so it can be recovered
   and built again.
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as

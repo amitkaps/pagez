@@ -7,7 +7,8 @@ image: cover.svg
 
 <!-- Expect: a stand-in with the shape of amitkaps.com/stories, whose source isn't public. It has
 prose, grouped sections, figures and page styling, and no behavior. With no frame it gets the
-reset and prose, and its own CSS is only its look, its sections and its figures. No element CSS
+reset and prose, and its own CSS is only its look, its sections and its figures. Its background
+is light, so it sets color-scheme: light. No element CSS
 and no <script>. Each image is inlined, and the font's URL @import is left as written. Open: an
 @import must come first in CSS, so when page CSS blocks are joined, a URL @import moves to the
 top. -->
@@ -146,6 +147,7 @@ A stand-in page for Pagez's tests.
 
   :root {
     --prose-font: Georgia, serif;
+    color-scheme: light;
   }
   body {
     background: whitesmoke;
@@ -163,6 +165,7 @@ A stand-in page for Pagez's tests.
   header,
   section,
   footer {
+    display: flow-root;
     padding: 4rem 2rem 2rem;
   }
   #plan {
