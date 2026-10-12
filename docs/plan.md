@@ -33,10 +33,27 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Open questions
 
-The test pages hold the smaller ones, as `Open:` notes (`grep -rn "Open:" tests/pages`).
+Each one the test pages raise is also an `Open:` note on the page that shows it
+(`grep -rn "Open:" tests/pages`).
 
 - **Page CSS and JS.** Whether they're the frame's, as in Sitez, or plain `=html` blocks too.
 - **Dev loop.** Watching and rebuilding, and what invalidates what.
 - **The Sitez boundary.** Sitez rendering each page through Pagez, with `pages` and `site` added
   to the context, linked output for caching, and a page's element clashing with a site's as an
   error.
+- **A page with no title.** What its `<title>` is: the first heading, the file's name, or none
+  (`no-metadata`).
+- **The head's image.** Open Graph needs an absolute URL, so a relative `image` resolves against
+  `url` and isn't inlined as Standalone says (`head`).
+- **Values in prose.** How a list, a number, a boolean and `null` print, and the id of a heading
+  that's only an expression, which Markz alone makes `section` (`expressions`).
+- **Dotted keys.** Markz reads `author.name` as one key, as YAML does. Whether
+  `${page.author.name}` reaches it (`expressions-dotted-key`).
+- **A missing value.** Whether `${page.subtitle}` fails when the page has none, or prints nothing
+  (`error-expression-missing`).
+- **The frame's head.** Which head tags the frame must have, and which Pagez writes (`frame`).
+- **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
+  defines it (`third-party-component`).
+- **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
+  Whether it covers only `<link href>`, or a link to a relative file is left or fails
+  (`standalone-link`).
