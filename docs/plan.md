@@ -75,3 +75,6 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **Wide tables on a phone.** A table wider than the screen pushes the page sideways. CSS alone
   can't scroll it without costing the table its semantics, so the compiler might wrap each table
   in a scrolling `<div>`, which is a change to Markz's markup (`prose`).
+- **Wrapped code's indent.** A wrapped line of code hangs a fixed 6ch, since CSS can't see the
+  line's own indentation. The compiler knows it, and could mark each line's depth so the wrapped
+  part hangs under the line itself. That's a change to Markz's markup too (`prose`).

@@ -13,7 +13,7 @@ A page in Georgia, with a narrower measure.
 <style>
   :root {
     --prose-font: Georgia, serif;
-    --prose-measure: 32rem;
+    --prose-measure: 40ch;
   }
   @layer prose {
     blockquote {
