@@ -1,9 +1,10 @@
 /** @prose
  * # pagez
  *
- * pagez — one Markdown page, one HTML page. `compile` turns a page into its parts, and `write`
- * puts them together as the HTML the `pagez` command writes beside it. A mistake in a
- * page is a `FileError`, which names its file.
+ * pagez — a Markdown page and the files beside it, built to `dist/` with Vite. `compile` turns a
+ * page into its parts, and `write` puts them together as the HTML that `pagez()`, from
+ * `@amitkaps/pagez/vite`, hands to Vite. A mistake in a page is a `FileError`, which names its
+ * file.
  *
  * It also exports elementz's `html`, what an element's template script imports at build time.
  * `html` records a template for the build's renderer. An element's browser `<script>` imports
