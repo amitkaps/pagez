@@ -113,6 +113,14 @@ describe("readFrame", () => {
     expect((error as FileError).message).toMatch(message);
   });
 
+  test("keeps a social tag Pagez doesn't write, such as the site's Twitter handle", () => {
+    const source = frame.replace(
+      "</head>",
+      '<meta name="twitter:site" content="@x" /><meta property="og:locale" content="en_IN" /></head>',
+    );
+    expect(read(source)).not.toBeInstanceOf(Error);
+  });
+
   test("sees a tag in a comment or a script as text", () => {
     const source = frame.replace(
       "</body>",

@@ -112,9 +112,9 @@ function checkFrame(file: string, html: string): Tag {
     const [what, from] =
       tag.name === "link" && rel.split(/\s+/).includes("canonical")
         ? ["a canonical link", "the page's url"]
-        : tag.name === "meta" && key.startsWith("og:")
+        : tag.name === "meta" && WRITTEN.has(key) && key.startsWith("og:")
           ? ["an Open Graph tag", "the page's metadata"]
-          : tag.name === "meta" && key.startsWith("twitter:")
+          : tag.name === "meta" && WRITTEN.has(key)
             ? ["a Twitter tag", "the page's metadata"]
             : [];
     if (what) {
@@ -125,6 +125,16 @@ function checkFrame(file: string, html: string): Tag {
   }
   return slots[0]!;
 }
+
+/** The social tags Pagez writes. Any other, such as `twitter:site` or `og:locale`, is the frame's. */
+const WRITTEN = new Set([
+  "og:title",
+  "og:description",
+  "og:url",
+  "og:image",
+  "og:type",
+  "twitter:card",
+]);
 
 const metaNamed = (tags: Tag[], name: string) =>
   tags.find(
