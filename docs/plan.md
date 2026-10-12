@@ -51,6 +51,14 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
+- **Prose's look.** The width and the typography aren't right yet, and the numbers in
+  [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
+  65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle
+  post. Still to judge, on the `prose` and `stories` pages: the measure, the body size and how it
+  grows, the heading font and scale, the space between paragraphs and around headings, and the
+  balance of serif headings with sans text. Each change is checked in light, dark and at a phone's
+  width, and against a page that reads well.
+
 - **Embedded source.** Whether the output carries its own Markz source, so it can be recovered
   and built again.
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
