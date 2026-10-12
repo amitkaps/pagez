@@ -60,16 +60,38 @@ reference is an `import`, a `src`, an `href` or a CSS `url()`.
 Markz is purely syntactic. It parses and never evaluates, and every node carries its position and
 source.
 
-| Markz syntax | Markz AST                                        | Markz HTML renderer    | Pagez                                              |
-| ------------ | ------------------------------------------------ | ---------------------- | -------------------------------------------------- |
-| `${…}`       | expression node (`value` = inner text)           | prints `value` as code | evaluates it as a `page` path and emits it escaped |
-| `{@x-tag …}` | element node (attributes plus Markdown children) | —                      | renders the element through elementz               |
-| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, unless it defines an element       |
+| Markz syntax | Markz AST                                        | Markz HTML renderer    | Pagez                                                                        |
+| ------------ | ------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------- |
+| `${…}`       | expression node (`value` = inner text)           | prints `value` as code | evaluates it as a `page` path and emits it escaped                           |
+| `{@tag …}`   | element node (attributes plus Markdown children) | writes the tag         | writes a native tag as Markz does, and renders a custom one through elementz |
+| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, except an element's definition and page CSS                  |
 
 - Pagez overrides the Markz renderer for these three nodes only, and reuses everything else.
 - A page rendered by Markz alone stays readable. Expressions show as code, and raw HTML passes
   through.
 - A literal `${…}` in prose goes in an inline code span.
+
+## Native tags
+
+Grouping and styling never need a custom element. Markz writes a native tag, such as `section`,
+`article` or `figure`, with its classes and attributes, and Pagez leaves it as written. There's no
+lookup and no warning.
+
+```md
+{@section #see}
+
+## See the idea
+
+{@figure .art}
+![A gardener and a sculptor](./gardener.svg)
+{/figure}
+
+Start by being a gardener.
+{/section}
+```
+
+A custom element earns its place when it adds a template, for markup that's reused or derived,
+or behavior.
 
 ## Expressions
 
@@ -108,7 +130,6 @@ Relative paths resolve from the page file.
 - Pagez writes the head from metadata: title, description, canonical URL, and the Open Graph and
   Twitter tags. Sitez's `head.ts` does this now, and it moves down to Pagez when Pagez is built.
 - Absolute URLs come from `url`.
-- Pagez adds no display or layout defaults.
 
 ## Elements
 
@@ -120,6 +141,9 @@ elements are used, and where their definitions live.
 
 - An element is used through Markz, `{@x-tag attr=…}`, optionally with Markdown children.
 - An attribute's value may be a prose expression (a `page` path), which evaluates to any value.
+- Only a string reaches the browser. A list or an object goes to the template and is never
+  written on the tag. Build-time values make HTML, and never become props or state in the
+  browser.
 
 ### Where definitions live
 
@@ -144,8 +168,61 @@ These fail, at their source positions:
 
 ## CSS
 
+Markdown comes first, so a page with no CSS of its own reads well, in the system's fonts. The
+page's CSS is then only its look, its sections and its elements.
+
+### Layers
+
+Pagez's CSS opens with one declaration, which makes the order of the cascade public.
+
+```css
+@layer reset, prose, elements;
+```
+
+| Layer       | Holds                                              |
+| ----------- | -------------------------------------------------- |
+| `reset`     | a small normalization, with no typography or color |
+| `prose`     | classless typography for what Markdown writes      |
+| `elements`  | the CSS of each element the page uses, once        |
+| _unlayered_ | the page's own CSS                                 |
+
+- Unlayered CSS beats every layer, so the page's rules win whatever their specificity.
+- A page can add to a layer by name. `@layer prose { … }` adjusts the typography, and still
+  loses to the page's own CSS.
+
+### Reset and prose
+
+- **The reset** sets `box-sizing: border-box`, takes the body's margin away, makes media blocks
+  no wider than their container, and gives form controls the page's font.
+- **Prose** styles native elements only, with no classes. It has a reading measure of about 65ch,
+  centered, a system font stack, a line height near 1.5 and a modest heading scale. It covers
+  quotes, lists, code, tables, images, figures and rules.
+- Prose sets `color-scheme: light dark` with system colors, so dark mode works with no palette.
+- A few custom properties change prose in a line, such as `--prose-font` and `--prose-measure`.
+  A custom font is an `@font-face` and one of them.
+- Both are files in the package, `reset.css` and `prose.css`, each small enough to read on one
+  screen. Their version is Pagez's. Changing them changes every page, so they change rarely.
+
+### With a frame and without
+
+- **Without a frame,** Pagez's minimal document has the reset and prose. That's the Markdown-first
+  page.
+- **With a frame,** the frame is the page's own design, and Pagez adds only element CSS, as Sitez
+  does. A frame that wants prose imports it, as `@import "@amitkaps/pagez/prose.css";`.
+- So there's no setting. Sitez dropped its reset because amitkaps.github.io's first rules undid
+  it, and a site with a design of its own has a frame.
+
+### Page CSS
+
+- A `<style>` in an `=html` block that isn't an element's definition is page CSS.
+- Pagez moves it into the head, unlayered, and joins several blocks in page order.
+- Its place in the page doesn't matter. By convention it goes at the end, so prose comes first
+  where the Markdown is read as it is, as on GitHub.
+
+### Element CSS
+
 Element CSS is in `@layer elements`, emitted once and only for elements the page uses
-([elementz.md](https://sitez.amitkaps.com/docs/elementz.md#css)). So the page's own CSS has the last word, layered or not.
+([elementz.md](https://sitez.amitkaps.com/docs/elementz.md#css)).
 
 ## JavaScript
 
@@ -164,14 +241,31 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 ## Trust and determinism
 
 - A template's script runs at build time with full Node access. A page is trusted like a script.
-- Other `=html` content is emitted verbatim, except for the references it inlines
-  ([Standalone](#standalone)). A `<script>` in it runs only in the browser.
+- Other `=html` content is emitted verbatim, except page CSS, which moves to the head, and the
+  references it inlines ([Standalone](#standalone)). A `<script>` in it runs only in the browser.
 - Pagez is deterministic when the page's code is. Dates, randomness, environment variables and
   reading files or the network in a build script are the author's to avoid.
+
+## Why a page compiler
+
+An HTML page that an AI writes is output. Pagez is a source format and its compiler, so the
+comparison is editing generated HTML against editing Markz that builds to HTML.
+
+- **AI is an author, and Pagez is its target.** Markz with elements is a small surface, so a model
+  makes fewer mistakes, and the compiler catches the rest at exact positions.
+- An edit is a change to the source that a person can review, not a regenerated file.
+- The value is in collections kept over time, such as data essays, a book or course material,
+  more than in one-off demos.
+- **The test is real pages.** Rebuild two or three, starting with
+  [amitkaps.com/stories](https://amitkaps.com/stories), a Jekyll page of prose, grouped cards and
+  page styling with no behavior. If the source stays pleasant to edit and elements get reused,
+  the case is made. If the output HTML gets edited by hand, it isn't.
 
 ## What it isn't
 
 - Shadow DOM, JSX, decorators, framework template syntax, attribute languages
+- Custom elements for grouping or styling alone
+- Typography or color in the reset
 - A DOM at build time, hydration, a virtual DOM, reactive state, a runtime props system
 - Async render, streaming, rendering again in the browser
 - Logic in prose
