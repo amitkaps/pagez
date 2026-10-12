@@ -15,9 +15,10 @@ does. Each folder holds a `page.md` and whatever sits beside it, such as `@x-tag
 - Two pages that must build to the same output say so, as `element-in-page` and `element-file`
   do.
 
-Nothing runs them yet. With the compiler, a test builds each page and compares it with a snapshot
-in `tests/snapshots/<page>/`, or an `error-…` page with its `error.txt`, each reviewed as it
-changes. That's how Sitez tests its example sites.
+`tests/pages.test.ts` builds each page and compares it with its snapshot in
+`tests/snapshots/<page>/page.html`, or an `error-…` page with its `error.txt`, each reviewed as it
+changes. That's how Sitez tests its example sites. A page that needs what isn't built yet is a
+todo, which names what it waits for.
 
 ## The cases
 

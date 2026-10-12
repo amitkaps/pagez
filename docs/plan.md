@@ -2,6 +2,16 @@
 
 ## Where it is
 
+### The compiler, without elements
+
+`src/page.ts` compiles a page into its parts: Markz's HTML in the frame, the head written from
+its metadata, and its CSS, with the reset and prose when there's no frame. Page CSS moves to the
+head, each block its own `<style>`, which settled where a URL `@import` goes. `src/standalone.ts`
+writes the parts as one file, with each file beside the page inlined as a data URL, and the
+`pagez` command runs both. 16 test pages build to their reviewed snapshots or fail with their
+reviewed errors, and 33 are todos, waiting for elements, expressions, the bundler and links. The
+frame's errors now give their line.
+
 ### Reset and prose
 
 `css/reset.css` and `css/prose.css`, exported by the package, from the common modern resets,
@@ -34,12 +44,10 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
-   out, with `${…}` page paths, the frame and the head. The library returns the parts, and
-   `pagez` writes them inline, with what the page references
-   ([Standalone](design.md#standalone)). It comes first without elements, on the stories test
-   page. It's done when every test page builds to its reviewed snapshot, or fails with its
-   reviewed error.
+1. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
+   `${…}` page paths in prose, and the bundler, which makes the page's scripts one inline module
+   ([Standalone](design.md#standalone)). It's done when every test page builds to its reviewed
+   snapshot, or fails with its reviewed error, and no todo is left.
 2. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
 3. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
@@ -75,8 +83,6 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
   (`error-expression-missing`).
 - **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
   defines it (`third-party-component`).
-- **A URL `@import` in page CSS.** An `@import` must come first in CSS, so joining page CSS
-  blocks moves one to the top (`stories`).
 - **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
   Whether it covers only `<link href>`, or a link to a relative file is left or fails
   (`standalone-link`).

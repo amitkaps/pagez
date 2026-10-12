@@ -90,21 +90,21 @@ describe("readFrame", () => {
       /^there's no viewport\. Add <meta name="viewport" content="width=device-width, initial-scale=1" \/>/,
     ],
     ["no slot", frame.replace("<slot></slot>", ""), /^there's no <slot><\/slot>\./],
-    ["two slots", frame.replace("</main>", "</main><slot></slot>"), /^there are 2 slots/],
+    ["two slots", frame.replace("</main>", "</main><slot></slot>"), /^line 10: there are 2 slots/],
     [
       "a canonical link",
       frame.replace("</head>", '<link rel="canonical" href="/" /></head>'),
-      /^this writes a canonical link, but Pagez writes it, from the page's url\. Remove <link rel="canonical" href="\/" \/>$/,
+      /^line 8: this writes a canonical link, but Pagez writes it, from the page's url\. Remove <link rel="canonical" href="\/" \/>$/,
     ],
     [
       "an Open Graph tag",
       frame.replace("</head>", '<meta property="og:title" content="x" /></head>'),
-      /^this writes an Open Graph tag.*Remove <meta property="og:title" content="x" \/>$/,
+      /^line 8: this writes an Open Graph tag.*Remove <meta property="og:title" content="x" \/>$/,
     ],
     [
       "a Twitter tag",
       frame.replace("</head>", '<meta name="twitter:card" content="summary" /></head>'),
-      /^this writes a Twitter tag/,
+      /^line 8: this writes a Twitter tag/,
     ],
   ])("fails on %s, naming index.html", (_, source, message) => {
     const error = read(source);
