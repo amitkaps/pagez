@@ -6,6 +6,9 @@
  */
 import { defineConfig } from "vite-plus";
 
+// The test pages are inputs, left the way a page's author would write them.
+const ignored = ["tests/pages/**"];
+
 export default defineConfig({
   pack: {
     entry: ["src/index.ts"],
@@ -18,13 +21,14 @@ export default defineConfig({
   },
 
   // oxfmt's defaults.
-  fmt: {},
+  fmt: { ignorePatterns: ignored },
 
   // Type-aware lint that also type-checks, so `pnpm check` needs no separate `tsc`.
   lint: {
     plugins: ["typescript", "unicorn", "import"],
     categories: { correctness: "error" },
     options: { typeAware: true, typeCheck: true },
+    ignorePatterns: ignored,
   },
 
   test: {

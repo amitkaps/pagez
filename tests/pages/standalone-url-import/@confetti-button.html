@@ -1,0 +1,9 @@
+<template><button>Celebrate</button></template>
+
+<script>
+  import confetti from "https://esm.sh/canvas-confetti@1.9.3";
+
+  export default (el, { signal }) => {
+    el.querySelector("button").addEventListener("click", () => confetti(), { signal });
+  };
+</script>

@@ -1,0 +1,12 @@
+<template>
+  <span>${attrs.value}</span>
+</template>
+
+<script>
+  import { money } from "tiny-format";
+
+  export default (el) => {
+    const span = el.querySelector("span");
+    span.textContent = money(Number(span.textContent));
+  };
+</script>
