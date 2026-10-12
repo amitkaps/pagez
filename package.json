@@ -1,7 +1,7 @@
 {
   "name": "@amitkaps/pagez",
-  "version": "0.0.0",
-  "description": "pagez — one Markdown page, one HTML file.",
+  "version": "0.1.0",
+  "description": "pagez — a Markdown page and the files beside it, built to dist/ with Vite.",
   "license": "MIT",
   "repository": {
     "type": "git",
