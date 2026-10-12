@@ -6,8 +6,8 @@ image: cover.svg
 ---
 
 <!-- Expect: the title and description escaped. A canonical link to url, and Open Graph and
-Twitter tags. Open: the image. Open Graph needs an absolute URL, so a relative image resolves
-against url (https://example.com/essays/fish/cover.svg), and isn't inlined as Standalone says. -->
+Twitter tags. The image resolves against url, as https://example.com/essays/fish/cover.svg, and
+isn't inlined, so twitter:card is summary_large_image. -->
 
 # Fish and chips
 
