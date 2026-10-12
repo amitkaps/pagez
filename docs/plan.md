@@ -4,7 +4,7 @@
 
 ### Test pages
 
-`tests/pages/` holds 42 pages Pagez must build, or must fail on, each saying what it expects. Their
+`tests/pages/` holds 47 pages Pagez must build, or must fail on, each saying what it expects. Their
 `Open:` notes are design questions to settle before the compiler needs them.
 
 ### elementz moved in
@@ -61,6 +61,8 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **The frame's head.** Which head tags the frame must have, and which Pagez writes (`frame`).
 - **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
   defines it (`third-party-component`).
+- **A URL `@import` in page CSS.** An `@import` must come first in CSS, so joining page CSS
+  blocks moves one to the top (`stories`).
 - **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
   Whether it covers only `<link href>`, or a link to a relative file is left or fails
   (`standalone-link`).
