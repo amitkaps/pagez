@@ -231,7 +231,13 @@ and `prose` test pages, in light, dark and at a phone's width.
   `--prose-step-1` to `--prose-step-4`, for a page's or an element's CSS to use too. Headings
   are balanced and trimmed to their letters with `text-box` where the browser can, and text is
   `pretty`, with hyphens on a narrow screen.
-- **The measure,** 65ch, is on each block, not on its container, and centers it. So a section's
+- **Size.** Text is 16px on a phone, growing to 18px on a wide screen, in `rem` so the reader's
+  own setting scales it. Every size and space in prose is in `rem`, so it grows too.
+- **The measure,** 50ch, is about 72 characters a line, within typography's 45 to 75, and close
+  to a Svbtle post's 600px at 18px. A `ch` is
+  the width of a "0", which is wider than the average letter and space, so 65ch, the usual
+  figure, is about 90 characters, measured. It's on each block, not on its container, and
+  centers it. So a section's
   background reaches the screen's edges while its text keeps to the measure, and a page needs no
   wrapper. A content grid with breakout columns was the alternative, but it needs page CSS for
   each full-width section, and a float in a grid is ignored. `--prose-measure` is a registered
@@ -242,6 +248,10 @@ and `prose` test pages, in light, dark and at a phone's width.
   own color unless a page sets one, so they follow the scheme and the page's colors. More
   contrast, when asked for, makes them stronger. A page that sets a light background of its own
   sets `color-scheme: light` too, or its text turns light in dark mode.
+- **Code blocks wrap** rather than scroll, so a long line is seen whole on a phone. Its wrapped
+  part hangs 6ch in, which is deeper than most lines start, so it isn't read as a new line. CSS
+  measures that from the box, not from the line's own indentation, so a deeply nested line can
+  still mislead.
 - **On paper,** a page is light, shows each link's address and keeps a block on one page.
 - **Custom properties** change prose in a line: `--prose-font`, `--prose-heading-font`,
   `--prose-mono`, `--prose-leading`, `--prose-measure`, `--prose-gutter`, `--prose-ratio` and

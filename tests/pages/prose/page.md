@@ -5,7 +5,8 @@ description: What prose does with each thing Markdown writes, and nothing else.
 
 <!-- Expect: no frame and no CSS of its own, so the page is the reset and prose alone. Headings in
 the serif stack and text in the sans one, each block on the measure, and tints mixed from the
-text's color, in light and dark. The Year column is right-aligned, as Markdown says. Open: the
+text's color, in light and dark. The Year column is right-aligned, as Markdown says. The
+code's long line wraps, and where the browser can, its wrapped part hangs under it. Open: the
 table, if it were wider than a phone. -->
 
 # Every Markdown element, in prose
@@ -32,7 +33,9 @@ work, as a real paragraph would. A long name in code wraps rather than widening 
 
 ```js
 function greet(name) {
-  return `Hello, ${name}! This line is long enough that it must scroll sideways on a phone.`;
+  if (name) {
+    return `Hello, ${name}! This line is long enough to wrap, and its wrapped part is indented under it.`;
+  }
 }
 ```
 

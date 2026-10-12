@@ -21,9 +21,10 @@
       ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono",
       monospace;
 
-    /* Size and space. */
+    /* Size and space. 50ch is about 72 characters a line: a ch is a "0", which is wider than the
+       average letter and space, so 65ch would be about 90. */
     --prose-leading: 1.6;
-    --prose-measure: 65ch;
+    --prose-measure: 50ch;
     --prose-gutter: clamp(1rem, 4vw, 3rem);
     --prose-ratio: 1.25;
 
@@ -49,6 +50,9 @@
     --prose-rule: 25%;
 
     color-scheme: light dark;
+    /* 16px on a phone, growing to 18px on a wide screen, in rem so the reader's setting scales it.
+       Every rem in prose grows with it. */
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
     font-family: var(--prose-font);
     line-height: var(--prose-leading);
     overflow-wrap: break-word;
@@ -220,6 +224,10 @@
     border: 1px solid color-mix(in oklch, var(--prose-accent) var(--prose-rule), transparent);
     border-block-end-width: 2px;
   }
+  /* A long line wraps rather than scrolling, so the whole of it is seen on a phone. Its wrapped
+     part hangs 6ch in, measured from the box rather than the line, which CSS can't see. That's
+     deeper than most lines start, so it isn't read as a new line. A browser without hanging
+     indents wraps it flush. */
   :where(pre) {
     padding: 1rem;
     border: 1px solid
@@ -230,7 +238,9 @@
       var(--prose-accent) calc(var(--prose-tint) * 0.75),
       transparent
     );
-    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-indent: 6ch hanging each-line;
     line-height: 1.5;
     tab-size: 2;
   }
@@ -286,9 +296,6 @@
   @media print {
     :root {
       color-scheme: light;
-    }
-    :where(pre) {
-      white-space: pre-wrap;
     }
     :where(a[href^="http"])::after {
       content: " (" attr(href) ")";
