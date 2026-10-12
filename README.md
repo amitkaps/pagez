@@ -1,6 +1,6 @@
 # pagez
 
-pagez — a Markdown page and the files beside it, built to `dist/` with Vite.
+pagez — Markdown, as pages.
 
 A folder holds `index.md`, written in [Markz](https://github.com/amitkaps/markz), and what it uses:
 a `style.css`, a `frame.html`, images and fonts. Pagez compiles the page, writes its head from its
