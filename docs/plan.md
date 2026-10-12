@@ -2,9 +2,15 @@
 
 ## Where it is
 
+### The head moved in
+
+Sitez's `head.ts` is `src/head.ts`: the frame's checks, and the head written from metadata. It
+dropped what's Sitez's, the 404 page, redirects and linked stylesheets, and settled a page with no
+title, the head's image and the frame's head ([Head](design.md#head)).
+
 ### Test pages
 
-`tests/pages/` holds 47 pages Pagez must build, or must fail on, each saying what it expects. Their
+`tests/pages/` holds 48 pages Pagez must build, or must fail on, each saying what it expects. Their
 `Open:` notes are design questions to settle before the compiler needs them.
 
 ### elementz moved in
@@ -19,17 +25,16 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **The head moves in.** Sitez's `head.ts`, which writes the head from metadata.
-2. **Reset and prose.** `reset.css` and `prose.css`, tried on the stories test page until only
+1. **Reset and prose.** `reset.css` and `prose.css`, tried on the stories test page until only
    its look, its sections and its figures need CSS of their own.
-3. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
+2. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
    out, with `${…}` page paths, the frame and the head. The library returns the parts, and
    `pagez` writes them inline, with what the page references
    ([Standalone](design.md#standalone)). It comes first without elements, on the stories test
    page. It's done when every test page builds to its reviewed snapshot, or fails with its
    reviewed error.
-4. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-5. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+3. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
+4. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later
@@ -48,17 +53,12 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **The Sitez boundary.** Sitez rendering each page through Pagez, with `pages` and `site` added
   to the context, linked output for caching, and a page's element clashing with a site's as an
   error.
-- **A page with no title.** What its `<title>` is: the first heading, the file's name, or none
-  (`no-metadata`).
-- **The head's image.** Open Graph needs an absolute URL, so a relative `image` resolves against
-  `url` and isn't inlined as Standalone says (`head`).
 - **Values in prose.** How a list, a number, a boolean and `null` print, and the id of a heading
   that's only an expression, which Markz alone makes `section` (`expressions`).
 - **Dotted keys.** Markz reads `author.name` as one key, as YAML does. Whether
   `${page.author.name}` reaches it (`expressions-dotted-key`).
 - **A missing value.** Whether `${page.subtitle}` fails when the page has none, or prints nothing
   (`error-expression-missing`).
-- **The frame's head.** Which head tags the frame must have, and which Pagez writes (`frame`).
 - **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
   defines it (`third-party-component`).
 - **A URL `@import` in page CSS.** An `@import` must come first in CSS, so joining page CSS

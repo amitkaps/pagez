@@ -31,4 +31,4 @@ changes. That's how Sitez tests its example sites.
 | Frames     | `frame`, `frame-elements`                                                                        |
 | Tags       | `undefined-tag`, `third-party-component`                                                         |
 | Standalone | `standalone-…`: relative scripts, images and CSS, packages, URLs, shared imports, links          |
-| Errors     | `error-…`: names, expressions, positions inside definitions, missing files, the frame            |
+| Errors     | `error-…`: names, expressions, positions inside definitions, missing files, the frame, the image |

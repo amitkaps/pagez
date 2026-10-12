@@ -127,9 +127,24 @@ Relative paths resolve from the page file.
 
 ## Head
 
-- Pagez writes the head from metadata: title, description, canonical URL, and the Open Graph and
-  Twitter tags. Sitez's `head.ts` does this now, and it moves down to Pagez when Pagez is built.
-- Absolute URLs come from `url`.
+A page's head is its frame's, with what follows from its metadata added. Each tag has one owner.
+
+- **The frame** writes `charset`, `viewport` and anything else it chooses. It must have a `lang`,
+  a `charset`, a `viewport` and one `<slot>`, and fails on a tag Pagez writes. With no frame,
+  Pagez's minimal document has the first three and `<main><slot></slot></main>`.
+- **Pagez** puts the page's `lang`, `title` and `description` in place of the frame's, or adds
+  them. Then it writes the canonical link, `og:title`, `og:description`, `og:url`, `og:image`,
+  `og:type` and `twitter:card`, which repeat those values with no choice in them.
+- **The title** is the page's `title`, else the frame's `<title>`, else the page's first
+  heading, else the file's name. Every page has one.
+- **`url`** is the page's full address. The canonical link and `og:url` need it, and are left out
+  without it.
+- **`image`** is a full address, or a path that resolves against `url`. Open Graph needs a full
+  address, so a relative `image` with no `url` fails. It isn't inlined, as Standalone would
+  otherwise say, since only a crawler reads it, at the page's address. With an image,
+  `twitter:card` is `summary_large_image`.
+- Sitez's frame also needs a title and a description, since every page of a site keeps them when
+  it sets none. A single page needs neither in its frame.
 
 ## Elements
 
