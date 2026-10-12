@@ -15,3 +15,6 @@ Thumbs.db
 
 # Cloudflare Vite plugin
 .dev.vars*
+
+# A test page's own packages, which it bundles from beside it
+!tests/pages/*/node_modules/

@@ -1,0 +1,10 @@
+<template element="call-out">
+  <aside class="${attrs.type ?? "note"}"><slot></slot></aside>
+</template>
+<style>
+  call-out {
+    display: block;
+    border-left: 4px solid;
+    padding-left: 1rem;
+  }
+</style>

@@ -1,0 +1,6 @@
+<template>
+  <script>
+    export const words = (text) => text.split(/\s+/).filter(Boolean).length;
+  </script>
+  <p>${page.title}: ${words(page.description)} words in its description.</p>
+</template>
