@@ -34,7 +34,8 @@ export interface Frame {
 
 /** @prose
  * The minimal document, which a page with no frame is written into. Its `lang` is replaced by the
- * page's, when it has one. The reset and prose are added by the compiler, not written here, since
+ * page's, when it has one. Its `color-scheme` lets the browser paint a dark page dark before any
+ * CSS, as prose's `color-scheme` then does. The reset and prose are added by the compiler, not written here, since
  * a frame gets neither.
  */
 export const MINIMAL = `<!doctype html>
@@ -42,6 +43,7 @@ export const MINIMAL = `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
   </head>
   <body>
     <main><slot></slot></main>
