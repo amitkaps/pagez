@@ -13,7 +13,7 @@ It needs Node 26 or newer, the Node it's built and tested on.
 
 ## Use
 
-The command writes one self-contained HTML file beside the page.
+The command writes one standalone HTML file beside the page.
 
 ```sh
 pnpm exec pagez essay.md    # writes essay.html
