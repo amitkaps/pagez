@@ -10,7 +10,7 @@
  *
  * A frame fails the build for what would make the page wrong: a missing `lang`, `charset` or
  * `viewport`, a slot count other than one, and a tag Pagez writes. Each message names the frame
- * and shows the line to add or remove. Pagez checks nothing else, since it isn't an HTML
+ * and shows the line to add or remove, and the line it's on when there is one. Pagez checks nothing else, since it isn't an HTML
  * validator. It moved here from Sitez, which also checked the frame's title and description. A
  * single page needs neither in its frame, since Pagez writes them.
  */
@@ -78,6 +78,7 @@ function checkFrame(file: string, html: string): Tag {
   const tags = scan(html);
   const start = (name: string) => tags.find((tag) => tag.kind === "start" && tag.name === name);
   const fail = (message: string) => new FileError(file, message);
+  const line = (tag: Tag) => `line ${html.slice(0, tag.start).split("\n").length}: `;
   if (!attribute(start("html") ?? tags[0]!, "lang")?.value) {
     throw fail(
       `<html> has no lang. Add it, such as <html lang="en">, so screen readers read the page in its language.`,
@@ -98,7 +99,7 @@ function checkFrame(file: string, html: string): Tag {
     throw fail(
       slots.length === 0
         ? "there's no <slot></slot>. Write it where the page goes, such as <main><slot></slot></main>."
-        : `there are ${slots.length} slots, and the page goes in one. Keep a single <slot></slot>.`,
+        : `${line(slots[1]!)}there are ${slots.length} slots, and the page goes in one. Keep a single <slot></slot>.`,
     );
   }
   for (const tag of tags) {
@@ -117,7 +118,9 @@ function checkFrame(file: string, html: string): Tag {
             ? ["a Twitter tag", "the page's metadata"]
             : [];
     if (what) {
-      throw fail(`this writes ${what}, but Pagez writes it, from ${from}. Remove ${written}`);
+      throw fail(
+        `${line(tag)}this writes ${what}, but Pagez writes it, from ${from}. Remove ${written}`,
+      );
     }
   }
   return slots[0]!;
@@ -275,6 +278,6 @@ export function addToHead(html: string, text: string): string {
   if (!/^[ \t]*$/.test(indent)) {
     return `${html.slice(0, close.start)}${text}\n${html.slice(close.start)}`;
   }
-  const lines = text.split("\n").map((line) => `${indent}  ${line}\n`);
+  const lines = text.split("\n").map((line) => (line ? `${indent}  ${line}\n` : "\n"));
   return html.slice(0, lineStart) + lines.join("") + html.slice(lineStart);
 }

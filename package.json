@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git+https://github.com/amitkaps/pagez.git"
   },
+  "bin": {
+    "pagez": "./dist/cli.js"
+  },
   "files": [
     "dist",
     "css"
@@ -33,6 +36,9 @@
     "test": "vp test --run",
     "prose": "prose",
     "verify": "pnpm check && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "@amitkaps/markz": "^0.4.1"
   },
   "devDependencies": {
     "@amitkaps/prose": "^0.4.1",

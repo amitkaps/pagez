@@ -1,7 +1,7 @@
 # Design
 
 Pagez is a single-page compiler: one Markz file in, one HTML file out. It is the layer between
-elementz and Sitez ([sitez.md](https://sitez.amitkaps.com/docs/sitez.md#where-sitez-sits)). It isn't built yet, and this is
+elementz and Sitez ([sitez.md](https://sitez.amitkaps.com/docs/sitez.md#where-sitez-sits)). It's built as far as [plan.md](plan.md#where-it-is) says, and this is
 its design, which started as `pagez.md` in Sitez.
 
 > The build produces the page. JavaScript enhances the page.
@@ -49,6 +49,11 @@ reference is an `import`, a `src`, an `href` or a CSS `url()`.
   page opened that way, and runs an inline one.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
   the author's choice to depend on it, and it shows in the output.
+- A file is inlined as a data URL. A CSS file is inlined with its own references inlined first,
+  as an `@import` of a data URL, so it keeps its place in the cascade and its `layer()` or media.
+  An `@import` that doesn't start with `.` names a package, as a script's `import` does.
+- A relative image in the Markdown that isn't there fails at its line. One in raw HTML or CSS
+  fails naming the reference.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser
   defines it when the page runs. Only elementz's elements render at build time.
 - The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
@@ -279,7 +284,8 @@ width and the typography's numbers are a first pass, still to improve
 ### Page CSS
 
 - A `<style>` in an `=html` block that isn't an element's definition is page CSS.
-- Pagez moves it into the head, unlayered, and joins several blocks in page order.
+- Pagez moves it into the head, unlayered, each block its own `<style>`, in page order. A block
+  isn't joined to the next, so an `@import` at its top stays first, where CSS needs it.
 - Its place in the page doesn't matter. By convention it goes at the end, so prose comes first
   where the Markdown is read as it is, as on GitHub.
 

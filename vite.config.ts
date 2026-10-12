@@ -6,12 +6,13 @@
  */
 import { defineConfig } from "vite-plus";
 
-// The test pages are inputs, left the way a page's author would write them.
-const ignored = ["tests/pages/**"];
+// The test pages are inputs, left the way a page's author would write them, and their snapshots
+// are Pagez's output, as it writes them.
+const ignored = ["tests/pages/**", "tests/snapshots/**"];
 
 export default defineConfig({
   pack: {
-    entry: ["src/index.ts"],
+    entry: ["src/index.ts", "src/cli.ts"],
     format: ["esm"],
     platform: "node",
     dts: { generator: "oxc" },

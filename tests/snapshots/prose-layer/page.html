@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Adjusting prose</title>
+    <meta property="og:title" content="Adjusting prose" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <style>
+      :root {
+        --prose-font: Georgia, serif;
+        --prose-measure: 40ch;
+      }
+      @layer prose {
+        blockquote {
+          font-style: italic;
+        }
+      }
+      blockquote {
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+<h1 id="adjusting-prose">Adjusting prose</h1>
+<p>A page in Georgia, with a narrower measure.</p>
+<blockquote>
+<p>Normal, since the page's rule wins.</p>
+</blockquote>
+</main>
+  </body>
+</html>

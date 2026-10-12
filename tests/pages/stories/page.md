@@ -9,9 +9,8 @@ image: cover.svg
 prose, grouped sections, figures and page styling, and no behavior. With no frame it gets the
 reset and prose, and its own CSS is only its look, its sections and its figures. Its background
 is light, so it sets color-scheme: light. No element CSS
-and no <script>. Each image is inlined, and the font's URL @import is left as written. Open: an
-@import must come first in CSS, so when page CSS blocks are joined, a URL @import moves to the
-top. -->
+and no <script>. Each image is inlined, and the font's URL @import is left as written, first in
+the page's own <style>. -->
 
 {@header}
 {@nav}
