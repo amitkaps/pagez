@@ -83,6 +83,10 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
+- **Folders.** Whether Pagez builds a hierarchy of folders, one page or a site, with Sitez's
+  conventions folded in, routing by folder and code beside the pages that use it
+  ([folders.md](folders.md)). Evaluated on stories, a set of independent folders and
+  amitkaps.github.io.
 - **Prose's look.** The width and the typography aren't right yet, and the numbers in
   [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
   65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle
