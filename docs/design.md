@@ -26,8 +26,34 @@ small interactive figure, or a filterable list.
 ## Scope
 
 - Input is one Markz file, and the `@x-tag.html` files beside it.
-- Output is one self-contained HTML file, with its markup, CSS and behavior inline.
+- Output is one standalone HTML file, with its markup, CSS and behavior inline
+  ([Standalone](#standalone)).
 - Site concerns are Sitez's. Routing, navigation, links between pages and shared caching are out.
+
+## Standalone
+
+The output is one HTML file that works with nothing beside it, opened from disk or offline. How a
+reference is written says where its code or file lives, and so whether Pagez inlines it. A
+reference is an `import`, a `src`, an `href` or a CSS `url()`.
+
+| Written as      | Example                     | Pagez                                              |
+| --------------- | --------------------------- | -------------------------------------------------- |
+| A relative path | `./chart.js`, `./photo.jpg` | inlines it, bundling a script with its imports     |
+| A package name  | `import "d3"`               | bundles it from the `node_modules` beside the page |
+| A full URL      | `https://esm.sh/d3`         | leaves it as written                               |
+
+- The page's scripts become one inline module. It holds elementz's runtime, the `setup` of each
+  element the page uses, and the page's own module scripts, with what they import. A library two
+  elements share is in it once.
+- Inlining is what makes the file work from disk. A browser refuses a module script's `src` on a
+  page opened that way, and runs an inline one.
+- Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
+  the author's choice to depend on it, and it shows in the output.
+- A web component from a package is a script like any other. Pagez bundles it, and the browser
+  defines it when the page runs. Only elementz's elements render at build time.
+- The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
+- A large library or image makes a large page, and nothing is cached between pages. Caching across
+  pages is Sitez's, which gives the same parts to Vite.
 
 ## Markz and Pagez
 
@@ -138,7 +164,8 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 ## Trust and determinism
 
 - A template's script runs at build time with full Node access. A page is trusted like a script.
-- Other `=html` content is emitted verbatim. A `<script>` in it runs only in the browser.
+- Other `=html` content is emitted verbatim, except for the references it inlines
+  ([Standalone](#standalone)). A `<script>` in it runs only in the browser.
 - Pagez is deterministic when the page's code is. Dates, randomness, environment variables and
   reading files or the network in a build script are the author's to avoid.
 
