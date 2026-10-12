@@ -20,13 +20,16 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 ## Next, in order
 
 1. **The head moves in.** Sitez's `head.ts`, which writes the head from metadata.
-2. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
+2. **Reset and prose.** `reset.css` and `prose.css`, tried on the stories test page until only
+   its look, its sections and its figures need CSS of their own.
+3. **The compiler and the command.** One Markz file and its `@x-tag.html` files in, one HTML file
    out, with `${…}` page paths, the frame and the head. The library returns the parts, and
    `pagez` writes them inline, with what the page references
-   ([Standalone](design.md#standalone)). It's done when every test page builds to its reviewed
-   snapshot, or fails with its reviewed error.
-3. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-4. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+   ([Standalone](design.md#standalone)). It comes first without elements, on the stories test
+   page. It's done when every test page builds to its reviewed snapshot, or fails with its
+   reviewed error.
+4. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
+5. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later
@@ -36,7 +39,11 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
-- **Page CSS and JS.** Whether they're the frame's, as in Sitez, or plain `=html` blocks too.
+- **Prose's rules.** The exact measure, scale and defaults, settled on the stories test page.
+- **Embedded source.** Whether the output carries its own Markz source, so it can be recovered
+  and built again.
+- **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
+  JavaScript. That's Markz's tooling, so it's settled there.
 - **Dev loop.** Watching and rebuilding, and what invalidates what.
 - **The Sitez boundary.** Sitez rendering each page through Pagez, with `pages` and `site` added
   to the context, linked output for caching, and a page's element clashing with a site's as an
