@@ -4,7 +4,7 @@
 
 ### Test pages
 
-`tests/pages/` holds 42 pages Pagez must build, or must fail on, each saying what it expects. Their
+`tests/pages/` holds 47 pages Pagez must build, or must fail on, each saying what it expects. Their
 `Open:` notes are design questions to settle before the compiler needs them.
 
 ### elementz moved in

@@ -23,7 +23,9 @@ changes. That's how Sitez tests its example sites.
 
 | Group      | What they cover                                                                                  |
 | ---------- | ------------------------------------------------------------------------------------------------ |
-| Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `page-css-wins`                                      |
+| Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `native-tags`                                        |
+| CSS        | `page-css`, `page-css-wins`, `prose-layer`, `frame-prose`                                        |
+| Real pages | `stories`, a stand-in with the shape of amitkaps.com/stories, whose source isn't public           |
 | Prose      | `expressions`, `expressions-dotted-key`                                                          |
 | Elements   | `element-…`: defined in the page or a file, slots, nesting, attributes, scripts, behavior, unused |
 | Frames     | `frame`, `frame-elements`                                                                        |
