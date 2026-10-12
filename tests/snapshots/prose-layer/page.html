@@ -14,25 +14,25 @@
     <style>
       /* Pagez's prose.css */
     </style>
-    <style>
-      :root {
-        --prose-font: Georgia, serif;
-        --prose-measure: 40ch;
-      }
-      @layer prose {
-        blockquote {
-          font-style: italic;
-        }
-      }
-      blockquote {
-        font-style: normal;
-      }
-    </style>
   </head>
   <body>
     <main>
 <h1 id="adjusting-prose">Adjusting prose</h1>
 <p>A page in Georgia, with a narrower measure.</p>
+<style>
+  :root {
+    --prose-font: Georgia, serif;
+    --prose-measure: 40ch;
+  }
+  @layer prose {
+    blockquote {
+      font-style: italic;
+    }
+  }
+  blockquote {
+    font-style: normal;
+  }
+</style>
 <blockquote>
 <p>Normal, since the page's rule wins.</p>
 </blockquote>

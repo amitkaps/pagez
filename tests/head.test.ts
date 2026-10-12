@@ -36,7 +36,7 @@ const frame = `<!doctype html>
 
 function read(html?: string) {
   const dir = mkdtempSync(join(tmpdir(), "pagez-"));
-  if (html !== undefined) writeFileSync(join(dir, "index.html"), html);
+  if (html !== undefined) writeFileSync(join(dir, "frame.html"), html);
   try {
     return readFrame(dir);
   } catch (error) {
@@ -51,7 +51,7 @@ describe("readFrame", () => {
   test("is the frame beside the page, with a marker where the page goes", () => {
     const result = read(frame);
     expect(result).not.toBeInstanceOf(Error);
-    expect((result as { file: string }).file).toMatch(/index\.html$/);
+    expect((result as { file: string }).file).toMatch(/frame\.html$/);
     expect(html(frame)).toContain(`<main>${SLOT}</main>`);
     expect(html(frame)).not.toContain("<slot>");
   });
@@ -106,10 +106,10 @@ describe("readFrame", () => {
       frame.replace("</head>", '<meta name="twitter:card" content="summary" /></head>'),
       /^line 8: this writes a Twitter tag/,
     ],
-  ])("fails on %s, naming index.html", (_, source, message) => {
+  ])("fails on %s, naming frame.html", (_, source, message) => {
     const error = read(source);
     expect(error).toBeInstanceOf(FileError);
-    expect((error as FileError).file).toMatch(/index\.html$/);
+    expect((error as FileError).file).toMatch(/frame\.html$/);
     expect((error as FileError).message).toMatch(message);
   });
 

@@ -1,31 +1,21 @@
 /** @prose
  * # A page, compiled
  *
- * One Markz file in, its parts out: the page in its frame with its head written, and its CSS. The
- * command writes the parts as one standalone file (`standalone.ts`), and Sitez will give them to
- * Vite. This is the compiler without elements or `${…}`, which Markz writes as code for now.
+ * One Markz page in, its parts out: the page in its frame with its head written, Pagez's CSS, and
+ * the stylesheets it links. `write` puts them together as the `index.html` the command writes
+ * beside the page ([The folder](../docs/design.md#the-folder)), and Sitez will give them to Vite.
+ * This is the compiler without elements or `${…}`, which Markz writes as code for now.
  *
- * The page is Markz's own HTML with one change, made in the AST so nothing else moves. Each
- * `=html` block loses its `<style>` elements, which are the page's CSS, and the rest of it is
- * written as it is. A relative image must be beside the page, and fails at its line when it isn't,
- * so a missing file is found by the compiler and not by whatever inlines it.
+ * The page is Markz's own HTML, raw `=html` blocks included, as written. Its references stay as
+ * written too, and each must be there. A relative image in the Markdown fails at its line. One in
+ * raw HTML or a stylesheet fails naming it, and one in the frame at the frame's line.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
-import {
-  headings,
-  html,
-  parse,
-  position,
-  walk,
-  type Document,
-  type NodeData,
-  type NodeId,
-} from "@amitkaps/markz";
+import { headings, html, parse, position, walk } from "@amitkaps/markz";
 import { FileError } from "./elementz/errors.ts";
-import { scan } from "./elementz/markup.ts";
-import { headFields, pageHead, readFrame, SLOT } from "./head.ts";
-import { isRelative } from "./standalone.ts";
+import { addToHead, headFields, pageHead, readFrame, SLOT } from "./head.ts";
+import { checkCss, checkHtml, exists, isRelative } from "./references.ts";
 
 /** A page's parts. */
 export interface Page {
@@ -33,97 +23,66 @@ export interface Page {
   file: string;
   /** The page in its frame, with its head written, and none of its CSS. */
   html: string;
-  /** @prose
-   * The CSS for the head, in order. With no frame, Pagez's reset and prose come first. Then each
-   * of the page's `<style>` blocks, as written, so each keeps its own `@import` at its top.
-   */
+  /** Pagez's CSS, for a `<style>` in the head: the reset and prose, unless the page has its own. */
   css: string[];
+  /** The stylesheets the head links after it, as written: `style.css`, when the page has one. */
+  links: string[];
 }
 
-/** Pagez's reset and prose, which a page with no frame gets. */
+/** Pagez's reset and prose, which a page with no CSS of its own gets. */
 const BASE = ["reset.css", "prose.css"].map((name) =>
   readFileSync(new URL(`../css/${name}`, import.meta.url), "utf8"),
 );
+
+const DARK = /\n *<meta name="color-scheme" content="light dark" \/>/;
 
 /** The page at `file`, compiled into its parts. A mistake in it throws a `FileError`. */
 export function compile(file: string): Page {
   const dir = dirname(file);
   const doc = parse(readFileSync(file, "utf8"));
-  const line = (offset: number) => position(doc.source)(offset).line;
-  const css: string[] = [];
-  const swapped = new Map<NodeId, object>();
-
   walk(doc, {
     enter(node) {
-      const type = doc.type(node);
-      if (type === "image") {
-        const { destination, destinationRange } = doc.data(node, "image");
-        const path = destination.split(/[?#]/)[0]!;
-        if (isRelative(destination) && !existsSync(join(dir, decodeURI(path)))) {
-          throw new FileError(
-            file,
-            `line ${line(destinationRange.start)}: ${destination} isn't beside the page. Add the file, or fix the path.`,
-          );
-        }
-      }
-      if (type === "raw") {
-        const { format, value } = doc.data(node, "raw");
-        if (format !== "html") return;
-        const { styles, rest } = takeStyles(value);
-        if (styles.length === 0) return;
-        css.push(...styles);
-        swapped.set(node, { value: rest.trim() === "" ? "" : rest });
-      }
+      if (doc.type(node) !== "image") return;
+      const { destination, destinationRange } = doc.data(node, "image");
+      if (!isRelative(destination) || exists(dir, destination)) return;
+      const { line } = position(doc.source)(destinationRange.start);
+      throw new FileError(
+        file,
+        `line ${line}: ${destination} isn't there. Add the file, or fix the path.`,
+      );
     },
   });
 
+  const body = html(doc).trimEnd();
+  checkHtml(file, dir, body);
   const frame = readFrame(dir);
+  if (frame.file) checkHtml(frame.file, dir, frame.html, true);
+  const style = join(dir, "style.css");
+  const styled = existsSync(style);
+  if (styled) checkCss(style, dir, readFileSync(style, "utf8"));
+
+  // The page's own CSS says whether it has a dark mode, which prose's does.
+  const shell = styled && !frame.file ? frame.html.replace(DARK, "") : frame.html;
   const fields = headFields(file, doc.metadata ?? {});
   const fallback = headings(doc)[0]?.text ?? basename(file, extname(file));
-  const body = html(view(doc, swapped)).trimEnd();
   return {
     file,
-    html: pageHead(frame.html, fields, fallback).replace(SLOT, () => (body ? `\n${body}\n` : "")),
-    css: frame.file ? css : [...BASE, ...css],
+    html: pageHead(shell, fields, fallback).replace(SLOT, () => (body ? `\n${body}\n` : "")),
+    css: frame.file || styled ? [] : BASE,
+    links: styled ? ["style.css"] : [],
   };
 }
 
-/** A raw block's `<style>` contents, and the block without them. */
-function takeStyles(value: string): { styles: string[]; rest: string } {
-  const styles: string[] = [];
-  let rest = "";
-  let from = 0;
-  const tags = scan(value);
-  for (const [i, tag] of tags.entries()) {
-    if (tag.kind !== "start" || tag.name !== "style") continue;
-    const close = tags.slice(i + 1).find((t) => t.kind === "end" && t.name === "style");
-    const end = close?.end ?? value.length;
-    styles.push(value.slice(tag.end, close?.start ?? value.length));
-    rest += value.slice(from, tag.start);
-    // The line the style was on goes with it.
-    from = value.startsWith("\n", end) ? end + 1 : end;
-  }
-  return { styles, rest: rest + value.slice(from) };
+/** @prose
+ * The page as one HTML document: Pagez's CSS in a `<style>` in the head, since it isn't a file
+ * beside the page, then a `<link>` to each stylesheet, so the page's own CSS comes last.
+ */
+export function write(page: Page): string {
+  const lines = [
+    ...page.css.map((css) => `<style>\n${indent(css.trim())}\n</style>`),
+    ...page.links.map((href) => `<link rel="stylesheet" href="${href}" />`),
+  ];
+  return lines.length > 0 ? addToHead(page.html, lines.join("\n")) : page.html;
 }
 
-/** @prose
- * The document as `html()` reads it, with each swapped node's data overlaid, as Sitez's renderer
- * does. Everything else reads through to the document.
- */
-function view(doc: Document, swapped: Map<NodeId, object>): Document {
-  if (swapped.size === 0) return doc;
-  return new Proxy(doc, {
-    get(target, key) {
-      if (key === "data") {
-        return (node: NodeId, type: keyof NodeData) => {
-          const data = target.data(node, type);
-          const swap = swapped.get(node);
-          return swap === undefined ? data : { ...data, ...swap };
-        };
-      }
-      const value: unknown = Reflect.get(target, key, target);
-      // Document's accessors read private fields, so they run on the document itself.
-      return typeof value === "function" ? value.bind(target) : value;
-    },
-  });
-}
+const indent = (css: string) => css.replace(/^(?=.)/gm, "  ");

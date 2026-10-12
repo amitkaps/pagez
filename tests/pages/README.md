@@ -2,7 +2,7 @@
 
 The pages Pagez must build, one folder each, written before the compiler to pin down what it
 does. Each folder holds a `page.md` and whatever sits beside it, such as `@x-tag.html` files, an
-`index.html` frame, scripts, images or a `node_modules`.
+`frame.html`, a `style.css`, scripts, images or a `node_modules`.
 
 - A page opens with a `<!-- Expect: … -->` comment, which says what it builds to, or where it
   fails.
@@ -25,11 +25,11 @@ todo, which names what it waits for.
 | Group      | What they cover                                                                                  |
 | ---------- | ------------------------------------------------------------------------------------------------ |
 | Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `native-tags`, `prose`                               |
-| CSS        | `page-css`, `page-css-wins`, `prose-layer`, `frame-prose`                                        |
+| CSS        | `style-css`, `page-css`, `page-css-wins`, `prose-layer`                                          |
 | Real pages | `stories`, a stand-in with the shape of amitkaps.com/stories, whose source isn't public           |
 | Prose      | `expressions`, `expressions-dotted-key`                                                          |
 | Elements   | `element-…`: defined in the page or a file, slots, nesting, attributes, scripts, behavior, unused |
 | Frames     | `frame`, `frame-elements`                                                                        |
 | Tags       | `undefined-tag`, `third-party-component`                                                         |
-| Standalone | `standalone-…`: relative scripts, images and CSS, packages, URLs, shared imports, links          |
+| References | `references-…`: images and CSS linked and checked, scripts, packages, URLs, shared imports, links |
 | Errors     | `error-…`: names, expressions, positions inside definitions, missing files, the frame, the image |

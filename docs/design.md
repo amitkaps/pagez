@@ -297,11 +297,12 @@ width and the typography's numbers are a first pass, still to improve
 ### Pagez's CSS or the page's
 
 - **With no `style.css` and no frame,** the page gets the reset and prose. That's the
-  Markdown-first page.
+  Markdown-first page, and the minimal document says `color-scheme: light dark`, as prose does.
 - **With a `style.css`,** the page's CSS is its own design, and replaces the reset and prose. It's
   linked as written, so it reads, caches and is shared like any file, and it can `@import` and
   `url()` the fonts and images beside it. A `style.css` that wants prose as its start imports it
-  by URL, or keeps a copy beside it.
+  by URL, or keeps a copy beside it. The minimal document leaves out `color-scheme`, since a
+  page's own CSS says whether it has a dark mode.
 - **With a frame,** the frame is the design, and gets neither, as in Sitez. A `style.css` is still
   linked.
 - So there's no setting. Sitez dropped its reset because amitkaps.github.io's first rules undid

@@ -1,8 +1,8 @@
 /** @prose
  * # pagez
  *
- * pagez — one Markdown page, one HTML file. `compile` turns a page into its parts, and
- * `standalone` writes them as one file, which is what the `pagez` command does. A mistake in a
+ * pagez — one Markdown page, one HTML page. `compile` turns a page into its parts, and `write`
+ * puts them together as the HTML the `pagez` command writes beside it. A mistake in a
  * page is a `FileError`, which names its file.
  *
  * It also exports elementz's `html`, what an element's template script imports at build time.
@@ -11,5 +11,4 @@
  */
 export { FileError } from "./elementz/errors.ts";
 export { html, type Template } from "./elementz/html.ts";
-export { compile, type Page } from "./page.ts";
-export { standalone } from "./standalone.ts";
+export { compile, write, type Page } from "./page.ts";
