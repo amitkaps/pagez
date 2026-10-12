@@ -1,6 +1,6 @@
 /* Pagez's prose: classless typography for what Markdown writes, in the system's fonts. Change it
-   with the custom properties below, or add to it in `@layer prose { … }`.
-   https://github.com/amitkaps/pagez */
+   with the custom properties below, or add to it in `@layer prose { … }`. Its rules are in
+   :where(), so their order decides between them. https://github.com/amitkaps/pagez */
 @layer reset, prose, elements;
 
 /* Registered, so 65ch is worked out once, in the page's font, and a heading lines up with the
@@ -13,134 +13,298 @@
 
 @layer prose {
   :root {
-    --prose-font: system-ui, sans-serif;
+    /* Fonts. The ui- names are Safari's (SF Pro, New York, SF Mono). Elsewhere the next one in
+       each stack is used. */
+    --prose-font: ui-sans-serif, system-ui, sans-serif;
+    --prose-heading-font: ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
     --prose-mono:
       ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono",
       monospace;
+
+    /* Size and space. */
     --prose-leading: 1.6;
-    --prose-gutter: 1rem;
     --prose-measure: 65ch;
-    --prose-tint: color-mix(in srgb, currentColor 8%, transparent);
-    --prose-rule: color-mix(in srgb, currentColor 20%, transparent);
+    --prose-gutter: clamp(1rem, 4vw, 3rem);
+    --prose-ratio: 1.25;
+
+    /* The scale, which a page's or an element's CSS can use too. The top two steps grow with the
+       screen, and stay within 2.5 times their smallest, so zoomed text still grows. */
+    --prose-step-1: calc(1rem * var(--prose-ratio));
+    --prose-step-2: calc(1rem * pow(var(--prose-ratio), 2));
+    --prose-step-3: clamp(
+      calc(1rem * pow(var(--prose-ratio), 2.5)),
+      calc(1rem + 1.5vw),
+      calc(1rem * pow(var(--prose-ratio), 3))
+    );
+    --prose-step-4: clamp(
+      calc(1rem * pow(var(--prose-ratio), 3.5)),
+      calc(1.25rem + 2.5vw),
+      calc(1rem * pow(var(--prose-ratio), 5))
+    );
+
+    /* Color. Tints and rules are mixed from the accent, which is the text's own color unless a
+       page sets one, so they follow dark mode and the page's colors. */
+    --prose-accent: currentColor;
+    --prose-tint: 8%;
+    --prose-rule: 25%;
 
     color-scheme: light dark;
     font-family: var(--prose-font);
     line-height: var(--prose-leading);
     overflow-wrap: break-word;
+    hanging-punctuation: first allow-end;
+    /* Every font is sized to the body font's x-height, so code and a fallback font match it. */
+    font-size-adjust: ex-height from-font;
   }
 
+  @media (prefers-contrast: more) {
+    :root {
+      --prose-tint: 16%;
+      --prose-rule: 60%;
+    }
+  }
+
+  /* The page's own room at its top and bottom, since the first and last blocks have none. */
+  :where(body > main) {
+    padding-block: clamp(2rem, 6vw, 4rem);
+  }
+
+  /* Flow: space above a block, never below, and none above a first child. Prose sets block
+     margins itself, so it doesn't rely on the reset. */
+  :where(p, h1, h2, h3, h4, h5, h6, ul, ol, dl, dd, blockquote, pre, table, figure, details, hr) {
+    margin-block: 0;
+  }
+  :where(p, ul, ol, dl, blockquote, pre, table, figure, details):where(:not(:first-child)) {
+    margin-block-start: 1rem;
+  }
+  :where(h1, h2, h3, h4):where(:not(:first-child)) {
+    margin-block-start: 2.5rem;
+  }
+  :where(h5, h6):where(:not(:first-child)) {
+    margin-block-start: 1.5rem;
+  }
+  :where(h1, h2, h3, h4, h5, h6) + :where(*) {
+    margin-block-start: 1rem;
+  }
+  :where(h1, h2, h3, h4, h5, h6) + :where(blockquote, pre, figure, table) {
+    margin-block-start: 1.25rem;
+  }
+  :where(hr) {
+    margin-block: 2.5rem;
+  }
+
+  /* Headings, trimmed to their letters where the browser can, so the space around them is what
+     the eye sees. */
   :where(h1, h2, h3, h4, h5, h6) {
-    margin-block: 1.2em 0.5em;
+    font-family: var(--prose-heading-font);
+    font-size-adjust: none;
+    font-weight: 600;
     line-height: 1.2;
     text-wrap: balance;
+    text-box: trim-both cap alphabetic;
   }
-  :where(h1, h2, h3, h4, h5, h6) + * {
-    margin-block-start: 0;
+  :where(h1) {
+    font-size: var(--prose-step-4);
+    line-height: 1.1;
   }
-  h1 {
-    font-size: 2em;
+  :where(h2) {
+    font-size: var(--prose-step-3);
   }
-  h2 {
-    font-size: 1.5em;
+  :where(h3) {
+    font-size: var(--prose-step-2);
   }
-  h3 {
-    font-size: 1.25em;
+  :where(h4) {
+    font-size: var(--prose-step-1);
   }
-  h4 {
-    font-size: 1em;
+  :where(h5) {
+    font-size: 1rem;
   }
-  :where(h5, h6) {
-    font-size: 0.875em;
+  :where(h6) {
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  :where(p, li, dd, figcaption) {
+  /* Text. Hyphens only on a narrow screen, and never in a link or code, where one would change
+     the text. */
+  :where(p, li, dd, blockquote, figcaption) {
     text-wrap: pretty;
   }
+  @media (width < 40rem) {
+    :where(p, li, dd, blockquote, figcaption) {
+      hyphens: auto;
+      hyphenate-limit-chars: 7 3 3;
+    }
+    :where(a, code, kbd, samp) {
+      hyphens: manual;
+    }
+  }
 
-  a {
+  /* Links keep the system's color, with a quieter underline that darkens on hover. */
+  :where(a) {
+    text-decoration-color: color-mix(in oklch, var(--prose-accent) 45%, transparent);
+    text-decoration-thickness: from-font;
     text-underline-offset: 0.2em;
+    text-decoration-skip-ink: auto;
+  }
+  @media (hover: hover) {
+    :where(a:hover) {
+      text-decoration-color: currentColor;
+    }
   }
 
   :where(ul, ol) {
     padding-inline-start: 1.5em;
   }
-  dt {
+  :where(li + li, li > ul, li > ol) {
+    margin-block-start: 0.375rem;
+  }
+  :where(li)::marker {
+    color: color-mix(in oklch, var(--prose-accent) 60%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  :where(dt) {
     font-weight: 600;
   }
-  dd {
+  :where(dd) {
     margin-inline-start: 1.5em;
   }
-
-  blockquote {
-    margin-inline: 0;
-    padding-inline-start: 1em;
-    border-inline-start: 0.25em solid var(--prose-rule);
+  :where(dd + dt) {
+    margin-block-start: 0.75rem;
   }
 
+  :where(blockquote) {
+    margin-inline: 0;
+    padding-inline-start: 1rem;
+    border-inline-start: 3px solid
+      color-mix(in oklch, var(--prose-accent) var(--prose-rule), transparent);
+  }
+
+  :where(small) {
+    font-size: 0.875em;
+  }
+  :where(abbr[title]) {
+    text-decoration: underline dotted;
+    cursor: help;
+  }
+  :where(sub, sup) {
+    position: relative;
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: baseline;
+  }
+  :where(sup) {
+    inset-block-start: -0.5em;
+  }
+  :where(sub) {
+    inset-block-end: -0.25em;
+  }
+
+  /* Code. It matches the text's x-height through font-size-adjust, or is a little smaller where
+     that isn't supported. A long name in a sentence wraps rather than widening the page. */
   :where(code, kbd, samp, pre) {
     font-family: var(--prose-mono);
-    font-size: 0.875em;
   }
-  :where(code, kbd) {
+  @supports not (font-size-adjust: ex-height from-font) {
+    :where(code, kbd, samp, pre) {
+      font-size: 0.875em;
+    }
+  }
+  :where(:not(pre) > code, kbd) {
     padding: 0.1em 0.3em;
     border-radius: 0.25em;
-    background: var(--prose-tint);
+    background: color-mix(in oklch, var(--prose-accent) var(--prose-tint), transparent);
+    overflow-wrap: anywhere;
   }
-  kbd {
-    border: 1px solid var(--prose-rule);
+  :where(kbd) {
+    border: 1px solid color-mix(in oklch, var(--prose-accent) var(--prose-rule), transparent);
+    border-block-end-width: 2px;
   }
-  pre {
-    padding: 1em;
-    border-radius: 0.375em;
-    background: var(--prose-tint);
+  :where(pre) {
+    padding: 1rem;
+    border: 1px solid
+      color-mix(in oklch, var(--prose-accent) calc(var(--prose-tint) * 1.5), transparent);
+    border-radius: 0.375rem;
+    background: color-mix(
+      in oklch,
+      var(--prose-accent) calc(var(--prose-tint) * 0.75),
+      transparent
+    );
     overflow-x: auto;
-    tab-size: 4;
     line-height: 1.5;
-  }
-  pre code {
-    padding: 0;
-    background: none;
-    font-size: 1em;
+    tab-size: 2;
   }
 
-  /* Full width, so a table lines up with the text rather than being centered by the measure. */
-  table {
+  /* Tables are full width, so they line up with the text rather than being centered by the
+     measure. */
+  :where(table) {
     inline-size: 100%;
     border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
   }
   :where(th, td) {
-    padding: 0.4em 0.75em;
-    border-block-end: 1px solid var(--prose-rule);
-    text-align: start;
+    padding: 0.5rem 0.75rem;
+    border-block-end: 1px solid
+      color-mix(in oklch, var(--prose-accent) var(--prose-rule), transparent);
     vertical-align: top;
   }
+  /* A header cell is centered by the browser. Markdown's column alignment is an align attribute,
+     which any CSS outranks, so a cell that has one is left alone. */
+  :where(th:not([align])) {
+    text-align: start;
+  }
+  :where(th) {
+    font-weight: 600;
+  }
 
-  figure {
-    margin-block: 1.5em;
+  :where(figure) {
     margin-inline: 0;
   }
-  figcaption {
-    margin-block-start: 0.5em;
+  :where(figure > :is(img, video, svg, picture, canvas)) {
+    display: block;
+  }
+  :where(figcaption) {
+    margin-block-start: 0.5rem;
     font-size: 0.875em;
-    color: color-mix(in srgb, currentColor 70%, transparent);
+    color: color-mix(in oklch, currentColor 70%, transparent);
   }
 
-  hr {
-    margin-block: 2em;
-    border: none;
-    border-block-start: 1px solid var(--prose-rule);
+  :where(hr) {
+    border: 0;
+    border-block-start: 1px solid
+      color-mix(in oklch, var(--prose-accent) var(--prose-rule), transparent);
   }
 
-  :where(sub, sup) {
-    line-height: 0;
-  }
-  summary {
+  :where(summary) {
     cursor: pointer;
+  }
+  :where(summary + *) {
+    margin-block-start: 0.5rem;
+  }
+
+  /* On paper: light, every link's address after it, and no block split across pages. */
+  @media print {
+    :root {
+      color-scheme: light;
+    }
+    :where(pre) {
+      white-space: pre-wrap;
+    }
+    :where(a[href^="http"])::after {
+      content: " (" attr(href) ")";
+      font-size: 0.875em;
+    }
+    :where(h1, h2, h3, h4, h5, h6) {
+      break-after: avoid;
+    }
+    :where(pre, blockquote, figure, table) {
+      break-inside: avoid;
+    }
   }
 
   /* The measure is on each block, not its container, so a section's background reaches the
-     edges while its text keeps to the measure, centered. It comes last, and outranks
-     the rules above, so a quote or a figure in the flow is centered too. */
+     edges while its text keeps to the measure, centered. It outranks the rules above, so a quote
+     or a figure in the flow is centered too. */
   :is(body, main, header, footer, section, article, aside, nav, div)
     > :not(main, header, footer, section, article, aside, nav, div) {
     max-inline-size: min(var(--prose-measure), 100% - 2 * var(--prose-gutter));

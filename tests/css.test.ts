@@ -28,10 +28,14 @@ describe("reset.css and prose.css", () => {
     expect(css).toContain(`@layer ${name.replace(".css", "")} {`);
   });
 
-  test("the reset has no typography or color", () => {
-    expect(reset).not.toMatch(
+  test("the reset has no typography or color, but for form controls' smallest size", () => {
+    expect(reset.replace("font-size: max(16px, 1em);", "")).not.toMatch(
       /\b(font-family|font-size|font-weight|line-height|color|background)\s*:/,
     );
+  });
+
+  test("prose sets block margins itself, so a frame can use it without the reset", () => {
+    expect(prose).toMatch(/:where\(p, h1, h2, h3, h4, h5, h6, [^)]*\) \{\s*margin-block: 0;/);
   });
 
   test("prose has no classes or ids, only native elements", () => {

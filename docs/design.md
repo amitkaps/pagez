@@ -207,29 +207,52 @@ Pagez's CSS opens with one declaration, which makes the order of the cascade pub
 
 ### Reset and prose
 
-They follow the common modern resets (Josh Comeau's, Andy Bell's) and modern font stacks, with
-what Markdown needs changed.
+They follow the common modern resets (Josh Comeau's, Andy Bell's), [good-css](https://good-css.com/)
+and modern font stacks, with what Markdown needs changed. Each choice is checked on the `stories`
+and `prose` test pages, in light, dark and at a phone's width.
 
-- **The reset** sets `box-sizing: border-box`, keeps a phone from enlarging text on its own,
-  takes the body's margin away, keeps media no wider than its container, gives form controls the
-  page's font, and leaves room above a heading linked to by its id. An image stays inline, unlike
-  in those resets, since Markdown puts an image in a paragraph.
-- **Prose** styles native elements only, with no classes. It has a system font stack, a line
-  height of 1.6, a modest heading scale, balanced headings and pretty paragraphs. It covers
-  quotes, lists, code, tables, figures and rules.
+- **The reset** has no typography or color. It sets `box-sizing: border-box`, keeps a phone from
+  enlarging text on its own, zeroes block margins, keeps media no wider than its container, gives
+  form controls the page's font at 16px or more so iOS doesn't zoom, and leaves room above a
+  heading linked to by its id. An image stays inline, unlike in those resets, since Markdown puts
+  an image in a paragraph.
+- **Prose** styles native elements only, with no classes. Its rules are in `:where()`, so their
+  order decides between them, and a page's or an element's CSS beats them by layer anyway.
+- **Fonts.** Headings are serif and text is sans, in the system's fonts: New York and SF Pro on
+  Apple, through `ui-serif` and `ui-sans-serif`, which only Safari reads, then Charter, Sitka or
+  Cambria, and `system-ui`. Code is `ui-monospace` and its stack. Every font is sized to the
+  text's x-height with `font-size-adjust`, so code needs no smaller size and a fallback font
+  matches.
+- **Flow.** Space goes above a block and never below, and a first child has none, so spacing is
+  in one direction and needs no list of containers. Headings have more above them and less after
+  them. Prose sets block margins itself, so a frame can use it without the reset.
+- **Scale.** Headings step by `--prose-ratio`, 1.25, from `pow()`. The top two steps grow with the
+  screen, within 2.5 times their smallest, so zoomed text still grows. The steps are
+  `--prose-step-1` to `--prose-step-4`, for a page's or an element's CSS to use too. Headings
+  are balanced and trimmed to their letters with `text-box` where the browser can, and text is
+  `pretty`, with hyphens on a narrow screen.
 - **The measure,** 65ch, is on each block, not on its container, and centers it. So a section's
   background reaches the screen's edges while its text keeps to the measure, and a page needs no
-  wrapper. `--prose-measure` is a registered length, so it's worked out once, in the page's
-  font, and a heading lines up with the paragraphs.
-- **Color.** Prose sets `color-scheme: light dark`, so dark mode works with no palette. Its tints,
-  for code and rules, are mixed from the text's color, so they follow the scheme and a page's own
-  colors. A page that sets a light background of its own sets `color-scheme: light` too, or its
-  text turns light in dark mode.
-- **Custom properties** change prose in a line: `--prose-font`, `--prose-mono`,
-  `--prose-leading`, `--prose-measure` and `--prose-gutter`. A custom font is an `@font-face` and
-  `--prose-font`.
+  wrapper. A content grid with breakout columns was the alternative, but it needs page CSS for
+  each full-width section, and a float in a grid is ignored. `--prose-measure` is a registered
+  length, so it's worked out once, in the page's font, and a heading lines up with the
+  paragraphs.
+- **Color.** Prose sets `color-scheme: light dark`, and the minimal document's head says so too,
+  so dark mode works with no palette. Tints and rules are mixed from `--prose-accent`, the text's
+  own color unless a page sets one, so they follow the scheme and the page's colors. More
+  contrast, when asked for, makes them stronger. A page that sets a light background of its own
+  sets `color-scheme: light` too, or its text turns light in dark mode.
+- **On paper,** a page is light, shows each link's address and keeps a block on one page.
+- **Custom properties** change prose in a line: `--prose-font`, `--prose-heading-font`,
+  `--prose-mono`, `--prose-leading`, `--prose-measure`, `--prose-gutter`, `--prose-ratio` and
+  `--prose-accent`. A custom font is an `@font-face` and one of them, and sans headings are
+  `--prose-heading-font: var(--prose-font)`.
+- **Left out on purpose:** `font-synthesis: none`, which would leave `_emphasis_` plain in a font
+  with no italic; restyled list markers, which cost a list its semantics in Safari; a table that
+  becomes cards on a phone, which needs a label on every cell; and focus styles, which the
+  browser does well.
 - Both are files in the package, `@amitkaps/pagez/reset.css` and `@amitkaps/pagez/prose.css`,
-  each small enough to read on one screen. Their version is Pagez's. Changing them changes every
+  each small enough to read in a sitting. Their version is Pagez's. Changing them changes every
   page, so they change rarely.
 
 ### With a frame and without

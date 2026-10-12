@@ -207,6 +207,7 @@ describe("pageHead", () => {
     expect(lines(out)).toEqual([
       '<meta charset="utf-8" />',
       '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+      '<meta name="color-scheme" content="light dark" />',
       "<title>Fish &amp; Chips &lt;tonight&gt;</title>",
       '<meta name="description" content="Every field." />',
       '<link rel="canonical" href="https://example.com/essays/fish/" />',
@@ -220,7 +221,7 @@ describe("pageHead", () => {
   });
 
   test("titles a page with no title by its fallback, and leaves out what needs a url", () => {
-    expect(lines(pageHead(minimal, {}, "Untitled")).slice(2)).toEqual([
+    expect(lines(pageHead(minimal, {}, "Untitled")).slice(3)).toEqual([
       "<title>Untitled</title>",
       '<meta property="og:title" content="Untitled" />',
       '<meta property="og:type" content="website" />',

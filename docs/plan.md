@@ -4,9 +4,12 @@
 
 ### Reset and prose
 
-`css/reset.css` and `css/prose.css`, exported by the package. Tried on the stories test page,
-whose CSS is now only its look, its sections and its figures, and on a page of every Markdown
-element, in light, dark and at a phone's width ([Reset and prose](design.md#reset-and-prose)).
+`css/reset.css` and `css/prose.css`, exported by the package, from the common modern resets,
+good-css, Vizchitra's prose and a draft of its own. Serif headings and sans text in the system's
+fonts, one-way flow, a modular scale, an accent color, and print and contrast styles. Tried on the
+`stories` test page, whose CSS is now only its look, its sections and its figures, and on the
+`prose` test page of every Markdown element, in light, dark and at a phone's width
+([Reset and prose](design.md#reset-and-prose)).
 
 ### The head moved in
 
@@ -16,7 +19,7 @@ title, the head's image and the frame's head ([Head](design.md#head)).
 
 ### Test pages
 
-`tests/pages/` holds 48 pages Pagez must build, or must fail on, each saying what it expects. Their
+`tests/pages/` holds 49 pages Pagez must build, or must fail on, each saying what it expects. Their
 `Open:` notes are design questions to settle before the compiler needs them.
 
 ### elementz moved in
@@ -69,3 +72,6 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
   Whether it covers only `<link href>`, or a link to a relative file is left or fails
   (`standalone-link`).
+- **Wide tables on a phone.** A table wider than the screen pushes the page sideways. CSS alone
+  can't scroll it without costing the table its semantics, so the compiler might wrap each table
+  in a scrolling `<div>`, which is a change to Markz's markup (`prose`).
