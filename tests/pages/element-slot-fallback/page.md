@@ -10,3 +10,9 @@ replaces the fallback. -->
 {@empty-note}
 Something to say after all.
 {/empty-note}
+
+```=html
+<template element="empty-note">
+  <p><slot>Nothing to say here.</slot></p>
+</template>
+```

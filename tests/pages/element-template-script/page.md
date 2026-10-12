@@ -7,3 +7,12 @@ description: Five words in this one.
 template's scope beside page and attrs. No script reaches the browser. -->
 
 {@word-count /}
+
+```=html
+<template element="word-count">
+  <script>
+    export const words = (text) => text.split(/\s+/).filter(Boolean).length;
+  </script>
+  <p>${page.title}: ${words(page.description)} words in its description.</p>
+</template>
+```

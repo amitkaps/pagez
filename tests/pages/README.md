@@ -10,6 +10,8 @@ does. Each folder holds a `page.md` and whatever sits beside it, such as `@x-tag
   lists them all, and each is settled in [design.md](../../docs/design.md) before the compiler
   needs it.
 - A folder named `error-…` is a page that must fail, at the place its comment names.
+- A small element used once is defined in its page, as an author would write it. It's in a file
+  where the file is the point, or where it's shared or has behavior.
 - Two pages that must build to the same output say so, as `element-in-page` and `element-file`
   do.
 
