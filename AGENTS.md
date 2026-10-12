@@ -1,6 +1,6 @@
 # AGENTS.md
 
-pagez — a Markdown page and the files beside it, built to `dist/` with Vite.
+pagez — Markdown, as pages.
 
 ## Standard
 
