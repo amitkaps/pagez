@@ -1,8 +1,10 @@
 # Design
 
-Pagez is a single-page compiler: one Markz file in, one HTML file out. It is the layer between
-elementz and Sitez ([sitez.md](https://sitez.amitkaps.com/docs/sitez.md#where-sitez-sits)). It's built as far as [plan.md](plan.md#where-it-is) says, and this is
-its design, which started as `pagez.md` in Sitez.
+Pagez is a single-page compiler: one Markz page in, one HTML page out, written beside it in the
+page's folder. It is the layer between elementz and Sitez
+([sitez.md](https://sitez.amitkaps.com/docs/sitez.md#where-sitez-sits)). It's built as far as
+[plan.md](plan.md#where-it-is) says, and this is its design, which started as `pagez.md` in
+Sitez.
 
 > The build produces the page. JavaScript enhances the page.
 
@@ -25,40 +27,54 @@ small interactive figure, or a filterable list.
 
 ## Scope
 
-- Input is one Markz file, and the `@x-tag.html` files beside it.
-- Output is one standalone HTML file, with its markup, CSS and behavior inline
-  ([Standalone](#standalone)).
+- Input is a folder holding a Markz page, such as `index.md`, and what it uses beside it: a
+  `style.css`, its images and fonts, and its `@x-tag.html` elements.
+- Output is the page's HTML, `index.html`, written into the same folder. The folder is what's
+  kept, served and shared, and the Markz page stays its source ([The folder](#the-folder)).
 - Site concerns are Sitez's. Routing, navigation, links between pages and shared caching are out.
 
-## Standalone
+## The folder
 
-The output is one HTML file that works with nothing beside it, opened from disk or offline. How a
-reference is written says where its code or file lives, and so whether Pagez inlines it. A
-reference is an `import`, a `src`, an `href` or a CSS `url()`.
+```
+stories/
+  index.md       the page, its source
+  style.css      its CSS, optional
+  img/  fonts/   what it references
+  @x-tag.html    an element, optional
+  index.html     what Pagez writes
+```
+
+`pagez index.md` writes `index.html` beside it. The HTML is readable, and so are the files beside
+it, which a browser caches and other pages can reuse. The folder works served from anywhere, and
+opened from disk.
+
+A reference is written as a relative path, a package name or a full URL, and that says where its
+code or file lives.
 
 | Written as      | Example                     | Pagez                                              |
 | --------------- | --------------------------- | -------------------------------------------------- |
-| A relative path | `./chart.js`, `./photo.jpg` | inlines it, bundling a script with its imports     |
+| A relative path | `./chart.js`, `./photo.jpg` | links a file as written, and bundles a script      |
 | A package name  | `import "d3"`               | bundles it from the `node_modules` beside the page |
 | A full URL      | `https://esm.sh/d3`         | leaves it as written                               |
 
-- The page's scripts become one inline module. It holds elementz's runtime, the `setup` of each
-  element the page uses, and the page's own module scripts, with what they import. A library two
-  elements share is in it once.
-- Inlining is what makes the file work from disk. A browser refuses a module script's `src` on a
-  page opened that way, and runs an inline one.
+- **Files are linked.** An image, a font, a stylesheet or a video keeps its path, so the HTML
+  reads as its source does. One that isn't there fails the build: in the Markdown at its line,
+  and in raw HTML or CSS naming the reference.
+- **Scripts are inlined.** The page's scripts become one inline module. It holds elementz's
+  runtime, the `setup` of each element the page uses, and the page's own module scripts, with
+  what they import. A library two elements share is in it once. A browser refuses a module
+  script's `src` on a page opened from disk, and runs an inline one, and a package in
+  `node_modules` isn't served, so a script is the one thing a folder can't just link.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
   the author's choice to depend on it, and it shows in the output.
-- A file is inlined as a data URL. A CSS file is inlined with its own references inlined first,
-  as an `@import` of a data URL, so it keeps its place in the cascade and its `layer()` or media.
-  An `@import` that doesn't start with `.` names a package, as a script's `import` does.
-- A relative image in the Markdown that isn't there fails at its line. One in raw HTML or CSS
-  fails naming the reference.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser
   defines it when the page runs. Only elementz's elements render at build time.
 - The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
-- A large library or image makes a large page, and nothing is cached between pages. Caching across
-  pages is Sitez's, which gives the same parts to Vite.
+- **Why not one file.** Pagez first wrote one standalone file, with every image, font and
+  stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a 1 MB file
+  that couldn't be read or cached, with its CSS and images no longer shared, for the one benefit
+  of sending a single file. A folder keeps all of it, and works from disk too. One file can come
+  back as an export of the folder, if sending one turns out to matter (plan.md, Later).
 
 ## Markz and Pagez
 
@@ -69,7 +85,7 @@ source.
 | ------------ | ------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------- |
 | `${…}`       | expression node (`value` = inner text)           | prints `value` as code | evaluates it as a `page` path and emits it escaped                           |
 | `{@tag …}`   | element node (attributes plus Markdown children) | writes the tag         | writes a native tag as Markz does, and renders a custom one through elementz |
-| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, except an element's definition and page CSS                  |
+| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, except an element's definition                               |
 
 - Pagez overrides the Markz renderer for these three nodes only, and reuses everything else.
 - A page rendered by Markz alone stays readable. Expressions show as code, and raw HTML passes
@@ -120,9 +136,13 @@ feature, not part of the element, so elements stay shared.
 Frontmatter holds the page's metadata, such as `title`, `description`, `url` and `image`. It holds
 no settings, as Sitez's `site.md` holds none. Each would-be setting is a convention.
 
-- **The frame** is an `index.html` beside the page, with one `<slot>` for the page, as Sitez's
-  `code/index.html` is. With none, Pagez writes a minimal document. The frame must not grow
-  layouts, partials or site logic.
+- **The page's CSS** is a `style.css` beside the page. Pagez links it, in place of its reset and
+  prose ([Pagez's CSS or the page's](#pagezs-css-or-the-pages)).
+- **The frame** is a `frame.html` beside the page, with one `<slot>` for the page, as Sitez's
+  `code/index.html` is. With none, Pagez writes a minimal document. It's for a shell the page's
+  CSS can't give, such as a header and footer or tags of its own in the head, so most pages have
+  none. It isn't `index.html`, which is the page Pagez writes. The frame must not grow layouts,
+  partials or site logic.
 - **Elements** are the page's own definitions and the `@x-tag.html` files beside it, found by
   name. There's nothing to import.
 - **Undefined tags** warn only when a hyphenated tag has no definition and no selector in the
@@ -145,7 +165,7 @@ A page's head is its frame's, with what follows from its metadata added. Each ta
 - **`url`** is the page's full address. The canonical link and `og:url` need it, and are left out
   without it.
 - **`image`** is a full address, or a path that resolves against `url`. Open Graph needs a full
-  address, so a relative `image` with no `url` fails. It isn't inlined, as Standalone would
+  address, so a relative `image` with no `url` fails. It isn't checked as a file beside the page
   otherwise say, since only a crawler reads it, at the page's address. With an image,
   `twitter:card` is `summary_large_image`.
 - Sitez's frame also needs a title and a description, since every page of a site keeps them when
@@ -188,8 +208,8 @@ These fail, at their source positions:
 
 ## CSS
 
-Markdown comes first, so a page with no CSS of its own reads well, in the system's fonts. The
-page's CSS is then only its look, its sections and its elements.
+Markdown comes first, so a page with no CSS of its own reads well, in the system's fonts. A page
+with a design of its own brings it in `style.css`, and an element brings its own.
 
 ### Layers
 
@@ -204,8 +224,10 @@ Pagez's CSS opens with one declaration, which makes the order of the cascade pub
 | `reset`     | a small normalization, with no typography or color |
 | `prose`     | classless typography for what Markdown writes      |
 | `elements`  | the CSS of each element the page uses, once        |
-| _unlayered_ | the page's own CSS                                 |
+| _unlayered_ | the page's `style.css`                             |
 
+- Pagez's CSS is a `<style>` in the head, since it isn't a file beside the page, and `style.css` is
+  a `<link>` after it.
 - Unlayered CSS beats every layer, so the page's rules win whatever their specificity.
 - A page can add to a layer by name. `@layer prose { … }` adjusts the typography, and still
   loses to the page's own CSS.
@@ -232,7 +254,7 @@ width and the typography's numbers are a first pass, still to improve
   matches.
 - **Flow.** Space goes above a block and never below, and a first child has none, so spacing is
   in one direction and needs no list of containers. Headings have more above them and less after
-  them. Prose sets block margins itself, so a frame can use it without the reset.
+  them. Prose sets block margins itself, so a `style.css` can import it without the reset.
 - **Scale.** Headings step by `--prose-ratio`, 1.25, from `pow()`. The top two steps grow with the
   screen, within 2.5 times their smallest, so zoomed text still grows. The steps are
   `--prose-step-1` to `--prose-step-4`, for a page's or an element's CSS to use too. Headings
@@ -272,22 +294,23 @@ width and the typography's numbers are a first pass, still to improve
   each small enough to read in a sitting. Their version is Pagez's. Changing them changes every
   page, so they change rarely.
 
-### With a frame and without
+### Pagez's CSS or the page's
 
-- **Without a frame,** Pagez's minimal document has the reset and prose. That's the Markdown-first
-  page.
-- **With a frame,** the frame is the page's own design, and Pagez adds only element CSS, as Sitez
-  does. A frame that wants prose imports it, as `@import "@amitkaps/pagez/prose.css";`.
+- **With no `style.css` and no frame,** the page gets the reset and prose. That's the
+  Markdown-first page.
+- **With a `style.css`,** the page's CSS is its own design, and replaces the reset and prose. It's
+  linked as written, so it reads, caches and is shared like any file, and it can `@import` and
+  `url()` the fonts and images beside it. A `style.css` that wants prose as its start imports it
+  by URL, or keeps a copy beside it.
+- **With a frame,** the frame is the design, and gets neither, as in Sitez. A `style.css` is still
+  linked.
 - So there's no setting. Sitez dropped its reset because amitkaps.github.io's first rules undid
-  it, and a site with a design of its own has a frame.
-
-### Page CSS
-
-- A `<style>` in an `=html` block that isn't an element's definition is page CSS.
-- Pagez moves it into the head, unlayered, each block its own `<style>`, in page order. A block
-  isn't joined to the next, so an `@import` at its top stays first, where CSS needs it.
-- Its place in the page doesn't matter. By convention it goes at the end, so prose comes first
-  where the Markdown is read as it is, as on GitHub.
+  it, and a site with a design of its own brings its CSS.
+- **A `<style>` in an `=html` block is raw HTML,** written where it is, like any other. A browser
+  applies it, unlayered, so a page kept as one Markz file can carry its CSS. HTML wants a
+  `<style>` in the head, though, and the page may show unstyled for a moment, so a page that
+  cares has a `style.css`. Pagez once moved such blocks to the head as "page CSS", which a
+  `style.css` made a second way to do one thing.
 
 ### Element CSS
 
@@ -299,8 +322,9 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 - `setup` scripts are emitted only for elements the page uses that have one.
 - elementz's runtime defines each element, and aborts and cleans up on disconnect.
 - Pagez as a library returns the head, the body, and the CSS and JS of the elements used. Its
-  command writes them inline as one file. Sitez gives the same parts to Vite, which bundles and
-  hashes them. One core has two consumers, and neither is an option.
+  command writes them into `index.html`, the CSS as a `<style>` and the JS as one inline module.
+  Sitez gives the same parts to Vite, which bundles and hashes them. One core has two consumers,
+  and neither is an option.
 
 ## Errors
 
@@ -311,8 +335,7 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 ## Trust and determinism
 
 - A template's script runs at build time with full Node access. A page is trusted like a script.
-- Other `=html` content is emitted verbatim, except page CSS, which moves to the head, and the
-  references it inlines ([Standalone](#standalone)). A `<script>` in it runs only in the browser.
+- Other `=html` content is emitted verbatim. A `<script>` in it runs only in the browser.
 - Pagez is deterministic when the page's code is. Dates, randomness, environment variables and
   reading files or the network in a build script are the author's to avoid.
 
@@ -342,5 +365,6 @@ comparison is editing generated HTML against editing Markz that builds to HTML.
 - Settings in frontmatter
 - A frame that grows into a site framework
 - Multiple pages, which are Sitez's
+- One file with the page's images, fonts and CSS inlined ([Why not one file](#the-folder))
 
 What's still open is in [plan.md](plan.md#open-questions).
