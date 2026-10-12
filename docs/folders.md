@@ -136,13 +136,19 @@ build step. For a site that's generated files mixed into every folder of the sou
 page has images or fonts, a single file stops being simple too. Both are parked as single-page
 exports (plan.md, Later).
 
-## Open questions
+## Settled
 
-- **The URL of `about.md`.** `/about/`, as Sitez serves it, or `/about.html`, which works on any
-  host with no rewriting.
-- **Where the elementz docs live,** once sitez.amitkaps.com goes.
+The proposal's open questions, each with its reason.
 
-Settled: one definition per element, no rule for `README.md`, `public/` at the root, `pagez.md`
+- **`about.md` is `/about/`,** built as `about/index.html`. That's one form for every page, since
+  `blog/index.md` can only be `/blog/`, and it's why `about.md` beside `about/index.md` fails. A URL
+  with no extension says nothing about how it's built, so it survives the next change of tools.
+  The live Jekyll site serves `/about.html`, and Sitez already moved to `/about/` with redirects,
+  which the move of the essays into `/essays/` needed anyway.
+- **elementz's docs move to Pagez,** as its code already has. Sitez is deprecated on npm and its
+  repository archived once amitkaps.github.io builds with Pagez.
+
+Also settled: one definition per element, no rule for `README.md`, `public/` at the root, `pagez.md`
 for the root, `dist/` for the output, Sitez folded into Pagez, and a parent's design taken only
 where it's written, with `@import` for CSS and an element for shared markup.
 

@@ -78,7 +78,8 @@ site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step b
    `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
    `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
    folders, each with its own design.
-5. **amitkaps.github.io moves to Pagez.** Then Sitez is archived, and the elementz docs move here.
+5. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived, and the
+   elementz docs move here.
 6. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
@@ -93,8 +94,6 @@ site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step b
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
-- **Folders.** The URL of `about.md`, `/about/` or `/about.html`, and where the elementz docs live
-  once Sitez goes ([folders.md](folders.md#open-questions)).
 - **Prose's look.** The width and the typography aren't right yet, and the numbers in
   [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
   65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle
