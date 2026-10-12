@@ -61,6 +61,8 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **The frame's head.** Which head tags the frame must have, and which Pagez writes (`frame`).
 - **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
   defines it (`third-party-component`).
+- **A URL `@import` in page CSS.** An `@import` must come first in CSS, so joining page CSS
+  blocks moves one to the top (`stories`).
 - **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
   Whether it covers only `<link href>`, or a link to a relative file is left or fails
   (`standalone-link`).
