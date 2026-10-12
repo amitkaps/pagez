@@ -2,6 +2,15 @@
 
 ## Where it is
 
+### The folder, not one file
+
+The design changed from one standalone file to a folder. `pagez index.md` writes `index.html`
+beside it, with its files linked as written and only its scripts inlined. A `style.css` beside the
+page replaces the reset and prose, the frame is `frame.html`, and a `<style>` in an `=html` block is
+raw HTML like any other. Rebuilding stories showed why: one file was 1 MB of base64 that couldn't
+be read, cached or shared ([The folder](design.md#the-folder)). The compiler still writes one file
+until the next step.
+
 ### Stories, rebuilt
 
 amitkaps.com/stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz page
@@ -51,15 +60,26 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
+1. **The compiler writes the folder.** `index.html` beside the page, references linked as
+   written and checked, `style.css` linked in place of the reset and prose, and the frame as
+   `frame.html`. Page CSS, `standalone.ts` and data URLs go. The test pages and their snapshots
+   change with it: the `standalone-…` pages are about references, the `frame…` pages have a
+   `frame.html`, and `frame-prose` becomes a page with a `style.css`.
+2. **Stories as a folder.** In its own repository: `index.md`, a modernised `style.css`, the
+   images made smaller, and a subset of its font. The Jekyll files go.
+3. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
    `${…}` page paths in prose, and the bundler, which makes the page's scripts one inline module
-   ([Standalone](design.md#standalone)). It's done when every test page builds to its reviewed
+   ([The folder](design.md#the-folder)). It's done when every test page builds to its reviewed
    snapshot, or fails with its reviewed error, and no todo is left.
-2. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-3. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+4. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
+5. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later
+
+- **One file, as an export.** The folder inlined into one HTML file, for sending a page as one
+  file. Pagez had it, and dropped it for the folder. It comes back if sending one turns out to
+  matter.
 
 ## Open questions
 
@@ -85,20 +105,10 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
   twice. Markz warns for two headings with one id, not for a heading and an element
   (`native-tags`).
 - **Markz's warnings.** Pagez doesn't print them yet. Whether it prints them, or fails on them.
-- **Errors in a frame's references.** A file the frame's CSS imports that isn't there is reported
-  against the page, not `index.html`.
 - **Where `image` resolves.** Against `url`, as now, which differs from the file's place when the
   page isn't where the site serves it. Or against the file, then made absolute with `url`.
 - **Smart punctuation.** Jekyll writes curly quotes, and Markz keeps straight ones. Whether that's
   Markz's, Pagez's or the author's.
-- **Page CSS as separate `<style>`s.** Each block's CSS is its own `<style>`, so an `@import` stays
-  first. A page has as many `<style>`s as blocks.
-- **Imported CSS as base64.** A CSS file is an `@import` of a data URL, which keeps its layer and
-  its place in the cascade, but can't be read in the output.
-- **A large page.** Inlining every image makes a page of 40 images about 1 MB, with nothing
-  cached. Whether a large file may stay beside the page, which costs it working alone.
-- **Embedded source.** Whether the output carries its own Markz source, so it can be recovered
-  and built again.
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
   JavaScript. That's Markz's tooling, so it's settled there.
 - **Dev loop.** Watching and rebuilding, and what invalidates what.
@@ -113,9 +123,8 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
   (`error-expression-missing`).
 - **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
   defines it (`third-party-component`).
-- **Links.** Standalone counts an `href` as a reference, which would inline a plain link's file.
-  Whether it covers only `<link href>`, or a link to a relative file is left or fails
-  (`standalone-link`).
+- **Links.** Whether a link to a relative file, such as `./data.csv`, is checked like an image,
+  or left to the author, since a link to another page is Sitez's (`standalone-link`).
 - **Wide tables on a phone.** A table wider than the screen pushes the page sideways. CSS alone
   can't scroll it without costing the table its semantics, so the compiler might wrap each table
   in a scrolling `<div>`, which is a change to Markz's markup (`prose`).
