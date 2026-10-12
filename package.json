@@ -34,6 +34,7 @@
   "devDependencies": {
     "@amitkaps/prose": "^0.4.1",
     "@types/node": "^26.6.4",
+    "happy-dom": "20.14.5",
     "publint": "^0.3.25",
     "vite-plus": "1.1.0"
   },
