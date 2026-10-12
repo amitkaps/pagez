@@ -1,7 +1,7 @@
 # Test pages
 
 The pages Pagez must build, one folder each, written before the compiler to pin down what it
-does. Each folder holds a `page.md` and whatever sits beside it, such as `@x-tag.html` files, an
+does. Each folder holds an `index.md` and whatever sits beside it, such as `@x-tag.html` files, an
 `frame.html`, a `style.css`, scripts, images or a `node_modules`.
 
 - A page opens with a `<!-- Expect: … -->` comment, which says what it builds to, or where it

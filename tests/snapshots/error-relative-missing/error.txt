@@ -1,1 +1,1 @@
-error-relative-missing/page.md: line 7: ./missing.svg isn't there. Add the file, or fix the path.
+error-relative-missing/index.md: line 7: ./missing.svg isn't there. Add the file, or fix the path.

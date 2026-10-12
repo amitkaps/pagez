@@ -12,7 +12,7 @@ const ignored = ["tests/pages/**", "tests/snapshots/**"];
 
 export default defineConfig({
   pack: {
-    entry: ["src/index.ts", "src/cli.ts"],
+    entry: ["src/index.ts", "src/cli.ts", "src/vite.ts"],
     format: ["esm"],
     platform: "node",
     dts: { generator: "oxc" },

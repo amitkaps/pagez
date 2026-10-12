@@ -1,10 +1,9 @@
 # Design
 
-Pagez is a single-page compiler: one Markz page in, one HTML page out, written beside it in the
-page's folder. It is the layer between elementz and Sitez
-([sitez.md](https://sitez.amitkaps.com/docs/sitez.md#where-sitez-sits)). It's built as far as
-[plan.md](plan.md#where-it-is) says, and this is its design, which started as `pagez.md` in
-Sitez.
+Pagez is a page compiler: a folder's Markz page in, its HTML out, built to `dist/` through Vite.
+It's growing into a hierarchy of folders, one page or a site, with Sitez folded in
+([folders.md](folders.md)), and this design is rewritten to that as each step lands. It's built as
+far as [plan.md](plan.md#where-it-is) says. The design started as `pagez.md` in Sitez.
 
 > The build produces the page. JavaScript enhances the page.
 
@@ -29,9 +28,10 @@ small interactive figure, or a filterable list.
 
 - Input is a folder holding a Markz page, such as `index.md`, and what it uses beside it: a
   `style.css`, its images and fonts, and its `@x-tag.html` elements.
-- Output is the page's HTML, `index.html`, written into the same folder. The folder is what's
-  kept, served and shared, and the Markz page stays its source ([The folder](#the-folder)).
-- Site concerns are Sitez's. Routing, navigation, links between pages and shared caching are out.
+- Output is `dist/`: the page's HTML, and its CSS, images and fonts with hashed names, built
+  through Vite. The folder is the source, and is never written to ([The folder](#the-folder)).
+- Many pages come next ([folders.md](folders.md)). Until then, routing, links between pages and
+  shared caching are out.
 
 ## The folder
 
@@ -41,40 +41,46 @@ stories/
   style.css      its CSS, optional
   img/  fonts/   what it references
   @x-tag.html    an element, optional
-  index.html     what Pagez writes
+  frame.html     its frame, optional
+  public/        copied as it is
+  dist/          what Pagez builds
 ```
 
-`pagez index.md` writes `index.html` beside it. The HTML is readable, and so are the files beside
-it, which a browser caches and other pages can reuse. The folder works served from anywhere, and
-opened from disk.
+`pagez build` builds the folder to `dist/`, `pagez dev` serves it while it's written, and
+`pagez preview` serves what was built. They're Vite's commands with Pagez's plugin, `pagez()` from
+`@amitkaps/pagez/vite`, which a folder with a Vite config of its own adds to it. The page's HTML is
+compiled in memory and handed to Vite as the `index.html` beside `index.md`, so Vite reads its
+references from there. An `index.html` in the folder is what Pagez writes, so it fails. The base is
+`./`, so `dist/` works at a site's root or under a path such as `/stories/`.
 
 A reference is written as a relative path, a package name or a full URL, and that says where its
 code or file lives.
 
 | Written as      | Example                     | Pagez                                              |
 | --------------- | --------------------------- | -------------------------------------------------- |
-| A relative path | `./chart.js`, `./photo.jpg` | links a file as written, and bundles a script      |
+| A relative path | `./chart.js`, `./photo.jpg` | checks it's there, and Vite bundles it, hashed     |
 | A package name  | `import "d3"`               | bundles it from the `node_modules` beside the page |
 | A full URL      | `https://esm.sh/d3`         | leaves it as written                               |
 
-- **Files are linked.** An image, a font, a stylesheet or a video keeps its path, so the HTML
-  reads as its source does. One that isn't there fails the build: in the Markdown at its line,
-  and in raw HTML or CSS naming the reference.
-- **Scripts are inlined.** The page's scripts become one inline module. It holds elementz's
-  runtime, the `setup` of each element the page uses, and the page's own module scripts, with
-  what they import. A library two elements share is in it once. A browser refuses a module
-  script's `src` on a page opened from disk, and runs an inline one, and a package in
-  `node_modules` isn't served, so a script is the one thing a folder can't just link.
+- **Files are checked, then bundled.** An image, a font, a stylesheet or a video is written as a
+  relative path, as the source reads. One that isn't there fails the build: in the Markdown at its
+  line, and in raw HTML or CSS naming the reference. Vite then gives each a hashed name in
+  `dist/assets/`, and inlines one under 4 KB.
+- **Scripts are one module.** The page's scripts become one module, which Vite bundles. It holds
+  elementz's runtime, the `setup` of each element the page uses, and the page's own module
+  scripts, with what they import. A library two elements share is in it once.
+- `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a
+  page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
   the author's choice to depend on it, and it shows in the output.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser
   defines it when the page runs. Only elementz's elements render at build time.
 - The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
-- **Why not one file.** Pagez first wrote one standalone file, with every image, font and
-  stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a 1 MB file
-  that couldn't be read or cached, with its CSS and images no longer shared, for the one benefit
-  of sending a single file. A folder keeps all of it, and works from disk too. One file can come
-  back as an export of the folder, if sending one turns out to matter (plan.md, Later).
+- **Why not one file, or beside the page.** Pagez first wrote one standalone file, with every
+  image, font and stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a
+  1 MB file that couldn't be read or cached. Then it wrote `index.html` beside `index.md`, which
+  mixes output into the source, and more so for a site. `dist/` keeps them apart, as Jekyll and
+  most static site generators do. Both are parked as single-page exports (plan.md, Later).
 
 ## Markz and Pagez
 
@@ -323,9 +329,8 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 - `setup` scripts are emitted only for elements the page uses that have one.
 - elementz's runtime defines each element, and aborts and cleans up on disconnect.
 - Pagez as a library returns the head, the body, and the CSS and JS of the elements used. Its
-  command writes them into `index.html`, the CSS as a `<style>` and the JS as one inline module.
-  Sitez gives the same parts to Vite, which bundles and hashes them. One core has two consumers,
-  and neither is an option.
+  plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as one module,
+  and Vite bundles and hashes them.
 
 ## Errors
 
