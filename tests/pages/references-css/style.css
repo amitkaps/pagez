@@ -1,0 +1,5 @@
+@import "./more/extra.css";
+
+body {
+  background: url(./dot.svg) repeat;
+}

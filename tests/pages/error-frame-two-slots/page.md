@@ -2,6 +2,6 @@
 title: frame-two-slots
 ---
 
-<!-- Expect: fails in index.html, at its second slot. -->
+<!-- Expect: fails in frame.html, at its second slot. -->
 
 Text.

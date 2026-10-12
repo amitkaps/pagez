@@ -11,8 +11,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, test } from "vite-plus/test";
 import { FileError } from "../src/elementz/errors.ts";
-import { compile } from "../src/page.ts";
-import { standalone } from "../src/standalone.ts";
+import { compile, write } from "../src/page.ts";
 
 const pages = new URL("pages/", import.meta.url).pathname;
 
@@ -22,8 +21,8 @@ const LATER: Record<string, string> = {
   "prose expressions":
     "expressions expressions-dotted-key error-expression-call error-expression-missing error-expression-scope",
   "the bundler":
-    "standalone-relative-script standalone-package standalone-shared-import standalone-url-import error-package-missing",
-  "links settled": "standalone-link",
+    "references-relative-script references-package references-shared-import references-url-import error-package-missing",
+  "links settled": "references-link",
 };
 
 function waitsFor(page: string): string | undefined {
@@ -34,11 +33,11 @@ function waitsFor(page: string): string | undefined {
   return undefined;
 }
 
-/** Pagez's own CSS, as a page's head or a data URL carries it. */
-const own = ["reset.css", "prose.css"].map((name) => {
-  const css = readFileSync(new URL(`../css/${name}`, import.meta.url), "utf8");
-  return { name, css, base64: Buffer.from(css).toString("base64") };
-});
+/** Pagez's own CSS, as a page's head carries it. */
+const own = ["reset.css", "prose.css"].map((name) => ({
+  name,
+  css: readFileSync(new URL(`../css/${name}`, import.meta.url), "utf8"),
+}));
 
 function build(page: string): string {
   const compiled = compile(join(pages, page, "page.md"));
@@ -46,9 +45,7 @@ function build(page: string): string {
     const found = own.find((file) => file.css === css);
     return found ? `/* Pagez's ${found.name} */` : css;
   });
-  let out = standalone(compiled);
-  for (const { name, base64 } of own) out = out.replaceAll(base64, `<Pagez's ${name}>`);
-  return out;
+  return write(compiled);
 }
 
 describe("the test pages", () => {

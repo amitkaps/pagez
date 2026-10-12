@@ -2,7 +2,7 @@
  * # The head, and the frame it is in
  *
  * A page's head is its frame's, with what follows from its metadata added. The frame is the
- * `index.html` beside the page, or with none, Pagez's minimal document, so both go through the
+ * `frame.html` beside the page, or with none, Pagez's minimal document, so both go through the
  * same code. Each tag has one owner. The frame writes `charset`, `viewport` and everything else
  * it chooses. Pagez puts the page's `lang`, `title` and `description` in place of the frame's, and
  * writes the canonical link and the Open Graph and Twitter tags, which repeat those values and
@@ -35,7 +35,7 @@ export interface Frame {
 /** @prose
  * The minimal document, which a page with no frame is written into. Its `lang` is replaced by the
  * page's, when it has one. Its `color-scheme` lets the browser paint a dark page dark before any
- * CSS, as prose's `color-scheme` then does. The reset and prose are added by the compiler, not written here, since
+ * CSS, as prose's `color-scheme` then does, and goes when the page has a `style.css` of its own. The reset and prose are added by the compiler, not written here, since
  * a frame gets neither.
  */
 export const MINIMAL = `<!doctype html>
@@ -53,7 +53,7 @@ export const MINIMAL = `<!doctype html>
 
 /** The frame beside a page in `dir`, or the minimal document when there's none. */
 export function readFrame(dir: string): Frame {
-  const file = join(dir, "index.html");
+  const file = join(dir, "frame.html");
   let source: string;
   try {
     source = readFileSync(file, "utf8");

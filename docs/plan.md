@@ -2,14 +2,16 @@
 
 ## Where it is
 
-### The folder, not one file
+### The compiler writes the folder
 
-The design changed from one standalone file to a folder. `pagez index.md` writes `index.html`
-beside it, with its files linked as written and only its scripts inlined. A `style.css` beside the
-page replaces the reset and prose, the frame is `frame.html`, and a `<style>` in an `=html` block is
-raw HTML like any other. Rebuilding stories showed why: one file was 1 MB of base64 that couldn't
-be read, cached or shared ([The folder](design.md#the-folder)). The compiler still writes one file
-until the next step.
+`pagez index.md` writes `index.html` beside it, with its files linked as written and each checked,
+so a missing one fails the build. A `style.css` beside the page is linked in place of the reset
+and prose, the frame is `frame.html`, and a `<style>` in an `=html` block is raw HTML like any
+other. `standalone.ts` and its data URLs are gone. The design changed after rebuilding stories, as
+one file was 1 MB of base64 that couldn't be read, cached or shared
+([The folder](design.md#the-folder)). 17 test pages build, and 33 are todos. Stories builds
+through it, with its Jekyll CSS, images and font as they are, to a 34 KB `index.html` whose every
+block sits where the Jekyll page's does, wide and on a phone.
 
 ### Stories, rebuilt
 
@@ -60,19 +62,14 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **The compiler writes the folder.** `index.html` beside the page, references linked as
-   written and checked, `style.css` linked in place of the reset and prose, and the frame as
-   `frame.html`. Page CSS, `standalone.ts` and data URLs go. The test pages and their snapshots
-   change with it: the `standalone-…` pages are about references, the `frame…` pages have a
-   `frame.html`, and `frame-prose` becomes a page with a `style.css`.
-2. **Stories as a folder.** In its own repository: `index.md`, a modernised `style.css`, the
+1. **Stories as a folder.** In its own repository: `index.md`, a modernised `style.css`, the
    images made smaller, and a subset of its font. The Jekyll files go.
-3. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
+2. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
    `${…}` page paths in prose, and the bundler, which makes the page's scripts one inline module
    ([The folder](design.md#the-folder)). It's done when every test page builds to its reviewed
    snapshot, or fails with its reviewed error, and no todo is left.
-4. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-5. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+3. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
+4. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later

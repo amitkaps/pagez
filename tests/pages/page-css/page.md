@@ -2,8 +2,8 @@
 title: Page CSS
 ---
 
-<!-- Expect: both <style> blocks move to the head, unlayered, the first before the second. Neither
-is in the body. The raw block's other HTML stays where it is. -->
+<!-- Expect: each <style> is raw HTML, written where it is in the body, unlayered. A page's CSS
+belongs in style.css, but a page kept as one file can carry it this way. -->
 
 ```=html
 <style>
