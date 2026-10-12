@@ -2,6 +2,13 @@
 
 ## Where it is
 
+### Stories, rebuilt
+
+amitkaps.com/stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz page
+in its own, private repository, beside the Jekyll site. It builds to a 1 MB file that opens from
+disk, and its CSS went from 208 lines to about 70. What it found is in the open questions, and a
+frame may now write social tags Pagez doesn't, such as `twitter:site`.
+
 ### The compiler, without elements
 
 `src/page.ts` compiles a page into its parts: Markz's HTML in the frame, the head written from
@@ -67,6 +74,29 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
   balance of serif headings with sans text. Each change is checked in light, dark and at a phone's
   width, and against a page that reads well.
 
+- **The measure's model.** Prose centers each block on the measure, which fights a page with a
+  side column. Rebuilding amitkaps.com/stories, its figures floated beside a left-aligned column
+  needed page CSS to undo the measure on every block. Whether the measure aligns to the start,
+  or leaves room for a side column.
+- **Space after a heading, and the gutter in a padded section.** A heading straight after another
+  gets 1rem, which reads as one block. A page that pads its sections gets that padding and prose's
+  gutter both, so a phone's column narrows. Both are part of prose's look.
+- **A heading's id repeating an element's.** `{@section #ideas}` holding `## Ideas` writes the id
+  twice. Markz warns for two headings with one id, not for a heading and an element
+  (`native-tags`).
+- **Markz's warnings.** Pagez doesn't print them yet. Whether it prints them, or fails on them.
+- **Errors in a frame's references.** A file the frame's CSS imports that isn't there is reported
+  against the page, not `index.html`.
+- **Where `image` resolves.** Against `url`, as now, which differs from the file's place when the
+  page isn't where the site serves it. Or against the file, then made absolute with `url`.
+- **Smart punctuation.** Jekyll writes curly quotes, and Markz keeps straight ones. Whether that's
+  Markz's, Pagez's or the author's.
+- **Page CSS as separate `<style>`s.** Each block's CSS is its own `<style>`, so an `@import` stays
+  first. A page has as many `<style>`s as blocks.
+- **Imported CSS as base64.** A CSS file is an `@import` of a data URL, which keeps its layer and
+  its place in the cascade, but can't be read in the output.
+- **A large page.** Inlining every image makes a page of 40 images about 1 MB, with nothing
+  cached. Whether a large file may stay beside the page, which costs it working alone.
 - **Embedded source.** Whether the output carries its own Markz source, so it can be recovered
   and built again.
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
