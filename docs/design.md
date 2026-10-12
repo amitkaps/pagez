@@ -209,7 +209,9 @@ Pagez's CSS opens with one declaration, which makes the order of the cascade pub
 
 They follow the common modern resets (Josh Comeau's, Andy Bell's), [good-css](https://good-css.com/)
 and modern font stacks, with what Markdown needs changed. Each choice is checked on the `stories`
-and `prose` test pages, in light, dark and at a phone's width.
+and `prose` test pages, in light, dark and at a phone's width. The structure is settled, but the
+width and the typography's numbers are a first pass, still to improve
+([Prose's look](plan.md#open-questions)).
 
 - **The reset** has no typography or color. It sets `box-sizing: border-box`, keeps a phone from
   enlarging text on its own, zeroes block margins, keeps media no wider than its container, gives
