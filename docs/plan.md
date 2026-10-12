@@ -2,6 +2,16 @@
 
 ## Where it is
 
+### 0.1.0, and stories on the site
+
+0.1.0 is on npm, published by hand, and later versions are staged by the release workflow through
+npm's trusted publishing. amitkaps.github.io installs it, and its `stories/` is the first section
+with its own design: `index.md`, `style.css`, `frame.html`, and its images and font beside it.
+The site builds with Sitez, then Pagez builds `stories/` into `dist/stories/`. svgo, WebP where
+smaller and a font subset took its SVGs from 528 KB to 308 KB, its photos from 229 KB to 130 KB
+and its font from 39 KB to 26 KB. Every block sits where the Jekyll page's does, and the quotes
+are curled in the source, since Markz doesn't curl them.
+
 ### `dist/` through Vite
 
 `pagez()`, from `@amitkaps/pagez/vite`, builds a folder's `index.md` through Vite, and
@@ -73,23 +83,16 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **The first release, by hand,** so amitkaps.github.io can install Pagez.
-2. **Stories moves into amitkaps.github.io,** as `stories/` in the folder layout, with its own
-   `style.css` and frame: the case of a section with its own design. Its SVGs through svgo, its
-   photos as WebP where that's smaller, and its font a subset. The site builds with Sitez, then
-   Pagez builds `stories/` into `dist/stories/`, until the rest of the site moves too. The stories
-   repository is retired.
-3. **The rest of the compiler.** Elementz's elements, one definition per name anywhere in the
+1. **The rest of the compiler.** Elementz's elements, one definition per name anywhere in the
    tree, `${…}` page paths in prose, and the bundler for the page's scripts. It's done when every
    test page builds to its reviewed snapshot, or fails with its reviewed error, and no todo is
    left.
-4. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
+2. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
    `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
    `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
    folders, each with its own design.
-5. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived, and the
-   elementz docs move here.
-6. **npm's trusted publisher,** so later releases go through the workflow.
+3. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived, and the
+   elementz docs move here. The stories repository is archived once the apex moves to Cloudflare.
 
 ## Later
 
