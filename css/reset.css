@@ -1,0 +1,48 @@
+/* Pagez's reset: a small normalization, with no typography or color. The page's own CSS is
+   unlayered, so it beats every rule here. https://github.com/amitkaps/pagez */
+@layer reset, prose, elements;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Stops a phone enlarging text on its own when turned sideways, and keeps the user's zoom. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  /* Media no wider than its container. An image stays inline, since Markdown puts one in a
+     paragraph, so it only keeps its proportions as it shrinks. */
+  img,
+  svg,
+  video,
+  canvas,
+  iframe {
+    max-inline-size: 100%;
+  }
+  img,
+  video {
+    block-size: auto;
+    vertical-align: middle;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* A heading linked to by its id isn't flush against the top of the screen. */
+  :target {
+    scroll-margin-block: 2rem;
+  }
+}

@@ -207,16 +207,30 @@ Pagez's CSS opens with one declaration, which makes the order of the cascade pub
 
 ### Reset and prose
 
-- **The reset** sets `box-sizing: border-box`, takes the body's margin away, makes media blocks
-  no wider than their container, and gives form controls the page's font.
-- **Prose** styles native elements only, with no classes. It has a reading measure of about 65ch,
-  centered, a system font stack, a line height near 1.5 and a modest heading scale. It covers
-  quotes, lists, code, tables, images, figures and rules.
-- Prose sets `color-scheme: light dark` with system colors, so dark mode works with no palette.
-- A few custom properties change prose in a line, such as `--prose-font` and `--prose-measure`.
-  A custom font is an `@font-face` and one of them.
-- Both are files in the package, `reset.css` and `prose.css`, each small enough to read on one
-  screen. Their version is Pagez's. Changing them changes every page, so they change rarely.
+They follow the common modern resets (Josh Comeau's, Andy Bell's) and modern font stacks, with
+what Markdown needs changed.
+
+- **The reset** sets `box-sizing: border-box`, keeps a phone from enlarging text on its own,
+  takes the body's margin away, keeps media no wider than its container, gives form controls the
+  page's font, and leaves room above a heading linked to by its id. An image stays inline, unlike
+  in those resets, since Markdown puts an image in a paragraph.
+- **Prose** styles native elements only, with no classes. It has a system font stack, a line
+  height of 1.6, a modest heading scale, balanced headings and pretty paragraphs. It covers
+  quotes, lists, code, tables, figures and rules.
+- **The measure,** 65ch, is on each block, not on its container, and centers it. So a section's
+  background reaches the screen's edges while its text keeps to the measure, and a page needs no
+  wrapper. `--prose-measure` is a registered length, so it's worked out once, in the page's
+  font, and a heading lines up with the paragraphs.
+- **Color.** Prose sets `color-scheme: light dark`, so dark mode works with no palette. Its tints,
+  for code and rules, are mixed from the text's color, so they follow the scheme and a page's own
+  colors. A page that sets a light background of its own sets `color-scheme: light` too, or its
+  text turns light in dark mode.
+- **Custom properties** change prose in a line: `--prose-font`, `--prose-mono`,
+  `--prose-leading`, `--prose-measure` and `--prose-gutter`. A custom font is an `@font-face` and
+  `--prose-font`.
+- Both are files in the package, `@amitkaps/pagez/reset.css` and `@amitkaps/pagez/prose.css`,
+  each small enough to read on one screen. Their version is Pagez's. Changing them changes every
+  page, so they change rarely.
 
 ### With a frame and without
 

@@ -1,0 +1,149 @@
+/* Pagez's prose: classless typography for what Markdown writes, in the system's fonts. Change it
+   with the custom properties below, or add to it in `@layer prose { … }`.
+   https://github.com/amitkaps/pagez */
+@layer reset, prose, elements;
+
+/* Registered, so 65ch is worked out once, in the page's font, and a heading lines up with the
+   paragraphs rather than measuring in its own larger font. */
+@property --prose-measure {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 640px;
+}
+
+@layer prose {
+  :root {
+    --prose-font: system-ui, sans-serif;
+    --prose-mono:
+      ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono",
+      monospace;
+    --prose-leading: 1.6;
+    --prose-gutter: 1rem;
+    --prose-measure: 65ch;
+    --prose-tint: color-mix(in srgb, currentColor 8%, transparent);
+    --prose-rule: color-mix(in srgb, currentColor 20%, transparent);
+
+    color-scheme: light dark;
+    font-family: var(--prose-font);
+    line-height: var(--prose-leading);
+    overflow-wrap: break-word;
+  }
+
+  :where(h1, h2, h3, h4, h5, h6) {
+    margin-block: 1.2em 0.5em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  :where(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: 0;
+  }
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+  h3 {
+    font-size: 1.25em;
+  }
+  h4 {
+    font-size: 1em;
+  }
+  :where(h5, h6) {
+    font-size: 0.875em;
+  }
+
+  :where(p, li, dd, figcaption) {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+  }
+
+  :where(ul, ol) {
+    padding-inline-start: 1.5em;
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin-inline-start: 1.5em;
+  }
+
+  blockquote {
+    margin-inline: 0;
+    padding-inline-start: 1em;
+    border-inline-start: 0.25em solid var(--prose-rule);
+  }
+
+  :where(code, kbd, samp, pre) {
+    font-family: var(--prose-mono);
+    font-size: 0.875em;
+  }
+  :where(code, kbd) {
+    padding: 0.1em 0.3em;
+    border-radius: 0.25em;
+    background: var(--prose-tint);
+  }
+  kbd {
+    border: 1px solid var(--prose-rule);
+  }
+  pre {
+    padding: 1em;
+    border-radius: 0.375em;
+    background: var(--prose-tint);
+    overflow-x: auto;
+    tab-size: 4;
+    line-height: 1.5;
+  }
+  pre code {
+    padding: 0;
+    background: none;
+    font-size: 1em;
+  }
+
+  /* Full width, so a table lines up with the text rather than being centered by the measure. */
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+  :where(th, td) {
+    padding: 0.4em 0.75em;
+    border-block-end: 1px solid var(--prose-rule);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  figure {
+    margin-block: 1.5em;
+    margin-inline: 0;
+  }
+  figcaption {
+    margin-block-start: 0.5em;
+    font-size: 0.875em;
+    color: color-mix(in srgb, currentColor 70%, transparent);
+  }
+
+  hr {
+    margin-block: 2em;
+    border: none;
+    border-block-start: 1px solid var(--prose-rule);
+  }
+
+  :where(sub, sup) {
+    line-height: 0;
+  }
+  summary {
+    cursor: pointer;
+  }
+
+  /* The measure is on each block, not its container, so a section's background reaches the
+     edges while its text keeps to the measure, centered. It comes last, and outranks
+     the rules above, so a quote or a figure in the flow is centered too. */
+  :is(body, main, header, footer, section, article, aside, nav, div)
+    > :not(main, header, footer, section, article, aside, nav, div) {
+    max-inline-size: min(var(--prose-measure), 100% - 2 * var(--prose-gutter));
+    margin-inline: auto;
+  }
+}
