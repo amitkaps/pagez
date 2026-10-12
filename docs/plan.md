@@ -62,31 +62,39 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 
 ## Next, in order
 
-1. **Stories as a folder.** In its own repository: `index.md`, a modernised `style.css`, the
-   images made smaller, and a subset of its font. The Jekyll files go.
-2. **The rest of the compiler.** Elementz's elements, from the page and its `@x-tag.html` files,
-   `${…}` page paths in prose, and the bundler, which makes the page's scripts one inline module
-   ([The folder](design.md#the-folder)). It's done when every test page builds to its reviewed
-   snapshot, or fails with its reviewed error, and no todo is left.
-3. **Sitez renders through Pagez.** Sitez depends on Pagez and drops its own copies.
-4. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
+The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
+site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
+
+1. **`dist/` through Vite.** Pagez as a Vite plugin, which `pagez` runs, building a page to
+   `dist/` with its CSS, images and fonts hashed, and `vp dev` serving it. Writing `index.html`
+   beside the page goes, and `public/` at the root is copied as it is.
+2. **Stories deploys from `dist/`.** Its repository becomes the folder, with a modernised
+   `style.css`, smaller images and a subset of its font, and the Jekyll files go.
+3. **The rest of the compiler.** Elementz's elements, one definition per name anywhere in the
+   tree, `${…}` page paths in prose, and the bundler for the page's scripts. It's done when every
+   test page builds to its reviewed snapshot, or fails with its reviewed error, and no todo is
+   left.
+4. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
+   `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
+   `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
+   folders, each with its own design.
+5. **amitkaps.github.io moves to Pagez.** Then Sitez is archived, and the elementz docs move here.
+6. **The first release, by hand.** Then npm's trusted publisher is set up, so later releases go
    through the workflow.
 
 ## Later
 
-- **One file, as an export.** The folder inlined into one HTML file, for sending a page as one
-  file. Pagez had it, and dropped it for the folder. It comes back if sending one turns out to
-  matter.
+- **A single page's exports.** `index.html` written beside the page, or the whole page inlined into
+  one HTML file, for opening from disk or sending as one file. Pagez had both, and dropped them
+  for `dist/`. They come back if a single page turns out to need them.
 
 ## Open questions
 
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
-- **Folders.** Whether Pagez builds a hierarchy of folders, one page or a site, with Sitez's
-  conventions folded in, routing by folder and code beside the pages that use it
-  ([folders.md](folders.md)). Evaluated on stories, a set of independent folders and
-  amitkaps.github.io.
+- **Folders.** The URL of `about.md`, `/about/` or `/about.html`, and where the elementz docs live
+  once Sitez goes ([folders.md](folders.md#open-questions)).
 - **Prose's look.** The width and the typography aren't right yet, and the numbers in
   [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
   65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle
@@ -113,9 +121,6 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
   JavaScript. That's Markz's tooling, so it's settled there.
 - **Dev loop.** Watching and rebuilding, and what invalidates what.
-- **The Sitez boundary.** Sitez rendering each page through Pagez, with `pages` and `site` added
-  to the context, linked output for caching, and a page's element clashing with a site's as an
-  error.
 - **Values in prose.** How a list, a number, a boolean and `null` print, and the id of a heading
   that's only an expression, which Markz alone makes `section` (`expressions`).
 - **Dotted keys.** Markz reads `author.name` as one key, as YAML does. Whether
