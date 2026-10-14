@@ -103,6 +103,15 @@ site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step b
    folders, each with its own design.
 3. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
    repository is archived once the apex moves to Cloudflare.
+4. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and
+   no amitkaps.com in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's
+   URLs, since they're what's published. History keeps its reason and drops its source, so
+   "Sitez 0.3 used a class" becomes why a class was ruled out, and the rest is in git and in
+   [Where it is](#where-it-is). Evidence keeps its finding with a neutral example, so
+   amitkaps.com's treemap becomes an essay with ten charts of one dataset. What depends on the
+   move, folders.md's comparison with Sitez and steps 2 and 3, becomes plain rules once they're
+   done. The `stories` test page becomes a fixture of the same shape. `elements.md` can go
+   first, since it's stable.
 
 ## Later
 
