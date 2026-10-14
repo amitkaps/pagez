@@ -19,6 +19,7 @@
  * accumulate as Markz's do. A hyphenated tag with no definition is written as Markz writes it,
  * and kept for the warning about undefined tags.
  */
+import { dirname, resolve } from "node:path";
 import {
   html,
   position,
@@ -33,7 +34,7 @@ import { openTag, renderElement, type Host } from "./elements/elements.ts";
 import { FileError } from "./elements/errors.ts";
 import { attributeValue, interpolated, printed } from "./expressions.ts";
 import type { Metadata } from "./head.ts";
-import { exists, isRelative } from "./references.ts";
+import { exists, isRelative, linksFile, notAPage, type Pages } from "./references.ts";
 
 /** A tag Markz wrote that has a hyphen and no definition, and its line. */
 export interface Undefined {
@@ -43,7 +44,8 @@ export interface Undefined {
 
 /** @prose
  * The page's text as HTML, and its undefined tags. A relative image is checked once its
- * destination is printed, so it fails at its line when it isn't beside the page.
+ * destination is printed, so it fails at its line when it isn't beside the page, and so is a link
+ * to a `.md` that isn't one of the site's `pages`.
  */
 export async function textHtml(
   file: string,
@@ -51,6 +53,7 @@ export async function textHtml(
   page: Metadata,
   { elements, blocks }: Definitions,
   host: Host,
+  pages: Pages,
 ): Promise<{ html: string; undefined: Undefined[] }> {
   const at = position(doc.source);
   const fail = (offset: number, message: string) => {
@@ -69,7 +72,7 @@ export async function textHtml(
     data?: { value: unknown };
   }[] = [];
   const undefinedTags: Undefined[] = [];
-  const dir = file.slice(0, file.lastIndexOf("/"));
+  const dir = dirname(file);
 
   walk(doc, {
     enter(node) {
@@ -94,12 +97,18 @@ export async function textHtml(
           destination = result.text;
           swapped.set(node, { destination });
         }
+        const { line } = at(data.destinationRange.start);
         if (type === "image" && isRelative(destination) && !exists(dir, destination)) {
-          const { line } = at(data.destinationRange.start);
           throw new FileError(
             file,
             `line ${line}: ${destination} isn't there. Add the file, or fix the path.`,
           );
+        }
+        if (type === "link" && isRelative(destination) && !linksFile(destination)) {
+          const path = decodeURI(destination.split(/[?#]/)[0]!);
+          if (!pages.has(resolve(dir, path))) {
+            throw new FileError(file, `line ${line}: ${notAPage(destination)}`);
+          }
         }
       }
       if (type === "raw" && blocks.has(node)) {

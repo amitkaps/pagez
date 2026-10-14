@@ -38,7 +38,7 @@ function read(html?: string) {
   const dir = mkdtempSync(join(tmpdir(), "pagez-"));
   if (html !== undefined) writeFileSync(join(dir, "frame.html"), html);
   try {
-    return readFrame(dir);
+    return readFrame(html === undefined ? undefined : join(dir, "frame.html"));
   } catch (error) {
     if (error instanceof FileError) return error;
     throw error;

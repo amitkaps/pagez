@@ -8,8 +8,9 @@ this as the work lands ([plan.md](plan.md#next-in-order)). Sitez's design is at
 
 ## The idea
 
-Pagez builds one folder now: `index.md` and what sits beside it. The idea is that the same
-rule, applied down a tree of folders, is a site.
+Pagez built one folder first: `index.md` and what sits beside it. The idea is that the same
+rule, applied down a tree of folders, is a site, and it's built that far now
+([plan.md](plan.md#where-it-is)).
 
 > Every `.md` is a page, at its folder's path. The nearest `style.css` and `frame.html` above it
 > are its design, and an `@x-tag.html` anywhere in the tree is an element it can use. Everything
@@ -22,7 +23,7 @@ uses them.
 
 |                | One design                                                | A design per folder                                     |
 | -------------- | --------------------------------------------------------- | ------------------------------------------------------- |
-| **One page**   | `index.md` and `style.css`, Pagez now                     | —                                                       |
+| **One page**   | `index.md` and `style.css`, the smallest site             | —                                                       |
 | **Many pages** | `index.md`, `about.md` and `talks.md` share a `style.css` | `essays/` and `stories/`, each with its own `style.css` |
 
 All four are one rule. A single page is the smallest site.
@@ -156,6 +157,7 @@ where it's written, with `@import` for CSS and an element for shared markup.
 
 1. **Stories:** one page, its own design. It builds with Pagez today.
 2. **A set of folders,** each with its own `style.css` and nothing shared, built to one `dist/`.
+   It builds, as `tests/sites/folders`.
 3. **amitkaps.github.io:** many pages, one design, a blog index that lists its posts, and links
    between pages. Rebuilt as one tree, it shows which Sitez features a real site uses, and
    whether the folders stay pleasant to work in.

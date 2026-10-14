@@ -1,23 +1,31 @@
 /** @prose
  * # Building to dist/
  *
- * The plugin builds a folder's `index.md` through Vite, with its references hashed into `dist/`,
- * its elements' behavior bundled into one module, and leaves the folder as it was. A folder that has an `index.html` of its own fails, since
- * that's the file Pagez writes.
+ * The plugin builds a folder's pages through Vite, each to its folder in `dist/`, with their
+ * references hashed into `dist/assets/`, each page's elements' behavior bundled into one module,
+ * and leaves the folder as it was. A folder that has an `index.html` where a page is built fails,
+ * since that's the file Pagez writes.
  */
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { build } from "vite-plus";
 import { describe, expect, test } from "vite-plus/test";
 import pagez from "../src/vite.ts";
 
-/** A copy of a test page, to build in a folder of its own. */
-function folder(page: string): string {
+/** A copy of a test page, or a test site, to build in a folder of its own. */
+function folder(page: string, from = "pages"): string {
   const dir = mkdtempSync(join(tmpdir(), "pagez-vite-"));
-  cpSync(new URL(`pages/${page}/`, import.meta.url), dir, { recursive: true });
+  cpSync(new URL(`${from}/${page}/`, import.meta.url), dir, { recursive: true });
   return dir;
 }
+
+/** Every file under `dir`, from it, sorted. */
+const files = (dir: string) =>
+  readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => relative(dir, join(entry.parentPath, entry.name)))
+    .toSorted();
 
 const run = (root: string) =>
   build({ root, configFile: false, logLevel: "silent", plugins: [pagez()] });
@@ -32,6 +40,36 @@ describe("pagez()", () => {
     expect(html).toMatch(/<link rel="stylesheet" crossorigin href="\.\/assets\/[\w-]+\.css">/);
     expect(readdirSync(root).toSorted()).toEqual([...before, "dist"].toSorted());
     expect(existsSync(join(root, "dist/index.md"))).toBe(false);
+  });
+
+  test("builds a site's pages, each to its folder, with every reference reaching its file", async () => {
+    const root = folder("folders", "sites");
+    await run(root);
+    const dist = join(root, "dist");
+    const built = files(dist);
+    expect(built.filter((file) => file.endsWith(".html"))).toEqual([
+      "about/index.html",
+      "essays/first/index.html",
+      "essays/index.html",
+      "index.html",
+      "stories/index.html",
+    ]);
+    expect(built).toContain("robots.txt");
+    for (const page of built.filter((file) => file.endsWith(".html"))) {
+      const html = readFileSync(join(dist, page), "utf8");
+      for (const [, path] of html.matchAll(/(?:src|href)="(\.[^"#]*)/g)) {
+        const target = join(dist, dirname(page), path!);
+        expect(
+          existsSync(path!.endsWith("/") ? join(target, "index.html") : target),
+          `${path} in ${page}`,
+        ).toBe(true);
+      }
+    }
+    const first = readFileSync(join(dist, "essays/first/index.html"), "utf8");
+    expect(first).toContain('<a href="../../">Home</a> · <a href="../">Essays</a>');
+    expect(first).toMatch(
+      /<link rel="stylesheet" crossorigin href="\.\.\/\.\.\/assets\/[\w-]+\.css">/,
+    );
   });
 
   test("fails on an index.html in the folder, which is what Pagez writes", async () => {
@@ -77,14 +115,14 @@ describe("pagez()", () => {
     );
   });
 
-  test("gives a linked file a hashed name, and leaves a link to a page", async () => {
+  test("gives a linked file a hashed name, and a link to a page its folder", async () => {
     const root = folder("references-link");
     await run(root);
     const html = readFileSync(join(root, "dist/index.html"), "utf8");
     const href = /<a href="\.\/(assets\/data-[\w-]+\.csv)">data<\/a>/.exec(html)?.[1];
     expect(href).toBeDefined();
     expect(readFileSync(join(root, "dist", href!), "utf8")).toContain("2026,5");
-    expect(html).toContain('<a href="./other.md">another page</a>');
+    expect(html).toContain('<a href="./other/">another page</a>');
   });
 
   test("bundles what an element's CSS refers to, from the element's folder", async () => {

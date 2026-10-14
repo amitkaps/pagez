@@ -2,24 +2,27 @@
 
 pagez — Markdown, as pages.
 
-A folder holds `index.md`, written in [Markz](https://github.com/amitkaps/markz), and what it uses:
-a `style.css`, a `frame.html`, images and fonts. Pagez compiles the page, writes its head from its
-frontmatter, checks that every file it references is there, and Vite bundles them with hashed
-names.
+A folder holds pages written in [Markz](https://github.com/amitkaps/markz), each `.md` at its
+folder's path, and what they use: a `style.css`, a `frame.html`, images and fonts. Pagez compiles
+each page, writes its head from its frontmatter, checks that every file and page it links is
+there, and Vite bundles them with hashed names. One page is the smallest site.
 
 ```text
-stories/
-├── index.md      the page
-├── style.css     its design, in place of Pagez's theme
-├── frame.html    the document around it, optional
+site/
+├── index.md      the page at /
+├── about.md      the page at about/
+├── style.css     their design, in place of Pagez's theme
+├── frame.html    the document around them, optional
 ├── img/
 └── fonts/
 ```
 
+A folder below uses the nearest `style.css` and `frame.html` above it, or its own.
+
 ```sh
-pagez build stories     # writes stories/dist/
-pagez dev stories       # serves it while it's written
-pagez preview stories   # serves what was built
+pagez build site     # writes site/dist/
+pagez dev site       # serves it while it's written
+pagez preview site   # serves what was built
 ```
 
 A folder with its own Vite config adds the plugin instead:
@@ -30,9 +33,9 @@ import pagez from "@amitkaps/pagez/vite";
 export default { plugins: [pagez()] };
 ```
 
-0.1 builds one page without elements or `${…}`. Elements, many pages and the rest of Sitez come
-next, in [the plan](docs/plan.md#next-in-order), and [folders.md](docs/folders.md) is where it's
-going.
+0.1 builds one page without elements or `${…}`. Elements, `${…}` and many pages are built since,
+and the rest of Sitez comes next, in [the plan](docs/plan.md#next-in-order).
+[folders.md](docs/folders.md) is where it's going.
 
 ## Install
 

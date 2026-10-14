@@ -2,6 +2,18 @@
 
 ## Where it is
 
+### Many pages, by folder
+
+Pagez builds a folder of pages, not only its `index.md`: every `.md` is a page at its folder's
+path, `about.md` built as `about/index.html`, and each uses the nearest `style.css` and
+`frame.html` ([The folder](design.md#the-folder)). `src/site.ts` reads the folder: its pages,
+what's skipped, and `pagez.md`, whose `url` makes every page's. A reference is written from the
+file it's in, a frame's from its folder, and each page's are rewritten from where it's built, so
+`dist/` works under any path. A link to a `.md` must be a page, and becomes its folder, such as
+`../essays/first/`. Elements are found anywhere in the site. `tests/sites/` holds a set of
+folders, each with its own design, built as one site, and the folder's mistakes, each failing at
+its file.
+
 ### One theme, and element CSS that wins
 
 Pagez's reset and prose, about 400 lines in two layers, are one `src/theme.css` of about 150, in
@@ -112,10 +124,9 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
-   `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
-   `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
-   folders, each with its own design.
+1. **Sitez's site features.** `pages` and `site` in a template, so an index lists the pages under
+   it, drafts, redirects, `404.md`, links from the site's root and to the repository, and the
+   build report.
 2. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
    repository is archived once the apex moves to Cloudflare.
 3. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and

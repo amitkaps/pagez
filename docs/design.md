@@ -1,8 +1,8 @@
 # Design
 
-Pagez is a page compiler: a folder's Markz page in, its HTML out, built to `dist/` through Vite.
-It's growing into a hierarchy of folders, one page or a site, with Sitez folded in
-([folders.md](folders.md)), and this design is rewritten to that as each step lands. It's built as
+Pagez is a page compiler: a folder of Markz pages in, their HTML out, built to `dist/` through
+Vite. A folder is one page or a site, and Sitez's site features fold in next
+([folders.md](folders.md)), with this design rewritten to that as each step lands. It's built as
 far as [plan.md](plan.md#where-it-is) says. The design started as `pagez.md` in Sitez.
 
 > The build produces the page. JavaScript enhances the page.
@@ -26,32 +26,55 @@ small interactive figure, or a filterable list.
 
 ## Scope
 
-- Input is a folder holding a Markz page, such as `index.md`, and what it uses beside it: a
-  `style.css`, its images and fonts, and its `@x-tag.html` elements.
-- Output is `dist/`: the page's HTML, and its CSS, images and fonts with hashed names, built
+- Input is a folder of Markz pages, each a `.md` at its folder's path, and what they use: their
+  `style.css` and `frame.html`, images and fonts, and `@x-tag.html` elements.
+- Output is `dist/`: each page's HTML, and their CSS, images and fonts with hashed names, built
   through Vite. The folder is the source, and is never written to ([The folder](#the-folder)).
-- Many pages come next ([folders.md](folders.md)). Until then, routing, links between pages and
-  shared caching are out.
+- Sitez's site features come next ([plan.md](plan.md#next-in-order)): `pages` and `site` in a
+  template, drafts, redirects, `404.md` and the build report.
 
 ## The folder
 
 ```
-stories/
-  index.md       the page, its source
-  style.css      its CSS, optional
-  img/  fonts/   what it references
-  @x-tag.html    an element, optional
-  frame.html     its frame, optional
-  public/        copied as it is
-  dist/          what Pagez builds
+site/
+  pagez.md         the site's url and repo, optional
+  index.md         the page at /
+  about.md         the page at about/
+  style.css        their CSS, in place of Pagez's theme, optional
+  @x-tag.html      an element, for any page
+  essays/
+    index.md       the page at essays/
+    first.md       the page at essays/first/
+    first.svg      its figure, beside it
+    frame.html     the document around essays/ and what's below it, optional
+    style.css      essays' own CSS, which may @import "../style.css"
+  public/          copied as it is
+  dist/            what Pagez builds
 ```
 
 `pagez build` builds the folder to `dist/`, `pagez dev` serves it while it's written, and
 `pagez preview` serves what was built. They're Vite's commands with Pagez's plugin, `pagez()` from
-`@amitkaps/pagez/vite`, which a folder with a Vite config of its own adds to it. The page's HTML is
-compiled in memory and handed to Vite as the `index.html` beside `index.md`, so Vite reads its
-references from there. An `index.html` in the folder is what Pagez writes, so it fails. The base is
-`./`, so `dist/` works at a site's root or under a path such as `/stories/`.
+`@amitkaps/pagez/vite`, which a folder with a Vite config of its own adds to it. The base is `./`,
+so `dist/` works at a site's root or under a path such as `/stories/`. One page, `index.md` and
+what it uses, is the smallest site.
+
+- **A page is a `.md`,** at its folder's path. `index.md` is its folder's own, and `about.md` is
+  `about/`, built as `about/index.html`, so every page's URL is a folder, which says nothing of how
+  it's built. `about.md` beside `about/index.md` is two files for one path, and fails.
+- **Its design is the nearest** `style.css` and `frame.html`, each found on its own, in the page's
+  folder or the nearest one above it. Nothing is merged unless it's written: a `style.css` that
+  builds on its parent's starts with `@import "../style.css";`, and a frame is a whole document,
+  so markup two frames share is an element.
+- **Each page is compiled in memory** and handed to Vite at the path it's built at, so Vite reads
+  its references from there, and an `index.html` there is what Pagez writes, so it fails. A
+  reference is written from the file it's in, as a browser reads it, so a figure beside
+  `about.md` is `../figure.svg` in `about/index.html`, and a frame's are its own, from its
+  folder, wherever the page it frames is built.
+- **`pagez.md` at the root** is the site's metadata, not a page. Its `url` is the site's address,
+  and each page's is that and its path, so a page that sets its own fails. Its `repo` is where the
+  source is. A site needs none, and a page then takes its `url` from its own metadata.
+- **What's skipped:** a name starting with `_` or `.`, `node_modules`, `public/` and `dist/`.
+  Nothing else is special, so a `README.md` is a page.
 
 A reference is written as a relative path, a package name or a full URL, and that says where its
 code or file lives.
@@ -74,8 +97,11 @@ code or file lives.
   package must be in a `node_modules` the element's folder reaches, or the build fails at the
   import's line. A browser script can't import Pagez or Node's own modules.
 - **A link to a file,** such as `./data.csv`, is checked, and the build gives it a hashed name,
-  since Vite bundles what HTML loads and not what it links to. A link to a `.md` is to another
-  page, which waits for many pages.
+  since Vite bundles what HTML loads and not what it links to.
+- **A link to a page** is to its `.md`, as it reads on GitHub, such as `[hello](essays/first.md)`.
+  It must be one of the site's pages, or the build fails, at its line in the Markdown and naming
+  the frame or the page otherwise. It's written as the folder the page is built in, from where
+  the linking page is, as `./essays/first/`, so `dist/` works under any path.
 - `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a
   page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
@@ -159,14 +185,14 @@ feature, not part of the element, so elements stay shared.
 Frontmatter holds the page's metadata, such as `title`, `description`, `url` and `image`. It holds
 no settings, as Sitez's `site.md` holds none. Each would-be setting is a convention.
 
-- **The page's CSS** is a `style.css` beside the page. Pagez links it, in place of its theme
+- **The page's CSS** is the nearest `style.css`. Pagez links it, in place of its theme
   ([Pagez's CSS or the page's](#pagezs-css-or-the-pages)).
-- **The frame** is a `frame.html` beside the page, with one `<slot>` for the page, as Sitez's
+- **The frame** is the nearest `frame.html`, with one `<slot>` for the page, as Sitez's
   `code/index.html` is. With none, Pagez writes a minimal document. It's for a shell the page's
   CSS can't give, such as a header and footer or tags of its own in the head, so most pages have
   none. It isn't `index.html`, which is the page Pagez writes. The frame must not grow layouts,
   partials or site logic.
-- **Elements** are the page's own definitions and the `@x-tag.html` files beside it, found by
+- **Elements** are the page's own definitions and the `@x-tag.html` files in the site, found by
   name. There's nothing to import.
 - **Undefined tags** warn only when a hyphenated tag has no definition and no selector in the
   page's CSS. That catches a typo without a list of tags to allow. A component that a script
@@ -174,7 +200,7 @@ no settings, as Sitez's `site.md` holds none. Each would-be setting is a convent
   it from showing unstyled before its script runs. The warning names the tag's line, and `dev`
   and `build` print it.
 
-Relative paths resolve from the page file.
+Relative paths resolve from the file they're written in.
 
 ## Head
 
@@ -188,8 +214,8 @@ A page's head is its frame's, with what follows from its metadata added. Each ta
   `og:type` and `twitter:card`, which repeat those values with no choice in them.
 - **The title** is the page's `title`, else the frame's `<title>`, else the page's first
   heading, else the file's name. Every page has one.
-- **`url`** is the page's full address. The canonical link and `og:url` need it, and are left out
-  without it.
+- **`url`** is the page's full address: `pagez.md`'s and the page's path, or the page's own in a
+  site with none. The canonical link and `og:url` need it, and are left out without it.
 - **`image`** is a full address, or a path that resolves against `url`. Open Graph needs a full
   address, so a relative `image` with no `url` fails. It isn't checked as a file beside the page
   otherwise say, since only a crawler reads it, at the page's address. With an image,
@@ -218,7 +244,7 @@ there. What's this section's is how elements are used, and where their definitio
   `<style>` and `<script>` are siblings in the block. Definitions sit anywhere in the page,
   typically at the end, like footnotes. A behavior-only element has an empty
   `<template element="x-tag"></template>`, which writes no markup.
-- **In a file,** `@x-tag.html` anywhere in the page's folder, kept with what uses it. The file's
+- **In a file,** `@x-tag.html` anywhere in the site, kept with the pages that use it. The file's
   name is the tag, and an `element` attribute is optional and must match. `node_modules`,
   `public/`, `dist/` and a name starting with `_` or `.` are skipped.
 - Moving an element from the page to a file is a cut and paste. The same file works in Sitez.
@@ -290,8 +316,9 @@ repository.
 
 ### Pagez's CSS or the page's
 
-- **With no `style.css` and no frame,** the page gets the theme. That's the Markdown-first page,
-  and the minimal document says `color-scheme: light dark`, as the theme does.
+- **With no `style.css` and no frame,** in its folder or above it, the page gets the theme.
+  That's the Markdown-first page, and the minimal document says `color-scheme: light dark`, as
+  the theme does.
 - **With a `style.css`,** the page's CSS is its own design, and replaces the theme. It's linked
   as written, so it reads, caches and is shared like any file, and it can `@import` and `url()`
   the fonts and images beside it. The minimal document leaves out `color-scheme`, since a page's
@@ -318,8 +345,9 @@ Element CSS is emitted once and only for elements the page uses, unlayered, befo
 - Pagez as a library, `compile`, returns the page in its frame, its CSS and its one module. The
   plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as an inline
   module, and Vite bundles and hashes them.
-- Templates run at build time in a Vite server, `dev`'s own or one the build makes for the page,
-  so a build script imports what the page's folder has, and a change shows on the next request.
+- Templates run at build time in a Vite server, `dev`'s own or one the build makes for every
+  page, so a build script imports what the site's folder has, and a change shows on the next
+  request.
 
 ## Errors
 
@@ -360,7 +388,6 @@ comparison is editing generated HTML against editing Markz that builds to HTML.
 - Logic in prose
 - Settings in frontmatter
 - A frame that grows into a site framework
-- Multiple pages, which are Sitez's
 - One file with the page's images, fonts and CSS inlined ([Why not one file](#the-folder))
 
 What's still open is in [plan.md](plan.md#open-questions).
