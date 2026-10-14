@@ -16,8 +16,8 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { FileError } from "./elementz/errors.ts";
-import { attribute, decode, encode, scan, type Attribute, type Tag } from "./elementz/markup.ts";
+import { FileError } from "./elements/errors.ts";
+import { attribute, decode, encode, scan, type Attribute, type Tag } from "./elements/markup.ts";
 
 /** What stands where the page goes, until the page is put there. */
 export const SLOT = "<pagez-slot></pagez-slot>";

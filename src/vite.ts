@@ -18,7 +18,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { Plugin } from "vite-plus";
-import { FileError } from "./elementz/errors.ts";
+import { FileError } from "./elements/errors.ts";
 import { compile, write } from "./page.ts";
 
 /** A folder as its real path, so the entry Pagez names and the one Vite resolves are the same. */

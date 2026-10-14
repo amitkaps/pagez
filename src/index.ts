@@ -5,10 +5,10 @@
  * together as the HTML that `pagez()`, from `@amitkaps/pagez/vite`, hands to Vite. A mistake in a
  * page is a `FileError`, which names its file.
  *
- * It also exports elementz's `html`, what an element's template script imports at build time.
+ * It also exports the elements' `html`, what an element's template script imports at build time.
  * `html` records a template for the build's renderer. An element's browser `<script>` imports
  * nothing from here, since it works on the page's DOM.
  */
-export { FileError } from "./elementz/errors.ts";
-export { html, type Template } from "./elementz/html.ts";
+export { FileError } from "./elements/errors.ts";
+export { html, type Template } from "./elements/html.ts";
 export { compile, write, type Page } from "./page.ts";

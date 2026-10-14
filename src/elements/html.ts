@@ -7,10 +7,10 @@
  *
  * A value is marked with a registered symbol, not a class. The site's code loads `sitez` through
  * Vite's module runner, and the build loads it through Node. That makes two copies of this file,
- * and `instanceof` fails between them ([elementz.md](../../docs/elementz.md#html)).
+ * and `instanceof` fails between them ([elements.md](../../docs/elements.md#html)).
  */
-const TEMPLATE: unique symbol = Symbol.for("sitez.template");
-const RAW: unique symbol = Symbol.for("sitez.raw");
+const TEMPLATE: unique symbol = Symbol.for("pagez.template");
+const RAW: unique symbol = Symbol.for("pagez.raw");
 
 /** A template `html` recorded at build time, not yet rendered. */
 export interface Template {

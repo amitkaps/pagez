@@ -2,7 +2,7 @@
  * # An element's CSS is its own
  *
  * Every top-level selector in an element's `<style>` starts with its tag, so its CSS can't reach
- * the rest of the page by accident ([elementz.md](../../docs/elementz.md#css)). Rules inside
+ * the rest of the page by accident ([elements.md](../../docs/elements.md#the-style)). Rules inside
  * `@media`, `@supports`, `@container`, `@layer` and `@scope` are at the top too, and are checked.
  * Other at-rules, such as `@keyframes` and `@font-face`, hold no selectors for the page and are
  * left alone. A selector nested inside a rule is the rule's, so it's never checked.

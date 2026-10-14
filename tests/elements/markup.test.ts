@@ -5,7 +5,7 @@
  * `<` in a value. Offsets let a caller replace a value without rewriting the rest.
  */
 import { describe, expect, test } from "vite-plus/test";
-import { attribute, decode, encode, scan, withValue } from "../../src/elementz/markup.ts";
+import { attribute, decode, encode, scan, withValue } from "../../src/elements/markup.ts";
 
 const names = (html: string) =>
   scan(html).map((tag) => `${tag.kind === "end" ? "/" : ""}${tag.name}`);

@@ -1,8 +1,8 @@
 /** @prose
  * # The runtime
  *
- * All of elementz that reaches the browser: `define`, which makes an element's `setup` a custom
- * element ([elementz.md](../../docs/elementz.md#behavior-in-the-browser)). Each connection gets a
+ * All of the elements' code that reaches the browser: `define`, which makes an element's `setup` a custom
+ * element ([elements.md](../../docs/elements.md#the-script)). Each connection gets a
  * fresh `AbortController`. A disconnect aborts its signal and calls the cleanup `setup` returned,
  * so a listener given the signal goes with the element. A reconnect runs `setup` again.
  *

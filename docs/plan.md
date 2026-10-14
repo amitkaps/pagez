@@ -2,6 +2,14 @@
 
 ## Where it is
 
+### Elements, without a name of their own
+
+Sitez's `elementz.md` is `docs/elements.md`, with Pagez as the host and reordered by the file's
+three parts. The design and the code link to it here, not to sitez.amitkaps.com. `src/elementz/`
+is `src/elements/`, since a name of its own only fit when Sitez was a second host. It still
+imports nothing else from Pagez, so what an element is stays apart from how a page uses it. A
+template value is marked with `pagez.template`.
+
 ### 0.1.0, and stories on the site
 
 0.1.0 is on npm, published by hand, and later versions are staged by the release workflow through
@@ -83,16 +91,18 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **The rest of the compiler.** Elementz's elements, one definition per name anywhere in the
-   tree, `${…}` page paths in prose, and the bundler for the page's scripts. It's done when every
+1. **The rest of the compiler.** Elements, one definition per name anywhere in the
+   tree, `${…}` page paths in prose, and the bundler for the page's scripts. An element's build
+   script gives the template whatever it declares or imports, with no `export`, and has `html`
+   with no import ([The build script](elements.md#the-build-script)). It's done when every
    test page builds to its reviewed snapshot, or fails with its reviewed error, and no todo is
    left.
 2. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
    `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
    `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
    folders, each with its own design.
-3. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived, and the
-   elementz docs move here. The stories repository is archived once the apex moves to Cloudflare.
+3. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
+   repository is archived once the apex moves to Cloudflare.
 
 ## Later
 
@@ -105,6 +115,21 @@ site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step b
 Each one the test pages raise is also an `Open:` note on the page that shows it
 (`grep -rn "Open:" tests/pages`).
 
+- **Where data lives.** Jekyll and Sitez name data by a `data/` folder, and an element reads a
+  `data="…"` attribute. The lean is to drop both. An attribute is a plain string,
+  and an element that wants data from it calls `load(attrs.src)`, which the host gives every
+  template. Pagez reads the file, checks it, fails at the use's line, and watches it in dev, which
+  the dev loop needs to rebuild only the pages that use it. A path is relative to the file that
+  wrote it, as `<img src>` is, so a path in a shared `frame.html` or in an element's template
+  means one file wherever it renders. `/…` is the root beside `pagez.md`, for the rare file the
+  whole site shares, which overlaps with how Vite reads `/` for `public/`. An element's own data
+  is a static `import`, and small data is an attribute expression, `rows=${page.sales}`. So each
+  way in has one owner: the element, the page's file or the page's metadata. On amitkaps.com
+  each of the six files in `data/` is used by one page, and `data="notes.json"` is written ten
+  times in one essay. What a folder mostly held, the list of posts, comes from `pages`. The case
+  for `data/` is a site with many files that every page shares, which no site has yet.
+  Rendering stays synchronous, since async changes when a file is read, not how it's named, and
+  an element can't `await import()` a path that's relative to the page.
 - **Prose's look.** The width and the typography aren't right yet, and the numbers in
   [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
   65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle

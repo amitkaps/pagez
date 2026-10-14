@@ -2,12 +2,12 @@
  * # The renderer's cases
  *
  * One row for each place a value can go, with what the build writes there, then the templates the
- * build refuses. A rule in elementz.md's `html` section has its case here. The tables are left
+ * build refuses. A rule in elements.md's `html` section has its case here. The tables are left
  * unformatted, since oxfmt would reflow the HTML inside them, and each row is exact.
  */
 import { describe, expect, test } from "vite-plus/test";
-import { html, raw } from "../../src/elementz/html.ts";
-import { render, TemplateError } from "../../src/elementz/render.ts";
+import { html, raw } from "../../src/elements/html.ts";
+import { render, TemplateError } from "../../src/elements/render.ts";
 
 const link = { url: "/blog/", title: "Fish & Chips" };
 

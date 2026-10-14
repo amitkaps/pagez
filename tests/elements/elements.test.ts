@@ -7,9 +7,9 @@
  * host here imports each template module from a data URL, where Sitez loads it through Vite.
  */
 import { describe, expect, test } from "vite-plus/test";
-import { renderElements, type Host } from "../../src/elementz/elements.ts";
-import { FileError } from "../../src/elementz/errors.ts";
-import { readElement, templateModule, type ElementFile } from "../../src/elementz/file.ts";
+import { renderElements, type Host } from "../../src/elements/elements.ts";
+import { FileError } from "../../src/elements/errors.ts";
+import { readElement, templateModule, type ElementFile } from "../../src/elements/file.ts";
 
 const scope = ["page"];
 const elements = new Map<string, ElementFile>();
