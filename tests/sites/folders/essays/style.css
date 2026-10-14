@@ -1,0 +1,6 @@
+/* Builds on base.css, by saying so. */
+@import "../base.css";
+
+body {
+  font-family: Georgia, serif;
+}

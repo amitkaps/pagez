@@ -2,7 +2,7 @@
  * # A page's elements
  *
  * Where a page's elements are defined ([design.md](../docs/design.md#where-definitions-live)): an
- * `@x-tag.html` anywhere in the page's folder, kept with the pages that use it, or a definition
+ * `@x-tag.html` anywhere in the site, kept with the pages that use it, or a definition
  * in the page, one `=html` block holding `<template element="x-tag">` and its `<style>` and
  * `<script>`. An element is found by its name, so there's nothing to import, and a name has one
  * definition, so two fail, wherever they are.
@@ -11,12 +11,12 @@
  * blanked. So its lines are the page's, and a mistake in it names the page's line, as one in a
  * file names the file's.
  */
-import { readdirSync } from "node:fs";
-import { join, relative } from "node:path";
+import { basename, relative } from "node:path";
 import { position, walk, type Document, type NodeId } from "@amitkaps/markz";
 import { FileError } from "./elements/errors.ts";
 import { nameOf, readElement, type ElementFile } from "./elements/file.ts";
 import { attribute, scan } from "./elements/markup.ts";
+import { siteFiles } from "./site.ts";
 
 /** What Pagez adds to every template's scope. */
 export const SCOPE: string[] = ["page"];
@@ -28,7 +28,8 @@ export interface Definitions {
 }
 
 /** @prose
- * Every element `file`, a page, can use: each file in its folder, then each definition in it.
+ * Every element `file`, a page, can use: each file in the site under `root`, then each definition
+ * in the page.
  * A name in a file and in the page fails at the page's definition, and two in the page fail at
  * the second, naming the first's line.
  */
@@ -96,30 +97,15 @@ function blankedTo(source: string, value: string, start: number): string {
   return "\n".repeat(source.slice(0, start).split("\n").length - 1) + value;
 }
 
-/** Folders that hold no elements: what's skipped, what's copied as it is, and what's built. */
-const SKIP = new Set(["node_modules", "dist", "public"]);
-
 /** @prose
- * Each `@x-tag.html` under `root`, read and checked. A name starting with `_` or `.` is skipped,
- * as `node_modules`, `public/` and `dist/` are. Two files for one name fail at the second, in
- * sorted order, so the same one fails on every run.
+ * Each `@x-tag.html` in the site under `root`, read and checked, with what the site skips skipped
+ * (`site.ts`). Two files for one name fail at the second, in sorted order, so the same one fails on
+ * every run.
  */
 function readFiles(root: string): Map<string, ElementFile> {
   const elements = new Map<string, ElementFile>();
-  const files: string[] = [];
-  const visit = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (/^[_.]/.test(entry.name)) continue;
-      const path = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (!SKIP.has(entry.name)) visit(path);
-      } else if (/^@.*\.html$/.test(entry.name)) {
-        files.push(path);
-      }
-    }
-  };
-  visit(root);
-  for (const file of files.sort()) {
+  const files = siteFiles(root).filter((file) => /^@.*\.html$/.test(basename(file)));
+  for (const file of files) {
     const name = nameOf(file);
     const problem = nameProblem(name);
     if (problem) throw new FileError(file, `${problem} An element's file is named for it.`);

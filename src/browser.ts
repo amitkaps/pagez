@@ -17,14 +17,14 @@
  * package fails at the import's line.
  */
 import { isBuiltin, findPackageJSON } from "node:module";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseAst } from "vite-plus";
 import { FileError } from "./elements/errors.ts";
 import { lineOf, setupModule, type ElementFile } from "./elements/file.ts";
 import { scan } from "./elements/markup.ts";
 import { browserImport, PACKAGE, partId, RUNTIME } from "./parts.ts";
-import { checkCss, exists, isRelative } from "./references.ts";
+import { checkCss, exists, isRelative, rebased } from "./references.ts";
 
 /** The elements `html` uses that ship CSS or behavior, sorted by tag. */
 export function usedElements(elements: Map<string, ElementFile>, html: string): ElementFile[] {
@@ -43,7 +43,7 @@ export function elementCss(used: ElementFile[], dir: string): string | undefined
     const from = dirname(element.file);
     const css = dedent(element.style!.text);
     checkCss(element.file, from, css);
-    return from === dir ? css : rebased(css, from, dir);
+    return rebased(css, from, dir);
   });
   return rules.join("\n\n");
 }
@@ -129,15 +129,4 @@ function dedent(css: string): string {
     ...lines.filter((line) => line.trim()).map((line) => /^\s*/.exec(line)![0].length),
   );
   return lines.map((line) => line.slice(margin)).join("\n");
-}
-
-const PATH = /(@import\s+(?:url\(\s*)?|url\(\s*)(["']?)([^"')\s;]+)\2/g;
-
-/** CSS from `from`, with each relative path in it written from `to`. */
-function rebased(css: string, from: string, to: string): string {
-  return css.replace(PATH, (match, before: string, quote: string, path: string) => {
-    if (!isRelative(path)) return match;
-    const moved = relative(to, resolve(from, path));
-    return `${before}${quote}${moved.startsWith(".") ? moved : `./${moved}`}${quote}`;
-  });
 }

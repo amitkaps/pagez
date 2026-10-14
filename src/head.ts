@@ -2,11 +2,11 @@
  * # The head, and the frame it is in
  *
  * A page's head is its frame's, with what follows from its metadata added. The frame is the
- * `frame.html` beside the page, or with none, Pagez's minimal document, so both go through the
- * same code. Each tag has one owner. The frame writes `charset`, `viewport` and everything else
- * it chooses. Pagez puts the page's `lang`, `title` and `description` in place of the frame's, and
- * writes the canonical link and the Open Graph and Twitter tags, which repeat those values and
- * `url` and `image` with no choice in them.
+ * nearest `frame.html`, beside the page or in a folder above it, or with none, Pagez's minimal
+ * document, so both go through the same code. Each tag has one owner. The frame writes `charset`,
+ * `viewport` and everything else it chooses. Pagez puts the page's `lang`, `title` and
+ * `description` in place of the frame's, and writes the canonical link and the Open Graph and
+ * Twitter tags, which repeat those values and `url` and `image` with no choice in them.
  *
  * A frame fails the build for what would make the page wrong: a missing `lang`, `charset` or
  * `viewport`, a slot count other than one, and a tag Pagez writes. Each message names the frame
@@ -15,7 +15,6 @@
  * single page needs neither in its frame, since Pagez writes them.
  */
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { FileError } from "./elements/errors.ts";
 import { attribute, decode, encode, scan, type Attribute, type Tag } from "./elements/markup.ts";
 
@@ -51,15 +50,10 @@ export const MINIMAL = `<!doctype html>
 </html>
 `;
 
-/** The frame beside a page in `dir`, or the minimal document when there's none. */
-export function readFrame(dir: string): Frame {
-  const file = join(dir, "frame.html");
-  let source: string;
-  try {
-    source = readFileSync(file, "utf8");
-  } catch {
-    return { html: withSlot(MINIMAL, checkFrame("", MINIMAL)) };
-  }
+/** The frame in `file`, the page's nearest `frame.html`, or the minimal document when there's none. */
+export function readFrame(file: string | undefined): Frame {
+  if (file === undefined) return { html: withSlot(MINIMAL, checkFrame("", MINIMAL)) };
+  const source = readFileSync(file, "utf8");
   return { file, html: withSlot(source, checkFrame(file, source)) };
 }
 

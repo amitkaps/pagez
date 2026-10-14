@@ -47,7 +47,7 @@ const built = {
 
 // The test pages are inputs, left the way a page's author would write them, and their snapshots
 // are Pagez's output, as it writes them.
-const ignored = ["tests/pages/**", "tests/snapshots/**"];
+const ignored = ["tests/pages/**", "tests/sites/**", "tests/snapshots/**"];
 
 export default defineConfig({
   plugins: [built],
