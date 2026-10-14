@@ -13,7 +13,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
 import { headings, html, parse, position, walk } from "@amitkaps/markz";
-import { FileError } from "./elementz/errors.ts";
+import { FileError } from "./elements/errors.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT } from "./head.ts";
 import { checkCss, checkHtml, exists, isRelative } from "./references.ts";
 

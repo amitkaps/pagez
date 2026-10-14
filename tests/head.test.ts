@@ -9,7 +9,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vite-plus/test";
-import { FileError } from "../src/elementz/errors.ts";
+import { FileError } from "../src/elements/errors.ts";
 import {
   addToHead,
   headFields,

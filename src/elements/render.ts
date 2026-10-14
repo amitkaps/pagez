@@ -3,7 +3,7 @@
  *
  * Turns a template value into an HTML string. Each place a value can go means what the HTML
  * tokenizer makes of it there. The rules are in
- * [elementz.md](../../docs/elementz.md#html), and `render.test.ts` holds a case for each.
+ * [elements.md](../../docs/elements.md#html), and `render.test.ts` holds a case for each.
  */
 import { isRaw, isTemplate, raw } from "./html.ts";
 
@@ -17,7 +17,7 @@ export class TemplateError extends Error {
 
 /** @prose
  * Renders a template, or any value as text. Rendering is synchronous, so a promise anywhere in it
- * fails ([elementz.md](../../docs/elementz.md#the-template)). Data reaches an element through its
+ * fails ([elements.md](../../docs/elements.md#the-template)). Data reaches an element through its
  * `data` attribute, read before it renders.
  */
 export function render(value: unknown): string {
@@ -53,7 +53,7 @@ function resolve(value: unknown): unknown {
   return value;
 }
 
-/** A value in text, where `false` is nothing (elementz.md says why). */
+/** A value in text, where `false` is nothing (elements.md says why). */
 function text(value: unknown): string {
   if (value === null || value === undefined || value === false) return "";
   if (isRaw(value)) return value.value;

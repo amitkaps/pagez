@@ -10,7 +10,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, test } from "vite-plus/test";
-import { FileError } from "../src/elementz/errors.ts";
+import { FileError } from "../src/elements/errors.ts";
 import { compile, write } from "../src/page.ts";
 
 const pages = new URL("pages/", import.meta.url).pathname;

@@ -123,7 +123,7 @@ elements, the build report, and checked links.
 - **A `README.md` is a page.** A content site doesn't keep one in its folders, and one that does
   names it `_README.md`, so it needs no rule.
 - **Migration.** amitkaps.github.io builds with Sitez 0.4, and moves from four trees to one. Then
-  Sitez is archived, and the elementz docs at sitez.amitkaps.com move to Pagez.
+  Sitez is archived. The element docs have already moved to Pagez.
 - **Pagez stops being a single-page compiler.** Each page can still compile alone, with the
   site's parts (links, `pages`, redirects) as a step around it, so the code keeps the line even
   if the package doesn't.
@@ -145,7 +145,7 @@ The proposal's open questions, each with its reason.
   with no extension says nothing about how it's built, so it survives the next change of tools.
   The live Jekyll site serves `/about.html`, and Sitez already moved to `/about/` with redirects,
   which the move of the essays into `/essays/` needed anyway.
-- **elementz's docs move to Pagez,** as its code already has. Sitez is deprecated on npm and its
+- **The element docs moved to Pagez,** as their code had. Sitez is deprecated on npm and its
   repository archived once amitkaps.github.io builds with Pagez.
 
 Also settled: one definition per element, no rule for `README.md`, `public/` at the root, `pagez.md`

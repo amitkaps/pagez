@@ -7,7 +7,7 @@
  */
 import { Window } from "happy-dom";
 import { afterAll, expect, test } from "vite-plus/test";
-import { define, type Setup } from "../../src/elementz/runtime.ts";
+import { define, type Setup } from "../../src/elements/runtime.ts";
 
 const window = new Window();
 const globals = globalThis as Record<string, unknown>;

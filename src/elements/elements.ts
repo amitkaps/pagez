@@ -5,8 +5,8 @@
  * element's output renders the same way. This file renders the last two, and a host's text calls
  * `renderElement` for each element its Markz wrote.
  *
- * An element's template writes the inside of its tag, and elementz writes the tag around it
- * ([elementz.md](../../docs/elementz.md#wrapping)). The template gets `attrs`, the host's context
+ * An element's template writes the inside of its tag, and this writes the tag around it
+ * ([elements.md](../../docs/elements.md#wrapping)). The template gets `attrs`, the host's context
  * and its script's exports. Its content goes where its `<slot>` is, and the slot's own content is
  * the fallback for an element with none. What an element writes is read for elements too, until
  * none is left.
@@ -56,7 +56,7 @@ export async function renderElement(
   if (!element.template) return content ?? "";
   const { file } = element;
   const id = counter++;
-  const token = `<elementz-content-${id}></elementz-content-${id}>`;
+  const token = `<pagez-content-${id}></pagez-content-${id}>`;
   const fn = (await host.load(element)).default as (scope: object) => unknown;
   const attrs = { ...attributes, ...(data && { data: data.value }) };
   const out = inSlot(
@@ -69,7 +69,7 @@ export async function renderElement(
 }
 
 /** @prose
- * A template that throws is a mistake in the site, not in elementz, so the build fails naming the
+ * A template that throws is a mistake in the site, not in Pagez, so the build fails naming the
  * element's file. A template the renderer refuses says why in its own words. The result is
  * trimmed, so a template written across lines can still sit inside a paragraph.
  */
@@ -211,7 +211,7 @@ async function written(
 
 /**
  * An element's opening tag, as Markz writes one: `class` first, a bare attribute with no `=`, and a
- * value escaped. The element is written by elementz, not by Markz, since its inside is the
+ * value escaped. The element is written here, not by Markz, since its inside is the
  * template's.
  */
 export function openTag(name: string, attributes: Record<string, string>): string {

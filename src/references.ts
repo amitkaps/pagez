@@ -13,8 +13,8 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { FileError } from "./elementz/errors.ts";
-import { attribute, decode, scan } from "./elementz/markup.ts";
+import { FileError } from "./elements/errors.ts";
+import { attribute, decode, scan } from "./elements/markup.ts";
 
 /** Whether a reference names a file beside the page: not a URL, a site's path or a fragment. */
 export function isRelative(reference: string): boolean {

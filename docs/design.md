@@ -8,7 +8,7 @@ far as [plan.md](plan.md#where-it-is) says. The design started as `pagez.md` in 
 > The build produces the page. JavaScript enhances the page.
 
 **Keep Pagez small.** There is no Pagez runtime model to understand. There is a compiler that
-turns prose plus elements into HTML, CSS and JS, and elementz's small runtime in the output.
+turns prose plus elements into HTML, CSS and JS, and the elements' small runtime in the output.
 
 ## Core model
 
@@ -16,7 +16,7 @@ turns prose plus elements into HTML, CSS and JS, and elementz's small runtime in
 Elements exist in service of the prose.
 
 **An element is one file of plain HTML,** made of a `<template>`, a `<style>` and a `<script>`.
-That's elementz's element, the same one Sitez uses ([elementz.md](https://sitez.amitkaps.com/docs/elementz.md)).
+Its rules are in [elements.md](elements.md).
 It is defined in the page, or in its own `@x-tag.html` file beside it.
 
 In short, it's Web Components in the light DOM, rendered at build time.
@@ -67,14 +67,14 @@ code or file lives.
   line, and in raw HTML or CSS naming the reference. Vite then gives each a hashed name in
   `dist/assets/`, and inlines one under 4 KB.
 - **Scripts are one module.** The page's scripts become one module, which Vite bundles. It holds
-  elementz's runtime, the `setup` of each element the page uses, and the page's own module
+  the elements' runtime, the `setup` of each element the page uses, and the page's own module
   scripts, with what they import. A library two elements share is in it once.
 - `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a
   page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
   the author's choice to depend on it, and it shows in the output.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser
-  defines it when the page runs. Only elementz's elements render at build time.
+  defines it when the page runs. Only Pagez's own elements render at build time.
 - The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
 - **Why not one file, or beside the page.** Pagez first wrote one standalone file, with every
   image, font and stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a
@@ -87,11 +87,11 @@ code or file lives.
 Markz is purely syntactic. It parses and never evaluates, and every node carries its position and
 source.
 
-| Markz syntax | Markz AST                                        | Markz HTML renderer    | Pagez                                                                        |
-| ------------ | ------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------- |
-| `${…}`       | expression node (`value` = inner text)           | prints `value` as code | evaluates it as a `page` path and emits it escaped                           |
-| `{@tag …}`   | element node (attributes plus Markdown children) | writes the tag         | writes a native tag as Markz does, and renders a custom one through elementz |
-| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, except an element's definition                               |
+| Markz syntax | Markz AST                                        | Markz HTML renderer    | Pagez                                                                             |
+| ------------ | ------------------------------------------------ | ---------------------- | --------------------------------------------------------------------------------- |
+| `${…}`       | expression node (`value` = inner text)           | prints `value` as code | evaluates it as a `page` path and emits it escaped                                |
+| `{@tag …}`   | element node (attributes plus Markdown children) | writes the tag         | writes a native tag as Markz does, and renders a custom one from its element file |
+| ` ```=html ` | raw node                                         | emits verbatim         | emits verbatim, except an element's definition                                    |
 
 - Pagez overrides the Markz renderer for these three nodes only, and reuses everything else.
 - A page rendered by Markz alone stays readable. Expressions show as code, and raw HTML passes
@@ -127,7 +127,7 @@ Prose and templates evaluate separately.
 | Where           | Parsed by               | Scope                                         | Power             |
 | --------------- | ----------------------- | --------------------------------------------- | ----------------- |
 | Prose `${…}`    | Markz (expression node) | `page`                                        | dotted paths only |
-| Template `${…}` | elementz (raw template) | `attrs`, `page`, `html`, the script's exports | full JavaScript   |
+| Template `${…}` | Pagez (raw template)    | `attrs`, `page`, `html`, the script's exports | full JavaScript   |
 
 - Prose refers to values, and elements compute.
 - Anything beyond a dotted path in prose fails, at the node's position.
@@ -179,9 +179,9 @@ A page's head is its frame's, with what follows from its metadata added. Each ta
 
 ## Elements
 
-The element itself is elementz's, with its template, slot, CSS and `setup`
-([elementz.md](https://sitez.amitkaps.com/docs/elementz.md)). Elements nest inside-out, as there. What's Pagez's own is how
-elements are used, and where their definitions live.
+The element itself, with its template, slot, CSS and `setup`, is in [elements.md](elements.md),
+and in `src/elements/`, which imports nothing else from Pagez. Elements nest inside-out, as
+there. What's this section's is how elements are used, and where their definitions live.
 
 ### Use
 
@@ -322,12 +322,12 @@ width and the typography's numbers are a first pass, still to improve
 ### Element CSS
 
 Element CSS is in `@layer elements`, emitted once and only for elements the page uses
-([elementz.md](https://sitez.amitkaps.com/docs/elementz.md#css)).
+([elements.md](elements.md#the-style)).
 
 ## JavaScript
 
 - `setup` scripts are emitted only for elements the page uses that have one.
-- elementz's runtime defines each element, and aborts and cleans up on disconnect.
+- The elements' runtime defines each element, and aborts and cleans up on disconnect.
 - Pagez as a library returns the head, the body, and the CSS and JS of the elements used. Its
   plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as one module,
   and Vite bundles and hashes them.

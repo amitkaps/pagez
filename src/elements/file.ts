@@ -3,13 +3,13 @@
  *
  * `@name.html`, read into its parts: a `<template>` the build writes, with an optional `<script>`
  * first in it, a top-level `<style>` that ships, and a top-level `<script>` that runs in the
- * browser ([elementz.md](../../docs/elementz.md#the-file)). Where a part sits says when it runs.
+ * browser ([elements.md](../../docs/elements.md#the-file)). Where a part sits says when it runs.
  *
  * The file is read as HTML is, by its tags, and each part keeps its offsets in the file. So each
  * part becomes a module of its own whose lines are the file's lines (`templateModule`,
  * `setupModule`, `elementStyle`), and an error in one names the line the author wrote. Every check
  * that needs only the file runs here, and fails naming the file and the line
- * ([elementz.md](../../docs/elementz.md#what-the-build-checks)).
+ * ([elements.md](../../docs/elements.md#what-the-build-checks)).
  */
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
@@ -339,7 +339,7 @@ export function setupModule(element: ElementFile, script = element.script!): str
 
 /** @prose
  * The element's CSS, in `@layer elements`, so a site's own CSS has the last word
- * ([elementz.md](../../docs/elementz.md#css)).
+ * ([elements.md](../../docs/elements.md#the-style)).
  */
 export function elementStyle(element: ElementFile): string {
   const { source, style } = element;
