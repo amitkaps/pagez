@@ -93,8 +93,10 @@ site/                              site/
 10. **`pages` and `site`** reach every template, as in Sitez, so an index can list the pages under
     it.
 
-What Sitez does that comes along unchanged: drafts, redirects, `404.md`, the head and its checks,
-elements, the build report, and checked links.
+What Sitez does that comes along: drafts, redirects, `404.md`, the head and its checks, elements,
+the build report, and checked links, written relative here so `dist/` works under any path. Links
+to files in the repository stay out, since a linked file is shipped with its page
+([Pages of a site](design.md#pages-of-a-site)).
 
 ## Evaluation
 

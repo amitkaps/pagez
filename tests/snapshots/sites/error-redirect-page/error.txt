@@ -1,0 +1,1 @@
+error-redirect-page/about.md: redirects lists /: that's the path of index.md.

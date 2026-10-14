@@ -9,7 +9,7 @@
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
-import { build } from "vite-plus";
+import { build, createLogger } from "vite-plus";
 import { describe, expect, test } from "vite-plus/test";
 import pagez from "../src/vite.ts";
 
@@ -69,6 +69,36 @@ describe("pagez()", () => {
     expect(first).toContain('<a href="../../">Home</a> · <a href="../">Essays</a>');
     expect(first).toMatch(
       /<link rel="stylesheet" crossorigin href="\.\.\/\.\.\/assets\/[\w-]+\.css">/,
+    );
+  });
+
+  test("builds 404.html from the root, a page at each redirect, no drafts, and reports the pages", async () => {
+    const root = folder("blog", "sites");
+    const info: string[] = [];
+    const logger = createLogger("silent");
+    logger.info = (message) => void info.push(message);
+    await build({ root, configFile: false, customLogger: logger, plugins: [pagez()] });
+    const dist = join(root, "dist");
+    expect(files(dist)).toEqual([
+      "404.html",
+      "blog/hello/index.html",
+      "blog/index.html",
+      "blog/moved/index.html",
+      "favicon.svg",
+      "index.html",
+      "moved.html",
+      "old-moved/index.html",
+    ]);
+    const missing = readFileSync(join(dist, "404.html"), "utf8");
+    expect(missing).toContain('<nav><a href="/">Home</a> · <a href="/blog/">Blog</a></nav>');
+    expect(missing).toContain('<a href="/">the home page</a>');
+    expect(readFileSync(join(dist, "old-moved/index.html"), "utf8")).toContain(
+      'content="0; url=../blog/moved/"',
+    );
+    const shown = info.join("\n");
+    expect(shown).toMatch(/^\/blog\/hello\/ +[\d.]+ KB +\d+ ms$/m);
+    expect(shown).toMatch(
+      /^5 pages and 2 redirects in [\d.]+ m?s → .*dist · pagez \d+\.\d+\.\d+$/m,
     );
   });
 
