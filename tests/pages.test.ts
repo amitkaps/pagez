@@ -7,20 +7,18 @@
  * prose stand as a comment in each, so a change to them doesn't change every snapshot, and are
  * checked in `css.test.ts`.
  */
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
 import { FileError } from "../src/elements/errors.ts";
 import { compile, write } from "../src/page.ts";
 import { createLoader, type Loader } from "../src/parts.ts";
+import theme from "../src/theme.css?built";
 
 const pages = new URL("pages/", import.meta.url).pathname;
 
 /** Pagez's own CSS, as a page's head carries it. */
-const own = ["reset.css", "prose.css"].map((name) => ({
-  name,
-  css: readFileSync(new URL(`../css/${name}`, import.meta.url), "utf8"),
-}));
+const own = [{ name: "theme.css", css: theme }];
 
 // One loader runs every page's templates, as one build would.
 let loader: Loader;

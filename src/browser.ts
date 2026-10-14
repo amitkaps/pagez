@@ -6,8 +6,8 @@
  * an element in the frame or written by another element counts, and an element the page doesn't
  * use ships nothing. A page with no behavior loads no JavaScript.
  *
- * - **Their CSS** is one `@layer elements` block, each element's once, in a `<style>` after
- *   Pagez's own ([Element CSS](../docs/design.md#element-css)). A path in it is the element's,
+ * - **Their CSS** is each element's once, unlayered, in a `<style>` after Pagez's theme and before
+ *   the page's `style.css` ([Element CSS](../docs/design.md#element-css)). A path in it is the element's,
  *   from its own folder, so it's written from the page's.
  * - **Their behavior** is one module, which Vite bundles: the elements' runtime, then each
  *   element's `setup`, defined under its tag. The tag comes from the file's name or the page's
@@ -35,7 +35,7 @@ export function usedElements(elements: Map<string, ElementFile>, html: string): 
   });
 }
 
-/** The CSS of the elements used, as one `@layer elements` block, for a page in `dir`. */
+/** The CSS of the elements used, each once, for a page in `dir`. */
 export function elementCss(used: ElementFile[], dir: string): string | undefined {
   const styled = used.filter((element) => element.style);
   if (styled.length === 0) return undefined;
@@ -45,7 +45,7 @@ export function elementCss(used: ElementFile[], dir: string): string | undefined
     checkCss(element.file, from, css);
     return from === dir ? css : rebased(css, from, dir);
   });
-  return `@layer elements {\n${indent(rules.join("\n\n"))}\n}`;
+  return rules.join("\n\n");
 }
 
 /** The page's one module, which defines each element with behavior, for a page in `dir`. */
@@ -130,8 +130,6 @@ function dedent(css: string): string {
   );
   return lines.map((line) => line.slice(margin)).join("\n");
 }
-
-const indent = (css: string) => css.replace(/^(?=.)/gm, "  ");
 
 const PATH = /(@import\s+(?:url\(\s*)?|url\(\s*)(["']?)([^"')\s;]+)\2/g;
 

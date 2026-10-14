@@ -50,7 +50,7 @@ inside `<template>` is what the build writes, and what is outside ships, as `<st
 | ------------------------------ | ------- | ------------------------------------------------------------ |
 | `<template>`                   | build   | the element's inner HTML, evaluated as an `html` template    |
 | `<script>` inside `<template>` | build   | its names in the template's scope, and nothing in the page   |
-| top-level `<style>`            | ships   | the element's CSS, in `@layer elements`                      |
+| top-level `<style>`            | ships   | the element's CSS, unlayered, before the page's              |
 | top-level `<script>`           | browser | `setup(el, { signal })`, which may return a cleanup function |
 
 Each part is optional. A template with no `${…}` is static markup, and an element whose markup
@@ -217,9 +217,11 @@ An element's CSS is its own, and the page's has the last word.
 - Every top-level selector in the `<style>` starts with the tag. Nesting
   (`notes-treemap { & .frame { … } }`) writes the name once, and `x-tag li` passes too. A rule
   that doesn't start with the tag fails, naming the rule.
-- Element CSS is in `@layer elements`. Unlayered CSS beats every layer, so element CSS outside a
-  layer would beat a layered site's own CSS. In a layer, an unlayered site has the last word. A
-  layered site lists `elements` in its order, as in `@layer reset, base, elements, site;`.
+- Element CSS isn't in a layer, and comes before the page's. Its selectors start with the tag, so
+  `notes-treemap h2` outranks the page's `h2`, and the page's tag defaults don't reach in. The
+  page has the last word by naming the element: its own `notes-treemap h2` is as specific, and
+  later. The host's own defaults, such as Pagez's theme, are in a layer, so any element beats
+  them ([The cascade](design.md#the-cascade)).
 - The host ships each element's CSS once, and only for elements its pages use.
 - `:not(:defined)` styles an element before its script runs.
 

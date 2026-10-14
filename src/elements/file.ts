@@ -7,7 +7,7 @@
  *
  * The file is read as HTML is, by its tags, and each part keeps its offsets in the file. So each
  * part becomes a module of its own whose lines are the file's lines (`templateModule`,
- * `setupModule`, `elementStyle`), and an error in one names the line the author wrote. Every check
+ * `setupModule`), and an error in one names the line the author wrote. Every check
  * that needs only the file runs here, and fails naming the file and the line
  * ([elements.md](../../docs/elements.md#what-the-build-checks)).
  */
@@ -383,16 +383,6 @@ export function templateModule(
 export function setupModule(element: ElementFile, script: Part = element.script!): string {
   const { source } = element;
   return blank(source.slice(0, script.start)) + script.text + blank(source.slice(script.end));
-}
-
-/** @prose
- * The element's CSS, in `@layer elements`, so a site's own CSS has the last word
- * ([elements.md](../../docs/elements.md#the-style)).
- */
-export function elementStyle(element: ElementFile): string {
-  const { source, style } = element;
-  const before = blank(source.slice(0, style!.start));
-  return `${before}@layer elements {${style!.text}}${blank(source.slice(style!.end))}`;
 }
 
 /** Text with everything but its line breaks blanked, so what follows keeps its line and column. */

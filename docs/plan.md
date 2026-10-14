@@ -2,6 +2,16 @@
 
 ## Where it is
 
+### One theme, and element CSS that wins
+
+Pagez's reset and prose, about 400 lines in two layers, are one `src/theme.css` of about 150, in
+`@layer theme`: one readable column of what Markz writes, in the system's font, light or dark,
+with nothing to configure, since a `style.css` replaces it. It ships inside `dist/` as text, and
+Markz is bundled there too, as prose does, so Pagez's one dependency is its peer, `vite-plus`. An element's CSS isn't in a layer anymore, and comes
+before the page's `style.css`. In `@layer elements` it lost to any unlayered rule, so a page's
+`h2` restyled every element's headings. Now the element's tag outranks the page's tag defaults,
+and the page has the last word by naming the element ([The cascade](design.md#the-cascade)).
+
 ### The rest of the compiler
 
 Every test page builds to its reviewed snapshot or fails with its reviewed error, and none is a
@@ -74,7 +84,7 @@ good-css, Vizchitra's prose and a draft of its own. Serif headings and sans text
 fonts, one-way flow, a modular scale, an accent color, and print and contrast styles. Tried on the
 `stories` test page, whose CSS is now only its look, its sections and its figures, and on the
 `prose` test page of every Markdown element, in light, dark and at a phone's width
-([Reset and prose](design.md#reset-and-prose)).
+([The theme](design.md#the-theme)).
 
 ### The head moved in
 
@@ -144,21 +154,10 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
   for `data/` is a site with many files that every page shares, which no site has yet.
   Rendering stays synchronous, since async changes when a file is read, not how it's named, and
   an element can't `await import()` a path that's relative to the page.
-- **Prose's look.** The width and the typography aren't right yet, and the numbers in
-  [Reset and prose](design.md#reset-and-prose) are a first pass to improve on. What's been tried:
-  65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle
-  post. Still to judge, on the `prose` and `stories` pages: the measure, the body size and how it
-  grows, the heading font and scale, the space between paragraphs and around headings, and the
-  balance of serif headings with sans text. Each change is checked in light, dark and at a phone's
-  width, and against a page that reads well.
-
-- **The measure's model.** Prose centers each block on the measure, which fights a page with a
-  side column. Rebuilding amitkaps.com/stories, its figures floated beside a left-aligned column
-  needed page CSS to undo the measure on every block. Whether the measure aligns to the start,
-  or leaves room for a side column.
-- **Space after a heading, and the gutter in a padded section.** A heading straight after another
-  gets 1rem, which reads as one block. A page that pads its sections gets that padding and prose's
-  gutter both, so a phone's column narrows. Both are part of prose's look.
+- **The theme's look.** The numbers in [The theme](design.md#the-theme) are a first pass, to
+  judge by eye on the `prose` and `stories` pages, in light, dark and at a phone's width: the
+  column's width, the body size, and the heading sizes and their space. What's been tried for the width: 65ch, which measured about 90 characters a line, then
+  50ch at 18px, about 72, beside a Svbtle post, which read as too narrow in the theme, then 60ch.
 - **A heading's id repeating an element's.** `{@section #ideas}` holding `## Ideas` writes the id
   twice. Markz warns for two headings with one id, not for a heading and an element
   (`native-tags`).

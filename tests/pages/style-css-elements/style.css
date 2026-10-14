@@ -1,0 +1,8 @@
+h2 {
+  font-size: 2rem;
+  color: blue;
+}
+
+note-card h2 {
+  color: green;
+}

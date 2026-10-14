@@ -14,10 +14,7 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <style>
-      /* Pagez's reset.css */
-    </style>
-    <style>
-      /* Pagez's prose.css */
+      /* Pagez's theme.css */
     </style>
   </head>
   <body>
@@ -104,7 +101,7 @@ start on your talk.</p>
   @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 
   :root {
-    --prose-font: Georgia, serif;
+    font-family: Georgia, serif;
     color-scheme: light;
   }
   body {
@@ -120,11 +117,21 @@ start on your talk.</p>
       border-bottom: 3px solid;
     }
   }
+  /* Each section's background reaches the screen's edges, and its text keeps to the column, in rem
+     so a heading lines up with the text. */
+  main {
+    width: auto;
+    padding: 0;
+  }
   header,
   section,
   footer {
     display: flow-root;
     padding: 4rem 2rem 2rem;
+    & > * {
+      max-width: 34rem;
+      margin-inline: auto;
+    }
   }
   #plan {
     background: rgb(51 37 36 / 0.2);

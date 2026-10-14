@@ -10,7 +10,7 @@ names.
 ```text
 stories/
 ├── index.md      the page
-├── style.css     its design, in place of Pagez's reset and prose
+├── style.css     its design, in place of Pagez's theme
 ├── frame.html    the document around it, optional
 ├── img/
 └── fonts/

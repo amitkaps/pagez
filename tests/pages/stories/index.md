@@ -7,7 +7,7 @@ image: cover.svg
 
 <!-- Expect: a stand-in with the shape of amitkaps.com/stories, whose source isn't public. It has
 prose, grouped sections, figures and page styling, and no behavior. It's kept as one file, so its
-CSS is a raw <style>, written where it is, and with no style.css it gets the reset and prose. Its
+CSS is a raw <style>, written where it is, and with no style.css it gets Pagez's theme. Its
 background is light, so it sets color-scheme: light. No element CSS and no <script>. Each image is
 linked as written, and the font's URL @import is left as written. -->
 
@@ -144,7 +144,7 @@ A stand-in page for Pagez's tests.
   @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 
   :root {
-    --prose-font: Georgia, serif;
+    font-family: Georgia, serif;
     color-scheme: light;
   }
   body {
@@ -160,11 +160,21 @@ A stand-in page for Pagez's tests.
       border-bottom: 3px solid;
     }
   }
+  /* Each section's background reaches the screen's edges, and its text keeps to the column, in rem
+     so a heading lines up with the text. */
+  main {
+    width: auto;
+    padding: 0;
+  }
   header,
   section,
   footer {
     display: flow-root;
     padding: 4rem 2rem 2rem;
+    & > * {
+      max-width: 34rem;
+      margin-inline: auto;
+    }
   }
   #plan {
     background: rgb(51 37 36 / 0.2);

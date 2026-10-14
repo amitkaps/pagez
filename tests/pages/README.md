@@ -25,7 +25,7 @@ sites. What only a build shows, such as what Vite bundles, is in `tests/vite.tes
 | Group      | What they cover                                                                                  |
 | ---------- | ------------------------------------------------------------------------------------------------ |
 | Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `native-tags`, `prose`                               |
-| CSS        | `style-css`, `page-css`, `page-css-wins`, `prose-layer`                                          |
+| CSS        | `style-css`, `style-css-elements`, `page-css`, `page-css-wins`                                   |
 | Real pages | `stories`, a stand-in with the shape of amitkaps.com/stories, whose source isn't public           |
 | Prose      | `expressions`, `expressions-dotted-key`                                                          |
 | Elements   | `element-…`: in the page, a file or a folder, slots, nesting, attributes, scripts, behavior      |

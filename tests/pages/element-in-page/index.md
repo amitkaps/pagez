@@ -3,7 +3,7 @@ title: An element in the page
 ---
 
 <!-- Expect: both call-outs rendered from the definition at the end, with their Markdown in the
-slot. The definition's block isn't emitted. The CSS is written once, in @layer elements. No
+slot. The definition's block isn't emitted. The CSS is written once. No
 script, since call-out has no setup. Same output as element-file, which holds the same
 definition in a file. -->
 
