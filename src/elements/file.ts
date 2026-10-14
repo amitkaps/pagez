@@ -39,26 +39,29 @@ export interface ElementFile {
 }
 
 /** The names every template has in scope, besides the host's. */
-export const OWN_SCOPE = ["attrs", "html"];
+export const OWN_SCOPE: string[] = ["attrs", "html"];
 
 /** The tag an element file is named for: `@call-out.html` is `call-out`. */
 export const nameOf = (file: string): string => basename(file).slice(1, -".html".length);
 
 /** @prose
  * Reads `file` and checks it. `scope` is what the host adds to the template's scope, such as
- * `page`, and an export of the template's script by one of those names fails, since the template
- * would never see it.
+ * `page`, and a name the template's script declares or imports by one of those fails, since the
+ * template would never see it. `name` is the file's, unless a host reads an element defined
+ * somewhere else, such as in a page, whose `source` is then that file with all but the
+ * definition blanked.
  */
 export function readElement(
   file: string,
   scope: string[],
-  source = readFileSync(file, "utf8"),
+  source: string = readFileSync(file, "utf8"),
+  name: string = nameOf(file),
 ): ElementFile {
-  const name = nameOf(file);
   const element: ElementFile = { name, file, source };
   const fail = (at: number, message: string) =>
     new FileError(file, `line ${lineOf(source, at)}: ${message}`);
   const tags = scan(source);
+  const seen = new Set<string>();
   let at = 0;
   for (let i = 0; i < tags.length; i++) {
     const tag = tags[i]!;
@@ -73,15 +76,18 @@ export function readElement(
         `<${tag.name}> is outside the <template>. An element file holds a <template>, a <style> and a <script>, so markup goes inside <template>…</template>.`,
       );
     }
-    if (element[kind]) {
+    if (seen.has(kind)) {
       throw fail(tag.start, `this is a second <${kind}>. An element file holds one of each.`);
     }
+    seen.add(kind);
     const close = closing(tags, i);
     if (close === -1) throw fail(tag.start, `<${kind}> is never closed. Write </${kind}>.`);
     const part = { start: tag.end, end: tags[close]!.start, text: "" };
     part.text = source.slice(part.start, part.end);
     if (kind === "template") {
-      element.template = template(element, tag, tags.slice(i + 1, close), part, fail);
+      const read = template(element, tag, tags.slice(i + 1, close), part, fail);
+      // An empty template writes nothing, so its element is written as the page wrote it.
+      if (read.script || /\S/.test(read.markup.text)) element.template = read;
     } else {
       if (kind === "script") scriptEnds(source, part, tags[close]!, fail);
       element[kind] = part;
@@ -162,7 +168,7 @@ function template(
   if (second) {
     throw fail(
       second.start,
-      `this is a second <script> in the <template>. A template has one, first, whose exports the markup uses.`,
+      `this is a second <script> in the <template>. A template has one, first, whose names the markup uses.`,
     );
   }
   if (!first) return { markup: part };
@@ -248,9 +254,10 @@ function parsed(code: string) {
 }
 
 /** @prose
- * The template's script gives the markup its named exports. One named like the template's own
- * scope would be hidden by it, so it fails. A default export fails too, since the template is the
- * module's default.
+ * The template's script is the top of the template's module, so whatever it declares or imports is
+ * in the markup's scope, with no `export`. A name the template already has would hide it, or be
+ * hidden, so it fails, and `html` most of all, since the script has it with no import. A default
+ * export fails too, since the template is the module's default.
  */
 function checkBuildScript(
   element: ElementFile,
@@ -262,23 +269,36 @@ function checkBuildScript(
     if (statement.type === "ExportDefaultDeclaration") {
       throw fail(
         statement.start,
-        "the template's script has a default export. Its named exports are what the markup uses, so name it: export const chart = …",
+        "the template's script has a default export, and the template is the module's default. Name it, as in const chart = …, and the markup has it.",
       );
     }
-    if (statement.type !== "ExportNamedDeclaration") continue;
-    const exported = statement.declaration
-      ? declared(statement.declaration)
-      : statement.specifiers.map(({ exported }) =>
-          exported.type === "Identifier" ? exported.name : String(exported.value),
-        );
-    const clash = exported.find((name) => names.includes(name));
+    const imported = statement.type === "ImportDeclaration";
+    const clash = topLevel(statement).find((name) => names.includes(name));
+    if (clash === "html") {
+      throw fail(
+        statement.start,
+        `this ${imported ? "imports" : "declares"} html, which the template's script already has. Remove it.`,
+      );
+    }
     if (clash) {
       throw fail(
         statement.start,
-        `this exports ${clash}, which the template already has (${names.join(", ")}). Rename it.`,
+        `this ${imported ? "imports" : "declares"} ${clash}, which the template already has (${names.join(", ")}). Rename it.`,
       );
     }
   }
+}
+
+type Statement = NonNullable<ReturnType<typeof parsed>>[number];
+
+/** The names a top-level statement binds in its module. */
+function topLevel(statement: Statement): string[] {
+  if (statement.type === "ImportDeclaration") {
+    return statement.specifiers.map(({ local }) => local.name);
+  }
+  const declaration =
+    statement.type === "ExportNamedDeclaration" ? statement.declaration : statement;
+  return declaration ? declared(declaration as { id?: unknown; declarations?: unknown }) : [];
 }
 
 /** @prose
@@ -305,12 +325,33 @@ function checkSetup(element: ElementFile, fail: (at: number, message: string) =>
   }
 }
 
-/** The names a declaration exports: a function's or a class's, or each variable's. */
+/** The names a declaration binds: a function's or a class's, or each variable's. */
 function declared(declaration: { id?: unknown; declarations?: unknown }): string[] {
   const ids = Array.isArray(declaration.declarations)
     ? declaration.declarations.map((d: { id: unknown }) => d.id)
     : [declaration.id];
-  return ids.map((id) => (id as { name?: string } | null)?.name ?? "a declaration");
+  return ids.flatMap(bound);
+}
+
+/** The names a binding pattern holds, such as `{ a, b: [c] }`. */
+function bound(pattern: unknown): string[] {
+  const node = pattern as { type?: string; [key: string]: unknown } | null;
+  switch (node?.type) {
+    case "Identifier":
+      return [node.name as string];
+    case "ObjectPattern":
+      return (node.properties as { type: string; value?: unknown; argument?: unknown }[]).flatMap(
+        (property) => bound(property.type === "RestElement" ? property.argument : property.value),
+      );
+    case "ArrayPattern":
+      return (node.elements as unknown[]).flatMap(bound);
+    case "AssignmentPattern":
+      return bound(node.left);
+    case "RestElement":
+      return bound(node.argument);
+    default:
+      return [];
+  }
 }
 
 /** @prose
@@ -318,21 +359,28 @@ function declared(declaration: { id?: unknown; declarations?: unknown }): string
  *
  * Each part becomes the whole file with everything but that part blanked, so its lines and
  * columns are the file's. The template is the script's module with one more export, the default,
- * which is the markup as an `html` literal. Its parameters are the template's scope, so the
- * script's exports, its module's names, are in scope too.
+ * which is the markup as an `html` literal. Its parameters are the template's scope, and the
+ * script's names are its module's, so the markup has both. `html` is imported first, on the
+ * file's first line, so the script has it too and no line moves. `from` is where it's imported
+ * from, which the host resolves to its own.
  */
-export function templateModule(element: ElementFile, scope: string[]): string {
+export function templateModule(
+  element: ElementFile,
+  scope: string[],
+  from: string = "@amitkaps/pagez",
+): string {
   const { source } = element;
   const { markup, script } = element.template!;
-  const names = [...OWN_SCOPE, ...scope].join(", ");
+  const names = ["attrs", ...scope].join(", ");
   const head = script
     ? setupModule(element, script).slice(0, markup.start)
     : blank(source.slice(0, markup.start));
-  return `${head}export default ({ ${names} }) => html\`${markup.text}\`;${blank(source.slice(markup.end))}`;
+  const html = `import { html } from ${JSON.stringify(from)};`;
+  return `${html}${head}export default ({ ${names} }) => html\`${markup.text}\`;${blank(source.slice(markup.end))}`;
 }
 
 /** The browser's script as a module, or the template's script when it's given. */
-export function setupModule(element: ElementFile, script = element.script!): string {
+export function setupModule(element: ElementFile, script: Part = element.script!): string {
   const { source } = element;
   return blank(source.slice(0, script.start)) + script.text + blank(source.slice(script.end));
 }

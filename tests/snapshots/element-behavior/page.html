@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>An element with behavior</title>
+    <meta property="og:title" content="An element with behavior" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <style>
+      @layer elements {
+        fold-out {
+          display: block;
+          &:not(:defined) button {
+            display: none;
+          }
+        }
+      }
+    </style>
+    <script type="module">
+      import { define } from "@amitkaps/pagez/runtime";
+      import foldOut from "./@fold-out.html?pagez=setup&lang.js";
+      define("fold-out", foldOut);
+    </script>
+  </head>
+  <body>
+    <main>
+<fold-out label="Details"><button aria-expanded="false">Details</button>
+  <div hidden><p>Folded text, still HTML in the page.</p>
+</div></fold-out>
+</main>
+  </body>
+</html>

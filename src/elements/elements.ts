@@ -7,7 +7,7 @@
  *
  * An element's template writes the inside of its tag, and this writes the tag around it
  * ([elements.md](../../docs/elements.md#wrapping)). The template gets `attrs`, the host's context
- * and its script's exports. Its content goes where its `<slot>` is, and the slot's own content is
+ * and its script's names. Its content goes where its `<slot>` is, and the slot's own content is
  * the fallback for an element with none. What an element writes is read for elements too, until
  * none is left.
  *
@@ -38,15 +38,16 @@ export interface Host {
 let counter = 0;
 
 /** @prose
- * What an element writes inside its tag, for these attributes and this content. `content` is
- * HTML that is already rendered, or nothing for an element with none. `data` is read by the
+ * What an element writes inside its tag, for these attributes and this content. An attribute is
+ * a string, as HTML has it, or any value a host gives, such as a list from the page's metadata.
+ * `content` is HTML that is already rendered, or nothing for an element with none. `data` is read by the
  * caller, who knows where the attribute was written. `chain` is the elements this one is inside,
  * by their output. An element with no template writes its content as it is.
  */
 export async function renderElement(
   host: Host,
   name: string,
-  attributes: Record<string, string>,
+  attributes: Record<string, unknown>,
   content: string | undefined,
   data: { value: unknown } | undefined,
   chain: string[],
@@ -70,8 +71,10 @@ export async function renderElement(
 
 /** @prose
  * A template that throws is a mistake in the site, not in Pagez, so the build fails naming the
- * element's file. A template the renderer refuses says why in its own words. The result is
- * trimmed, so a template written across lines can still sit inside a paragraph.
+ * element's file, and the line when its stack has it. The module's lines are the file's, so it's
+ * the line the author wrote, once the host has mapped the stack to the module. A template the
+ * renderer refuses says why in its own words. The result is trimmed, so a template written across
+ * lines can still sit inside a paragraph.
  */
 function rendered(file: string, fn: () => unknown): string {
   try {
@@ -80,8 +83,19 @@ function rendered(file: string, fn: () => unknown): string {
     if (error instanceof FileError) throw error;
     const { name, message } = error instanceof Error ? error : { name: "", message: String(error) };
     if (name === "TemplateError") throw new FileError(file, message, { cause: error });
-    throw new FileError(file, `failed to render: ${message}`, { cause: error });
+    const line = lineIn(file, error);
+    const at = line ? `line ${line}: ` : "";
+    throw new FileError(file, `${at}failed to render: ${message}`, { cause: error });
   }
+}
+
+/** The line of `file` an error's stack names first, read past the query of a part's module. */
+function lineIn(file: string, error: unknown): number | undefined {
+  const stack = (error as { stack?: unknown } | null)?.stack;
+  if (typeof stack !== "string") return undefined;
+  const path = file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const found = new RegExp(`${path}(?:\\?[^\\s:)]*)?:(\\d+):\\d+`).exec(stack);
+  return found ? Number(found[1]) : undefined;
 }
 
 /** @prose
@@ -209,15 +223,22 @@ async function written(
   return `${openTag(name, attributes)}${out}</${name}>`;
 }
 
-/**
+/** @prose
  * An element's opening tag, as Markz writes one: `class` first, a bare attribute with no `=`, and a
  * value escaped. The element is written here, not by Markz, since its inside is the
- * template's.
+ * template's. Only text reaches the browser, as in a template's attribute. A string or a number
+ * is written, `true` is bare, and anything else, such as a list, went to the template alone.
  */
-export function openTag(name: string, attributes: Record<string, string>): string {
+export function openTag(name: string, attributes: Record<string, unknown>): string {
   const { class: classes, ...others } = attributes;
   const written = Object.entries(
     classes === undefined ? others : { class: classes, ...others },
-  ).map(([key, value]) => (value === "" ? key : `${key}="${encode(value)}"`));
+  ).flatMap(([key, value]) => {
+    if (value === "" || value === true) return [key];
+    if (typeof value === "string" || typeof value === "number") {
+      return [`${key}="${encode(String(value))}"`];
+    }
+    return [];
+  });
   return `<${[name, ...written].join(" ")}>`;
 }

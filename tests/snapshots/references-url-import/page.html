@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>A URL import</title>
+    <meta property="og:title" content="A URL import" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <script type="module">
+      import { define } from "@amitkaps/pagez/runtime";
+      import confettiButton from "./@confetti-button.html?pagez=setup&lang.js";
+      define("confetti-button", confettiButton);
+    </script>
+  </head>
+  <body>
+    <main>
+<confetti-button><button>Celebrate</button></confetti-button>
+</main>
+  </body>
+</html>

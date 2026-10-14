@@ -1,0 +1,1 @@
+error-expression-scope/index.md: line 7, column 11: ${process.env.HOME} reads process, and prose sees only page, as in ${page.title}.

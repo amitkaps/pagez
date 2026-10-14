@@ -2,6 +2,17 @@
 
 ## Where it is
 
+### The rest of the compiler
+
+Every test page builds to its reviewed snapshot or fails with its reviewed error, and none is a
+todo. Elements render from an `@x-tag.html` anywhere in the folder or a definition in the page, in
+the text and the frame, with one definition per name. Their CSS is one `@layer elements` block,
+and their behavior is one module that Vite bundles, with what each `setup` imports checked first.
+A template runs in a Vite server, `dev`'s own or one the build makes, and one that throws names
+its line. `${…}` in prose prints a path into `page`, and a missing value, a list or anything more
+fails at its line and column. A build script's names are the markup's with no `export`, and it has
+`html` with no import. A link to a file is checked and hashed, and an undefined tag warns.
+
 ### Elements, without a name of their own
 
 Sitez's `elementz.md` is `docs/elements.md`, with Pagez as the host and reordered by the file's
@@ -91,25 +102,19 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **The rest of the compiler.** Elements, one definition per name anywhere in the
-   tree, `${…}` page paths in prose, and the bundler for the page's scripts. An element's build
-   script gives the template whatever it declares or imports, with no `export`, and has `html`
-   with no import ([The build script](elements.md#the-build-script)). It's done when every
-   test page builds to its reviewed snapshot, or fails with its reviewed error, and no todo is
-   left.
-2. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
+1. **Many pages.** Every `.md` a page at its folder's path, the nearest `style.css` and
    `frame.html`, `pagez.md` at the root, and Sitez's site features moved in: links between pages,
    `pages` and `site`, drafts, redirects, `404.md` and the build report. Tested on a set of
    folders, each with its own design.
-3. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
+2. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
    repository is archived once the apex moves to Cloudflare.
-4. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and
+3. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and
    no amitkaps.com in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's
    URLs, since they're what's published. History keeps its reason and drops its source, so
    "Sitez 0.3 used a class" becomes why a class was ruled out, and the rest is in git and in
    [Where it is](#where-it-is). Evidence keeps its finding with a neutral example, so
    amitkaps.com's treemap becomes an essay with ten charts of one dataset. What depends on the
-   move, folders.md's comparison with Sitez and steps 2 and 3, becomes plain rules once they're
+   move, folders.md's comparison with Sitez and steps 1 and 2, becomes plain rules once they're
    done. The `stories` test page becomes a fixture of the same shape. `elements.md` can go
    first, since it's stable.
 
@@ -157,24 +162,17 @@ Each one the test pages raise is also an `Open:` note on the page that shows it
 - **A heading's id repeating an element's.** `{@section #ideas}` holding `## Ideas` writes the id
   twice. Markz warns for two headings with one id, not for a heading and an element
   (`native-tags`).
-- **Markz's warnings.** Pagez doesn't print them yet. Whether it prints them, or fails on them.
+- **Markz's warnings.** Pagez prints its own, for an undefined tag, and not Markz's yet. Whether
+  it prints them too, or fails on them.
 - **Where `image` resolves.** Against `url`, as now, which differs from the file's place when the
   page isn't where the site serves it. Or against the file, then made absolute with `url`.
 - **Smart punctuation.** Jekyll writes curly quotes, and Markz keeps straight ones. Whether that's
   Markz's, Pagez's or the author's.
 - **Editor support.** Highlighting an `=html` fence as HTML, and `${…}` in a template as
   JavaScript. That's Markz's tooling, so it's settled there.
-- **Dev loop.** Watching and rebuilding, and what invalidates what.
-- **Values in prose.** How a list, a number, a boolean and `null` print, and the id of a heading
-  that's only an expression, which Markz alone makes `section` (`expressions`).
-- **Dotted keys.** Markz reads `author.name` as one key, as YAML does. Whether
-  `${page.author.name}` reaches it (`expressions-dotted-key`).
-- **A missing value.** Whether `${page.subtitle}` fails when the page has none, or prints nothing
-  (`error-expression-missing`).
-- **A component from a URL.** Whether its tag warns as undefined, since nothing in the build
-  defines it (`third-party-component`).
-- **Links.** Whether a link to a relative file, such as `./data.csv`, is checked like an image,
-  or left to the author, since a link to another page is Sitez's (`standalone-link`).
+- **Dev loop.** `dev` reloads on a change to the page, its frame, CSS or elements, a JSON file or
+  a module a template ran, and renders the whole page again. What invalidates what, once there are
+  many pages.
 - **Wide tables on a phone.** A table wider than the screen pushes the page sideways. CSS alone
   can't scroll it without costing the table its semantics, so the compiler might wrap each table
   in a scrolling `<div>`, which is a change to Markz's markup (`prose`).

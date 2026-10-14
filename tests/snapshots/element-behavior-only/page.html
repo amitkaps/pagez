@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Behavior only</title>
+    <meta property="og:title" content="Behavior only" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <script type="module">
+      import { define } from "@amitkaps/pagez/runtime";
+      import copyCode from "./index.md?pagez=setup&element=copy-code&lang.js";
+      define("copy-code", copyCode);
+    </script>
+  </head>
+  <body>
+    <main>
+<copy-code><pre><code class="language-js">console.log(&quot;copy me&quot;);
+</code></pre>
+</copy-code>
+</main>
+  </body>
+</html>
