@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>A component from a URL</title>
+    <meta property="og:title" content="A component from a URL" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+  </head>
+  <body>
+    <main>
+<sl-button><p>Click</p>
+</sl-button>
+<style>
+  sl-button:not(:defined) {
+    visibility: hidden;
+  }
+</style>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/components/button/button.js"></script>
+</main>
+  </body>
+</html>

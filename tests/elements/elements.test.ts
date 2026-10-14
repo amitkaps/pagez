@@ -4,7 +4,7 @@
  * What an element does in a frame and in another element's output, which is what it does in text.
  * Elements render innermost first, their content goes in their slot or its fallback shows, and what
  * an element writes is read for elements too. Each failure names the file that wrote the tag. The
- * host here imports each template module from a data URL, where Sitez loads it through Vite.
+ * host here imports each template module from a data URL, where Pagez loads it through Vite.
  */
 import { describe, expect, test } from "vite-plus/test";
 import { renderElements, type Host } from "../../src/elements/elements.ts";
@@ -26,7 +26,7 @@ element(
 );
 element(
   "site-card",
-  "<template>\n<script>\nexport const count = (rows) => rows?.length ?? 0;\n</script>\n<h2>${attrs.title}</h2><site-note>${count(attrs.data)} rows</site-note>\n</template>",
+  "<template>\n<script>\nconst count = (rows) => rows?.length ?? 0;\n</script>\n<h2>${attrs.title}</h2><site-note>${count(attrs.data)} rows</site-note>\n</template>",
 );
 element("site-a", "<template><site-b></site-b></template>");
 element("site-b", "<template><site-a></site-a></template>");
@@ -35,9 +35,10 @@ element("site-twice", "<template><slot></slot>${html`<slot></slot>`}</template>"
 element("site-wait", "<template>${Promise.resolve(1)}</template>");
 element("site-only", "<script>export default () => {};</script>");
 
-/** A template module, imported as it is from a data URL. */
+/** A template module, imported from a data URL, with `html` from its source. */
+const htmlModule = new URL("../../src/elements/html.ts", import.meta.url).href;
 const evaluate = (element: ElementFile): Promise<Record<string, unknown>> =>
-  import(`data:text/javascript,${encodeURIComponent(templateModule(element, scope))}`);
+  import(`data:text/javascript,${encodeURIComponent(templateModule(element, scope, htmlModule))}`);
 
 const host: Host = {
   elements,

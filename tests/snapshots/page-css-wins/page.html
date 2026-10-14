@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>The page's CSS wins</title>
+    <meta property="og:title" content="The page's CSS wins" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <style>
+      @layer elements {
+        call-out {
+          display: block;
+          border-left: 4px solid;
+          padding-left: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+<call-out><aside class="note"><p>A red border, from the page.</p>
+</aside></call-out>
+<style>
+  call-out {
+    border-color: red;
+  }
+</style>
+</main>
+  </body>
+</html>

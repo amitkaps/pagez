@@ -4,8 +4,9 @@
  * A page links the files beside it as they're written ([The folder](../docs/design.md#the-folder)),
  * so Pagez checks that each one is there, and the build fails on one that isn't rather than the
  * page showing a broken image. A reference is a `src` or a `poster`, a `<link>`'s `href`, and an
- * `@import` or a `url()` in CSS. A full URL, a path from the site's root and a fragment are left
- * alone, and so is a link's `href`, which can name another page (`plan.md`, Links).
+ * `@import` or a `url()` in CSS, and a link's `href` when it names a file, such as `./data.csv`. A
+ * full URL, a path from the site's root and a fragment are left alone, and so is a link to a
+ * `.md`, which is another page, checked once a folder builds many.
  *
  * A stylesheet's references are its own, from its folder, as the browser reads them. In CSS, an
  * `@import` that doesn't start with `.` names a package, as a script's `import` does. A
@@ -26,6 +27,11 @@ export function exists(dir: string, reference: string): boolean {
   return existsSync(resolve(dir, decodeURI(reference.split(/[?#]/)[0]!)));
 }
 
+/** Whether a link's `href` names a file beside the page, not another page, which is a `.md`. */
+export function linksFile(href: string): boolean {
+  return isRelative(href) && !/\.md$/i.test(href.split(/[?#]/)[0]!);
+}
+
 const missing = (file: string, where: string, reference: string) =>
   new FileError(file, `${where}${reference} isn't there. Add the file, or fix the path.`);
 
@@ -44,9 +50,10 @@ export function checkHtml(file: string, dir: string, html: string, lines = false
       checkCss(file, dir, html.slice(tag.end, close?.start ?? html.length), at(tag.start));
       continue;
     }
-    const names = tag.name === "link" ? ["href"] : ["src", "poster"];
+    const names = tag.name === "link" || tag.name === "a" ? ["href"] : ["src", "poster"];
     for (const name of names) {
       const value = decode(attribute(tag, name)?.value ?? "");
+      if (tag.name === "a" && !linksFile(value)) continue;
       if (isRelative(value) && !exists(dir, value)) throw missing(file, at(tag.start), value);
     }
   }

@@ -66,9 +66,16 @@ code or file lives.
   relative path, as the source reads. One that isn't there fails the build: in the Markdown at its
   line, and in raw HTML or CSS naming the reference. Vite then gives each a hashed name in
   `dist/assets/`, and inlines one under 4 KB.
-- **Scripts are one module.** The page's scripts become one module, which Vite bundles. It holds
-  the elements' runtime, the `setup` of each element the page uses, and the page's own module
-  scripts, with what they import. A library two elements share is in it once.
+- **Scripts are one module.** The elements' scripts become one module, which Vite bundles: the
+  elements' runtime, then the `setup` of each element the page uses, with what they import. A
+  library two elements share is in it once. A page's own `<script type="module" src>` is left as
+  written, and Vite bundles it too.
+- **Imports are checked first.** In an element's script, a relative file must be there and a
+  package must be in a `node_modules` the element's folder reaches, or the build fails at the
+  import's line. A browser script can't import Pagez or Node's own modules.
+- **A link to a file,** such as `./data.csv`, is checked, and the build gives it a hashed name,
+  since Vite bundles what HTML loads and not what it links to. A link to a `.md` is to another
+  page, which waits for many pages.
 - `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a
   page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
@@ -124,13 +131,22 @@ or behavior.
 
 Prose and templates evaluate separately.
 
-| Where           | Parsed by               | Scope                                         | Power             |
-| --------------- | ----------------------- | --------------------------------------------- | ----------------- |
-| Prose `${…}`    | Markz (expression node) | `page`                                        | dotted paths only |
-| Template `${…}` | Pagez (raw template)    | `attrs`, `page`, `html`, the script's exports | full JavaScript   |
+| Where           | Parsed by               | Scope                                       | Power             |
+| --------------- | ----------------------- | ------------------------------------------- | ----------------- |
+| Prose `${…}`    | Markz (expression node) | `page`                                      | dotted paths only |
+| Template `${…}` | Pagez (raw template)    | `attrs`, `page`, `html`, the script's names | full JavaScript   |
 
 - Prose refers to values, and elements compute.
-- Anything beyond a dotted path in prose fails, at the node's position.
+- Anything beyond a path into `page` fails, at the expression's line and column. So does a value
+  the page doesn't have, since printing nothing would hide a typo.
+- A key with a dot, `author.name: Ada`, is one key, as Markz and YAML read it, and
+  `${page.author.name}` reaches it. At each step the longest key that matches wins.
+- Prose prints a string or a number, escaped. A list, a boolean and an empty value have no one way
+  to read as text, so each fails, and an element writes it.
+- A link's destination prints its values the same way. An element's attribute that is one
+  `${…}` is the value itself, so `{@tag-list tags=${page.tags} /}` gives the template the list.
+- A heading that prints a value takes its id from what it prints, so `# ${page.title}` is
+  `fish--chips`, where Markz alone makes it `section`.
 - `page` is the page's metadata, the name Sitez uses, so an element that reads only `page` works
   in both.
 
@@ -152,7 +168,10 @@ no settings, as Sitez's `site.md` holds none. Each would-be setting is a convent
 - **Elements** are the page's own definitions and the `@x-tag.html` files beside it, found by
   name. There's nothing to import.
 - **Undefined tags** warn only when a hyphenated tag has no definition and no selector in the
-  page's CSS. That catches a typo without a list of tags to allow.
+  page's CSS. That catches a typo without a list of tags to allow. A component that a script
+  defines gets a rule such as `sl-button:not(:defined) { visibility: hidden; }`, which also keeps
+  it from showing unstyled before its script runs. The warning names the tag's line, and `dev`
+  and `build` print it.
 
 Relative paths resolve from the page file.
 
@@ -187,8 +206,9 @@ there. What's this section's is how elements are used, and where their definitio
 
 - An element is used through Markz, `{@x-tag attr=…}`, optionally with Markdown children.
 - An attribute's value may be a prose expression (a `page` path), which evaluates to any value.
-- Only a string reaches the browser. A list or an object goes to the template and is never
-  written on the tag. Build-time values make HTML, and never become props or state in the
+- Only text reaches the browser. A string or a number is written on the tag, and a list or an
+  object goes to the template alone.
+- An element in the frame renders too, and reads the page's `page`. Build-time values make HTML, and never become props or state in the
   browser.
 
 ### Where definitions live
@@ -197,8 +217,9 @@ there. What's this section's is how elements are used, and where their definitio
   `<style>` and `<script>` are siblings in the block. Definitions sit anywhere in the page,
   typically at the end, like footnotes. A behavior-only element has an empty
   `<template element="x-tag"></template>`, which writes no markup.
-- **In a file,** `@x-tag.html` beside the page. The file's name is the tag, and an `element`
-  attribute is optional and must match.
+- **In a file,** `@x-tag.html` anywhere in the page's folder, kept with what uses it. The file's
+  name is the tag, and an `element` attribute is optional and must match. `node_modules`,
+  `public/`, `dist/` and a name starting with `_` or `.` are skipped.
 - Moving an element from the page to a file is a cut and paste. The same file works in Sitez.
 - An element's block isn't emitted. All other `=html` content stays verbatim.
 
@@ -208,7 +229,7 @@ These fail, at their source positions:
 
 - an invalid custom element name
 - a reserved name
-- two definitions for one name
+- two definitions for one name: two files, or the page and a file, or two in the page
 - a name that isn't lowercase
 - an `element` attribute that doesn't match its file's name
 
@@ -328,15 +349,18 @@ Element CSS is in `@layer elements`, emitted once and only for elements the page
 
 - `setup` scripts are emitted only for elements the page uses that have one.
 - The elements' runtime defines each element, and aborts and cleans up on disconnect.
-- Pagez as a library returns the head, the body, and the CSS and JS of the elements used. Its
-  plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as one module,
-  and Vite bundles and hashes them.
+- Pagez as a library, `compile`, returns the page in its frame, its CSS and its one module. The
+  plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as an inline
+  module, and Vite bundles and hashes them.
+- Templates run at build time in a Vite server, `dev`'s own or one the build makes for the page,
+  so a build script imports what the page's folder has, and a change shows on the next request.
 
 ## Errors
 
 - Markz nodes carry their position and source, so every error points to an exact place.
 - An error inside an `=html` definition is offset from the block's position, so a line in a
   template maps back to the page or the `@x-tag.html` file.
+- A template that throws as it renders names its line, read from the stack.
 
 ## Trust and determinism
 

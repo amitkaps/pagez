@@ -3,17 +3,15 @@ title: "Fish & Chips"
 author: Ada
 tags: [essays, food]
 count: 3
-draft: false
 ---
 
-<!-- Expect: each ${…} in prose is its page value, escaped, so the heading is "Fish &amp; Chips".
-The code span and the escaped one stay literal. Open: how a list, a number, a boolean and null
-print in prose, and what
-id the heading gets, which Markz alone makes "section". -->
+<!-- Expect: each ${…} in prose is its page value, escaped, so the heading is "Fish &amp; Chips"
+and its id is "fish--chips", from what it prints. A number prints as written. The link's
+destination prints its value too. The code span and the escaped one stay literal. -->
 
 # ${page.title}
 
-By ${page.author}, filed under ${page.tags}, read ${page.count} times, draft ${page.draft}.
+By ${page.author}, read ${page.count} times.
 
 A link to [the author](https://example.com/people/${page.author}).
 

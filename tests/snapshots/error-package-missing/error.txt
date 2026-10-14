@@ -1,0 +1,1 @@
+error-package-missing/@x-chart.html: line 4: this imports no-such-package, which isn't in a node_modules beside the page. Install it there, with pnpm add no-such-package.

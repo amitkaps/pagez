@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>A shared import</title>
+    <meta property="og:title" content="A shared import" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      /* Pagez's reset.css */
+    </style>
+    <style>
+      /* Pagez's prose.css */
+    </style>
+    <script type="module">
+      import { define } from "@amitkaps/pagez/runtime";
+      import tickA from "./@tick-a.html?pagez=setup&lang.js";
+      import tickB from "./@tick-b.html?pagez=setup&lang.js";
+      define("tick-a", tickA);
+      define("tick-b", tickB);
+    </script>
+  </head>
+  <body>
+    <main>
+<tick-a><span>a</span></tick-a>
+<tick-b><span>b</span></tick-b>
+</main>
+  </body>
+</html>

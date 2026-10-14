@@ -13,6 +13,6 @@ Something to say after all.
 
 ```=html
 <template element="empty-note">
-  <p><slot>Nothing to say here.</slot></p>
+  <aside><slot>Nothing to say here.</slot></aside>
 </template>
 ```

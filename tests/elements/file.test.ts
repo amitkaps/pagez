@@ -21,7 +21,7 @@ const fails = (source: string) => {
 const full = `<!-- Filters posts by tag. -->
 <template element="tag-filter">
   <script>
-    export const tags = (pages) => pages.flatMap((p) => p.tags ?? []);
+    const tags = (pages) => pages.flatMap((p) => p.tags ?? []);
   </script>
   <p>\${tags(pages).map((t) => html\`<button>\${t}</button>\`)}</p>
 </template>
@@ -43,7 +43,7 @@ describe("readElement", () => {
   test("reads each part, and the template's script apart from its markup", () => {
     const element = read(full);
     expect(element.name).toBe("tag-filter");
-    expect(element.template!.script!.text).toContain("export const tags");
+    expect(element.template!.script!.text).toContain("const tags");
     expect(element.template!.markup.text.trim()).toMatch(/^<p>/);
     expect(element.style!.text).toContain("display: block");
     expect(element.script!.text).toContain("export default");
@@ -54,8 +54,9 @@ describe("readElement", () => {
     const line = (code: string, text: string) =>
       code.split("\n").findIndex((l) => l.includes(text)) + 1;
     const template = templateModule(element, ["page", "pages", "site"]);
-    expect(line(template, "export const tags")).toBe(4);
-    expect(line(template, "export default ({ attrs, html, page, pages, site }) => html`")).toBe(5);
+    expect(line(template, 'import { html } from "@amitkaps/pagez";')).toBe(1);
+    expect(line(template, "const tags")).toBe(4);
+    expect(line(template, "export default ({ attrs, page, pages, site }) => html`")).toBe(5);
     expect(line(template, "<p>")).toBe(6);
     expect(template).not.toContain("display: block");
     expect(line(setupModule(element), "addEventListener")).toBe(17);
@@ -106,9 +107,24 @@ describe("readElement", () => {
       "shadowrootmode makes a shadow root",
     ],
     [
+      "a declaration named like the scope",
+      "<template><script>\nconst page = 1;\n</script></template>",
+      "line 2: this declares page, which the template already has (attrs, html, page, pages, site).",
+    ],
+    [
       "an export named like the scope",
-      "<template><script>\nexport const page = 1;\n</script></template>",
-      "line 2: this exports page, which the template already has (attrs, html, page, pages, site).",
+      "<template><script>\nexport function attrs() {}\n</script></template>",
+      "line 2: this declares attrs, which the template already has",
+    ],
+    [
+      "a name in a pattern named like the scope",
+      "<template><script>\nconst { a, b: [site] } = x;\n</script></template>",
+      "line 2: this declares site, which the template already has",
+    ],
+    [
+      "an import of html, which the script has",
+      '<template><script>\nimport { html } from "@amitkaps/pagez";\n</script></template>',
+      "line 2: this imports html, which the template's script already has. Remove it.",
     ],
     [
       "a default export in the template's script",

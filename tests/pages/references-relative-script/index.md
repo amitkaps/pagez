@@ -2,8 +2,8 @@
 title: A relative script
 ---
 
-<!-- Expect: chart.js and the data.js it imports are bundled into the page's one inline module,
-since a module script's src doesn't load from disk. -->
+<!-- Expect: the script is left as written, and checked. Vite bundles chart.js and the data.js it
+imports into dist/. -->
 
 ```=html
 <div id="chart"></div>

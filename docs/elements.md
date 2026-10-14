@@ -18,8 +18,8 @@ inside `<template>` is what the build writes, and what is outside ships, as `<st
 <!-- blog/@tag-filter.html -->
 <template>
   <script>
-    export const posts = (pages) => pages.filter((p) => p.url.startsWith("/blog/") && p.date);
-    export const tags = (pages) => [...new Set(posts(pages).flatMap((p) => p.tags ?? []))].sort();
+    const posts = (pages) => pages.filter((p) => p.url.startsWith("/blog/") && p.date);
+    const tags = (pages) => [...new Set(posts(pages).flatMap((p) => p.tags ?? []))].sort();
   </script>
   <p>
     <button value="" aria-pressed="true">All</button>
@@ -46,15 +46,15 @@ inside `<template>` is what the build writes, and what is outside ships, as `<st
 </script>
 ```
 
-| Part                           | Runs    | Gives                                                          |
-| ------------------------------ | ------- | -------------------------------------------------------------- |
-| `<template>`                   | build   | the element's inner HTML, evaluated as an `html` template      |
-| `<script>` inside `<template>` | build   | named exports in the template's scope, and nothing in the page |
-| top-level `<style>`            | ships   | the element's CSS, in `@layer elements`                        |
-| top-level `<script>`           | browser | `setup(el, { signal })`, which may return a cleanup function   |
+| Part                           | Runs    | Gives                                                        |
+| ------------------------------ | ------- | ------------------------------------------------------------ |
+| `<template>`                   | build   | the element's inner HTML, evaluated as an `html` template    |
+| `<script>` inside `<template>` | build   | its names in the template's scope, and nothing in the page   |
+| top-level `<style>`            | ships   | the element's CSS, in `@layer elements`                      |
+| top-level `<script>`           | browser | `setup(el, { signal })`, which may return a cleanup function |
 
 Each part is optional. A template with no `${…}` is static markup, and an element whose markup
-the text writes has no template.
+the text writes has no template, or an empty one.
 
 Pagez adds six rules to the three parts, each in its part below: a value or markup in `${…}`, the
 template's scope, the build script, the slot, the style's selectors, and `setup`. Everything else
@@ -105,14 +105,15 @@ stays a tag and `Tom & Jerry` stays text.
 
 The template's scope is the host's context and the element's own.
 
-- `attrs` holds the element's attributes. `data="talks.json"` arrives parsed, as `attrs.data`,
+- `attrs` holds the element's attributes, each a string as HTML has it, or the value itself when
+  the page writes one, as in `tags=${page.tags}`. `data="talks.json"` arrives parsed, as `attrs.data`,
   since the host reads it first. Whether `data` stays is open ([plan.md](plan.md#open-questions),
   "Where data lives").
 - `page` is the page's metadata and URL. `pages` and `site` come with many pages
   ([folders.md](folders.md#the-rules)), as they were in Sitez.
 - `html` is in scope, since the template is its literal.
-- The template's `<script>` adds its named exports by name. An export named like anything above
-  fails, naming the export.
+- The template's `<script>` adds whatever it declares or imports. A name like anything above
+  fails, naming it.
 
 Attributes live under `attrs`, so they can't collide with `page` or `site`, and no attribute name
 is reserved.
@@ -127,30 +128,31 @@ its own: a library such as d3, a layout it shares with its browser script, or ma
 with other elements. On amitkaps.com, four of seven elements have one, each for an import.
 
 A template literal holds no local variables. An element whose markup needs intermediate values,
-such as the treemap's layout, exports one function and its template is one line.
+such as the treemap's layout, declares one function and its template is one line.
 
 ```html
 <!-- notes/@notes-treemap.html -->
 <template>
   <script>
-    import { html } from "@amitkaps/pagez";
     import { layout, place } from "./treemap.js";
-    export const chart = ({ data, year, fill, slider, play }) => { …; return html`…`; };
+    const chart = ({ data, year, fill, slider, play }) => { …; return html`…`; };
   </script>
   ${chart(attrs)}
 </template>
 ```
 
-The script imports `html` itself when it writes markup, since only the template has it in scope.
-A literal backtick or `${` in the template's markup is escaped, as in any template literal.
+The script is the top of the template's module, so whatever it declares or imports is in the
+markup's scope, with no `export`. It has `html` too, with no import, and importing it fails. A
+module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host
+resolves to its own, so the page's folder needn't install Pagez. A literal backtick or `${` in the
+template's markup is escaped, as in any template literal.
 
-Two simplifications are planned. The script is the top of the template's module, so whatever it
-declares or imports is already in scope, and `export` is ceremony. And the host can give the
-script `html`, so it needs no import ([plan.md](plan.md#next-in-order)).
+`export` was required once, as the list of what the markup used. It said nothing the module
+didn't, and an author had to remember it on every helper.
 
 ### `html`
 
-The template is an `html` literal, and a build script imports `html` to write markup of its own.
+The template is an `html` literal, and a build script has `html` to write markup of its own.
 At build time `html` records its strings and values and renders nothing. The renderer turns that
 value into a string. It follows the HTML tokenizer through the template, so each place a value can
 go means what HTML makes of it there. The rules began as htl's, a library that makes DOM nodes
@@ -311,7 +313,8 @@ Each failure names the file and the line.
 - The top level holds at most one `<template>`, one `<style>` and one `<script>`. Anything else
   there fails.
 - A template holds at most one `<script>`, and it comes first.
-- An export that shadows the template's scope fails.
+- A name in the build script that shadows the template's scope fails, and so does an import of
+  `html`.
 - `</script>` inside a script's string ends the script, as in any HTML. It fails, asking for
   `<\/script>`. A script's text is otherwise read as code, so `<template>` in a string is safe.
 - A named slot, two slots, content with no slot, and `shadowrootmode` fail.
