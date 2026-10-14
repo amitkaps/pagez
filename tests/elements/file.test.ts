@@ -5,7 +5,7 @@
  * check that needs only the file, each failing with the line.
  */
 import { describe, expect, test } from "vite-plus/test";
-import { elementStyle, readElement, setupModule, templateModule } from "../../src/elements/file.ts";
+import { readElement, setupModule, templateModule } from "../../src/elements/file.ts";
 
 const file = "/site/code/@tag-filter.html";
 const read = (source: string) => readElement(file, ["page", "pages", "site"], source);
@@ -60,9 +60,6 @@ describe("readElement", () => {
     expect(line(template, "<p>")).toBe(6);
     expect(template).not.toContain("display: block");
     expect(line(setupModule(element), "addEventListener")).toBe(17);
-    const style = elementStyle(element);
-    expect(line(style, "@layer elements {")).toBe(9);
-    expect(line(style, "display: block")).toBe(11);
   });
 
   test("takes every part as optional", () => {

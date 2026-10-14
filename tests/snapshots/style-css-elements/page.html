@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The page's CSS and an element's</title>
+    <meta property="og:title" content="The page's CSS and an element's" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <style>
+      note-card {
+        display: block;
+        padding: 1rem;
+        border: 1px solid;
+      }
+      note-card h2 {
+        font-size: 1rem;
+        color: red;
+      }
+    </style>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+<h1 id="notes">Notes</h1>
+<note-card><article><h2 id="a-card">A card</h2>
+<p>Its heading is the element's size, in the page's green.</p>
+</article></note-card>
+<h2 id="after-the-card">After the card</h2>
+<p>A heading in the page's size and blue.</p>
+</main>
+  </body>
+</html>

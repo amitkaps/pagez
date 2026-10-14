@@ -11,8 +11,7 @@
     "pagez": "./dist/cli.js"
   },
   "files": [
-    "dist",
-    "css"
+    "dist"
   ],
   "type": "module",
   "exports": {
@@ -24,8 +23,6 @@
       "types": "./dist/vite.d.ts",
       "default": "./dist/vite.js"
     },
-    "./reset.css": "./css/reset.css",
-    "./prose.css": "./css/prose.css",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -41,10 +38,8 @@
     "prose": "prose",
     "verify": "pnpm check && pnpm test && pnpm build"
   },
-  "dependencies": {
-    "@amitkaps/markz": "^0.4.1"
-  },
   "devDependencies": {
+    "@amitkaps/markz": "^0.4.1",
     "@amitkaps/prose": "^0.4.1",
     "@types/node": "^26.6.4",
     "happy-dom": "20.14.5",

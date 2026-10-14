@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <title>Every Markdown element</title>
-    <meta name="description" content="What prose does with each thing Markdown writes, and nothing else." />
+    <meta name="description" content="What the theme does with each thing Markdown writes, and nothing else." />
     <meta property="og:title" content="Every Markdown element" />
-    <meta property="og:description" content="What prose does with each thing Markdown writes, and nothing else." />
+    <meta property="og:description" content="What the theme does with each thing Markdown writes, and nothing else." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary" />
     <style>
-      /* Pagez's reset.css */
-    </style>
-    <style>
-      /* Pagez's prose.css */
+      /* Pagez's theme.css */
     </style>
   </head>
   <body>
@@ -72,23 +69,34 @@ work, as a real paragraph would. A long name in code wraps rather than widening 
 <hr />
 <p><img src="./square.svg" alt="A square" /> An image in a paragraph stays inline.</p>
 <figure><p><img src="./square.svg" alt="A square, in a figure" /></p>
+<figcaption>A caption under the square.</figcaption>
 </figure>
+<ul>
+<li><input type="checkbox" disabled="" checked="" /> A task that's done</li>
+<li><input type="checkbox" disabled="" /> and one that isn't</li>
+</ul>
 <h5 id="fifth-level">Fifth level</h5>
 <h6 id="sixth-level">Sixth level</h6>
-<p>What Markdown doesn't write, in HTML:</p>
+<h3 id="what-markz-writes-as-elements">What Markz writes as elements</h3>
 <p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd>. H<sub>2</sub>O and x<sup>2</sup>, in
-<abbr title="HyperText Markup Language">HTML</abbr>, with <small>small print</small> and
-<mark>a mark</mark>.</p>
-<dl>
-  <dt>Term</dt>
-  <dd>Its definition.</dd>
-  <dt>Another</dt>
-  <dd>And its own.</dd>
+<abbr title="HyperText Markup Language">HTML</abbr>, with <small>small print</small> and <mark>a mark</mark>.
+<del>Old</del> <ins>new</ins>, <s>struck</s>, <b>bold</b>, <i>italic</i> and <u>underlined</u>. As
+<cite>Ada Lovelace</cite> wrote, <q>the engine weaves algebraic patterns</q>. A <dfn>term</dfn> is
+defined once. Let <var>n</var> be the count, and the output be <samp>Done.</samp> On
+<time datetime="2026-05-01">the first of May</time>, <data value="42">forty-two</data> came. Arabic
+<bdi>مرحبا</bdi> sits in a line, and <bdo dir="rtl">backwards</bdo> runs right to left.</p>
+<dl><dt>Term</dt>
+<dd>Its definition.</dd>
+<dt>Another</dt>
+<dd>And its own.</dd>
 </dl>
-<details>
-  <summary>More</summary>
-  <p>What was folded away.</p>
+<details><summary>More</summary>
+<p>What was folded away.</p>
 </details>
+<aside><p>An aside, which is a block like any other.</p>
+</aside>
+<address><p>1 Example Street, Example City</p>
+</address>
 </main>
   </body>
 </html>

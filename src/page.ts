@@ -22,6 +22,7 @@ import { addToHead, headFields, pageHead, readFrame, SLOT } from "./head.ts";
 import { createLoader, type Loader } from "./parts.ts";
 import { checkCss, checkHtml } from "./references.ts";
 import { textHtml } from "./text.ts";
+import theme from "./theme.css?built";
 
 /** A page's parts. */
 export interface Page {
@@ -29,7 +30,7 @@ export interface Page {
   file: string;
   /** The page in its frame, with its head written and its elements rendered, and none of its CSS. */
   html: string;
-  /** Pagez's CSS, for a `<style>` in the head: the reset and prose, unless the page has its own, then its elements' CSS. */
+  /** Pagez's CSS, for a `<style>` in the head: its theme, unless the page has its own, then its elements' CSS. */
   css: string[];
   /** The stylesheets the head links after it, as written: `style.css`, when the page has one. */
   links: string[];
@@ -44,10 +45,8 @@ export interface Options {
   loader?: Loader;
 }
 
-/** Pagez's reset and prose, which a page with no CSS of its own gets. */
-const BASE = ["reset.css", "prose.css"].map((name) =>
-  readFileSync(new URL(`../css/${name}`, import.meta.url), "utf8"),
-);
+/** Pagez's theme, which a page with no CSS of its own gets. */
+const THEME: string = theme;
 
 const DARK = /\n *<meta name="color-scheme" content="light dark" \/>/;
 
@@ -79,7 +78,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const css = styled ? readFileSync(style, "utf8") : "";
     if (styled) checkCss(style, dir, css);
 
-    // The page's own CSS says whether it has a dark mode, which prose's does.
+    // The page's own CSS says whether it has a dark mode, which the theme's does.
     const shell = await renderElements(
       host,
       styled && !frame.file ? frame.html.replace(DARK, "") : frame.html,
@@ -102,7 +101,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     return {
       file,
       html,
-      css: [...(frame.file || styled ? [] : BASE), ...(elements ? [elements] : [])],
+      css: [...(frame.file || styled ? [] : [THEME]), ...(elements ? [elements] : [])],
       links: styled ? ["style.css"] : [],
       script,
       warnings,

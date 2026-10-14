@@ -168,11 +168,10 @@ overrides:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       '@amitkaps/markz':
         specifier: ^0.4.1
         version: 0.4.1
-    devDependencies:
       '@amitkaps/prose':
         specifier: ^0.4.1
         version: 0.4.1

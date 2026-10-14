@@ -47,7 +47,7 @@ describe("pagez()", () => {
     expect(html).toContain(
       '<fold-out label="Details"><button aria-expanded="false">Details</button>',
     );
-    expect(html).toContain("@layer elements{fold-out{");
+    expect(html).toContain("<style>fold-out{");
     const scripts = readdirSync(join(root, "dist/assets")).filter((file) => file.endsWith(".js"));
     expect(scripts).toHaveLength(1);
     const script = readFileSync(join(root, "dist/assets", scripts[0]!), "utf8");

@@ -1,13 +1,12 @@
 ---
 title: Every Markdown element
-description: What prose does with each thing Markdown writes, and nothing else.
+description: What the theme does with each thing Markdown writes, and nothing else.
 ---
 
-<!-- Expect: no frame and no CSS of its own, so the page is the reset and prose alone. Headings in
-the serif stack and text in the sans one, each block on the measure, and tints mixed from the
-text's color, in light and dark. The Year column is right-aligned, as Markdown says. The
-code's long line wraps, and where the browser can, its wrapped part hangs under it. Open: the
-table, if it were wider than a phone. -->
+<!-- Expect: no frame and no CSS of its own, so the page is Pagez's theme alone. Headings in the
+serif stack and text in the sans one, in one centered column, and tints mixed from the text's
+color, in light and dark. The Year column is right-aligned, as Markdown says. The code's long
+line scrolls. Open: the table, if it were wider than a phone. -->
 
 # Every Markdown element, in prose
 
@@ -52,26 +51,44 @@ function greet(name) {
 
 {@figure}
 ![A square, in a figure](./square.svg)
+
+[A caption under the square.]{@figcaption /}
 {/figure}
+
+- [x] A task that's done
+- [ ] and one that isn't
 
 ##### Fifth level
 
 ###### Sixth level
 
-What Markdown doesn't write, in HTML:
+### What Markz writes as elements
 
-```=html
-<p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd>. H<sub>2</sub>O and x<sup>2</sup>, in
-<abbr title="HyperText Markup Language">HTML</abbr>, with <small>small print</small> and
-<mark>a mark</mark>.</p>
-<dl>
-  <dt>Term</dt>
-  <dd>Its definition.</dd>
-  <dt>Another</dt>
-  <dd>And its own.</dd>
-</dl>
-<details>
-  <summary>More</summary>
-  <p>What was folded away.</p>
-</details>
-```
+Press [Ctrl]{@kbd} + [C]{@kbd}. H[2]{@sub}O and x[2]{@sup}, in
+[HTML]{@abbr title="HyperText Markup Language"}, with [small print]{@small} and [a mark]{@mark}.
+~~Old~~ [new]{@ins}, [struck]{@s}, [bold]{@b}, [italic]{@i} and [underlined]{@u}. As
+[Ada Lovelace]{@cite} wrote, [the engine weaves algebraic patterns]{@q}. A [term]{@dfn} is
+defined once. Let [n]{@var} be the count, and the output be [Done.]{@samp} On
+[the first of May]{@time datetime="2026-05-01"}, [forty-two]{@data value="42"} came. Arabic
+[مرحبا]{@bdi} sits in a line, and [backwards]{@bdo dir="rtl"} runs right to left.
+
+{@dl}
+[Term]{@dt /}
+[Its definition.]{@dd /}
+[Another]{@dt /}
+[And its own.]{@dd /}
+{/dl}
+
+{@details}
+[More]{@summary /}
+
+What was folded away.
+{/details}
+
+{@aside}
+An aside, which is a block like any other.
+{/aside}
+
+{@address}
+1 Example Street, Example City
+{/address}

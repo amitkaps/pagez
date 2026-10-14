@@ -82,7 +82,8 @@ code or file lives.
   the author's choice to depend on it, and it shows in the output.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser
   defines it when the page runs. Only Pagez's own elements render at build time.
-- The bundler is Vite+'s Rolldown, so `vite-plus` is a dependency of Pagez, not only of its build.
+- The bundler is Vite+'s Rolldown, so `vite-plus` is a peer dependency of Pagez, not only of its
+  build. It's the only one: Markz is bundled into `dist/`, as prose bundles it.
 - **Why not one file, or beside the page.** Pagez first wrote one standalone file, with every
   image, font and stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a
   1 MB file that couldn't be read or cached. Then it wrote `index.html` beside `index.md`, which
@@ -158,8 +159,8 @@ feature, not part of the element, so elements stay shared.
 Frontmatter holds the page's metadata, such as `title`, `description`, `url` and `image`. It holds
 no settings, as Sitez's `site.md` holds none. Each would-be setting is a convention.
 
-- **The page's CSS** is a `style.css` beside the page. Pagez links it, in place of its reset and
-  prose ([Pagez's CSS or the page's](#pagezs-css-or-the-pages)).
+- **The page's CSS** is a `style.css` beside the page. Pagez links it, in place of its theme
+  ([Pagez's CSS or the page's](#pagezs-css-or-the-pages)).
 - **The frame** is a `frame.html` beside the page, with one `<slot>` for the page, as Sitez's
   `code/index.html` is. With none, Pagez writes a minimal document. It's for a shell the page's
   CSS can't give, such as a header and footer or tags of its own in the head, so most pages have
@@ -238,100 +239,65 @@ These fail, at their source positions:
 Markdown comes first, so a page with no CSS of its own reads well, in the system's fonts. A page
 with a design of its own brings it in `style.css`, and an element brings its own.
 
-### Layers
+### The cascade
 
-Pagez's CSS opens with one declaration, which makes the order of the cascade public.
+Each kind of CSS has one place, and a later one wins without a setting.
 
-```css
-@layer reset, prose, elements;
-```
+| Order | CSS                    | Where                          | Beats the one before by |
+| ----- | ---------------------- | ------------------------------ | ----------------------- |
+| 1     | Pagez's theme          | a `<style>`, in `@layer theme` |                         |
+| 2     | the elements' CSS      | a `<style>`, unlayered         | layer                   |
+| 3     | the page's `style.css` | a `<link>`, unlayered          | order, at equal weight  |
 
-| Layer       | Holds                                              |
-| ----------- | -------------------------------------------------- |
-| `reset`     | a small normalization, with no typography or color |
-| `prose`     | classless typography for what Markdown writes      |
-| `elements`  | the CSS of each element the page uses, once        |
-| _unlayered_ | the page's `style.css`                             |
+- **The theme is in a layer,** so any unlayered CSS beats it, whatever its specificity.
+- **An element's CSS isn't in a layer.** Its selectors start with its tag, so `note-card h2`
+  outranks a page's `h2`, and a page's tag defaults don't reach into its elements. This is how
+  Svelte's and Vue's scoped CSS win too, with a class where Pagez has the tag.
+- **The page has the last word,** by naming the element. Its `note-card h2` is as specific as the
+  element's, and comes after it. So to change an element, a page selects it in `style.css`.
+- An element's CSS was in `@layer elements` before. It lost to every unlayered rule, so a
+  `style.css` with an `h2` rule, which is most of them, restyled every element's headings.
+  Layering the page's CSS was the fix, and few pages would.
 
-- Pagez's CSS is a `<style>` in the head, since it isn't a file beside the page, and `style.css` is
-  a `<link>` after it.
-- Unlayered CSS beats every layer, so the page's rules win whatever their specificity.
-- A page can add to a layer by name. `@layer prose { … }` adjusts the typography, and still
-  loses to the page's own CSS.
+### The theme
 
-### Reset and prose
+`src/theme.css`, one file of about 150 lines with its comments, for a page with no `style.css` and
+no frame. It's all or nothing: a `style.css` replaces it, so it has nothing to configure, no
+custom properties and no layers to add to. It ships inside `dist/` as text, as prose's page files
+do, so the package is code alone. A page that wants it as its start copies it from the
+repository.
 
-They follow the common modern resets (Josh Comeau's, Andy Bell's), [good-css](https://good-css.com/)
-and modern font stacks, with what Markdown needs changed. Each choice is checked on the `stories`
-and `prose` test pages, in light, dark and at a phone's width. The structure is settled, but the
-width and the typography's numbers are a first pass, still to improve
-([Prose's look](plan.md#open-questions)).
-
-- **The reset** has no typography or color. It sets `box-sizing: border-box`, keeps a phone from
-  enlarging text on its own, zeroes block margins, keeps media no wider than its container, gives
-  form controls the page's font at 16px or more so iOS doesn't zoom, and leaves room above a
-  heading linked to by its id. An image stays inline, unlike in those resets, since Markdown puts
-  an image in a paragraph.
-- **Prose** styles native elements only, with no classes. Its rules are in `:where()`, so their
-  order decides between them, and a page's or an element's CSS beats them by layer anyway.
-- **Fonts.** Headings are serif and text is sans, in the system's fonts: New York and SF Pro on
-  Apple, through `ui-serif` and `ui-sans-serif`, which only Safari reads, then Charter, Sitka or
-  Cambria, and `system-ui`. Code is `ui-monospace` and its stack. Every font is sized to the
-  text's x-height with `font-size-adjust`, so code needs no smaller size and a fallback font
-  matches.
-- **Flow.** Space goes above a block and never below, and a first child has none, so spacing is
-  in one direction and needs no list of containers. Headings have more above them and less after
-  them. Prose sets block margins itself, so a `style.css` can import it without the reset.
-- **Scale.** Headings step by `--prose-ratio`, 1.25, from `pow()`. The top two steps grow with the
-  screen, within 2.5 times their smallest, so zoomed text still grows. The steps are
-  `--prose-step-1` to `--prose-step-4`, for a page's or an element's CSS to use too. Headings
-  are balanced and trimmed to their letters with `text-box` where the browser can, and text is
-  `pretty`, with hyphens on a narrow screen.
-- **Size.** Text is 16px on a phone, growing to 18px on a wide screen, in `rem` so the reader's
-  own setting scales it. Every size and space in prose is in `rem`, so it grows too.
-- **The measure,** 50ch, is about 72 characters a line, within typography's 45 to 75, and close
-  to a Svbtle post's 600px at 18px. A `ch` is
-  the width of a "0", which is wider than the average letter and space, so 65ch, the usual
-  figure, is about 90 characters, measured. It's on each block, not on its container, and
-  centers it. So a section's
-  background reaches the screen's edges while its text keeps to the measure, and a page needs no
-  wrapper. A content grid with breakout columns was the alternative, but it needs page CSS for
-  each full-width section, and a float in a grid is ignored. `--prose-measure` is a registered
-  length, so it's worked out once, in the page's font, and a heading lines up with the
-  paragraphs.
-- **Color.** Prose sets `color-scheme: light dark`, and the minimal document's head says so too,
-  so dark mode works with no palette. Tints and rules are mixed from `--prose-accent`, the text's
-  own color unless a page sets one, so they follow the scheme and the page's colors. More
-  contrast, when asked for, makes them stronger. A page that sets a light background of its own
-  sets `color-scheme: light` too, or its text turns light in dark mode.
-- **Code blocks wrap** rather than scroll, so a long line is seen whole on a phone. Its wrapped
-  part hangs 6ch in, which is deeper than most lines start, so it isn't read as a new line. CSS
-  measures that from the box, not from the line's own indentation, so a deeply nested line can
-  still mislead.
-- **On paper,** a page is light, shows each link's address and keeps a block on one page.
-- **Custom properties** change prose in a line: `--prose-font`, `--prose-heading-font`,
-  `--prose-mono`, `--prose-leading`, `--prose-measure`, `--prose-gutter`, `--prose-ratio` and
-  `--prose-accent`. A custom font is an `@font-face` and one of them, and sans headings are
-  `--prose-heading-font: var(--prose-font)`.
-- **Left out on purpose:** `font-synthesis: none`, which would leave `_emphasis_` plain in a font
-  with no italic; restyled list markers, which cost a list its semantics in Safari; a table that
-  becomes cards on a phone, which needs a label on every cell; and focus styles, which the
-  browser does well.
-- Both are files in the package, `@amitkaps/pagez/reset.css` and `@amitkaps/pagez/prose.css`,
-  each small enough to read in a sitting. Their version is Pagez's. Changing them changes every
-  page, so they change rarely.
+- **It styles what Markz writes,** and the document around it, by tag, with no classes. A test
+  holds it to Markz's tags.
+- **One readable column.** Text and headings are the system's font, `system-ui`, and code is
+  `ui-monospace` in Safari, then Menlo or Consolas, named since Chrome's `monospace` on a Mac is
+  Courier. Every font is sized to its x-height with `font-size-adjust: ex-height from-font`, so code
+  needs no smaller size. Text is 16px on a phone, growing to 18px on a wide screen, in `rem` so the
+  reader's setting scales it. The column is `main`, 60ch, about 85 characters a line, centered, so
+  nothing inside an element is narrowed. The browser's own margins and lists stay.
+- **Light and dark** from `color-scheme: light dark`, which the minimal document's head says too.
+  Tints and rules are mixed from the text's color in `oklch`, so they follow the scheme, and
+  a mark and a selection have a color for each, from `light-dark()`, since the browser's yellow
+  mark glares in dark mode. A page that sets a
+  light background of its own sets `color-scheme: light` too, or its text turns light in dark
+  mode.
+- **Code, quotes, tables and rules** get a tint or a line, and a code block scrolls.
+- It replaced a reset and a prose stylesheet of about 400 lines, with a modular scale, a measure
+  on every block, print and contrast styles, and eight custom properties. A `style.css` replaced
+  them, so the custom properties could only be set from a `<style>` in the page, and an element
+  that used `--prose-step-3` lost it on any page with CSS of its own. It's simpler to judge one
+  readable look, and to write a `style.css` for anything else.
 
 ### Pagez's CSS or the page's
 
-- **With no `style.css` and no frame,** the page gets the reset and prose. That's the
-  Markdown-first page, and the minimal document says `color-scheme: light dark`, as prose does.
-- **With a `style.css`,** the page's CSS is its own design, and replaces the reset and prose. It's
-  linked as written, so it reads, caches and is shared like any file, and it can `@import` and
-  `url()` the fonts and images beside it. A `style.css` that wants prose as its start imports it
-  by URL, or keeps a copy beside it. The minimal document leaves out `color-scheme`, since a
-  page's own CSS says whether it has a dark mode.
-- **With a frame,** the frame is the design, and gets neither, as in Sitez. A `style.css` is still
-  linked.
+- **With no `style.css` and no frame,** the page gets the theme. That's the Markdown-first page,
+  and the minimal document says `color-scheme: light dark`, as the theme does.
+- **With a `style.css`,** the page's CSS is its own design, and replaces the theme. It's linked
+  as written, so it reads, caches and is shared like any file, and it can `@import` and `url()`
+  the fonts and images beside it. The minimal document leaves out `color-scheme`, since a page's
+  own CSS says whether it has a dark mode.
+- **With a frame,** the frame is the design, and doesn't get the theme, as in Sitez. A `style.css`
+  is still linked.
 - So there's no setting. Sitez dropped its reset because amitkaps.github.io's first rules undid
   it, and a site with a design of its own brings its CSS.
 - **A `<style>` in an `=html` block is raw HTML,** written where it is, like any other. A browser
@@ -342,8 +308,8 @@ width and the typography's numbers are a first pass, still to improve
 
 ### Element CSS
 
-Element CSS is in `@layer elements`, emitted once and only for elements the page uses
-([elements.md](elements.md#the-style)).
+Element CSS is emitted once and only for elements the page uses, unlayered, before the page's
+`style.css` ([elements.md](elements.md#the-style)).
 
 ## JavaScript
 
