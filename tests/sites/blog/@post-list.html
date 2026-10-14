@@ -1,0 +1,7 @@
+<template>
+<script>
+const posts = (pages, under) =>
+  pages.filter((page) => page.path.startsWith(under) && page.path !== under);
+</script>
+<ul>${posts(pages, attrs.under).map((post) => html`<li><a href="${post.path}">${post.title}</a></li>`)}</ul>
+</template>

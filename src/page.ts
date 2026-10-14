@@ -22,8 +22,8 @@ import { renderElements, type Host } from "./elements/elements.ts";
 import { FileError } from "./elements/errors.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT, type Metadata } from "./head.ts";
 import { createLoader, type Loader } from "./parts.ts";
-import { checkCss, checkHtml, relink, type Pages } from "./references.ts";
-import { nearest, pagePath, readSite, type Site } from "./site.ts";
+import { checkCss, checkHtml, relink, siteLinks } from "./references.ts";
+import { nearest, pagePath, readSite, type Site, type SitePage } from "./site.ts";
 import { textHtml } from "./text.ts";
 import theme from "./theme.css?built";
 
@@ -41,6 +41,8 @@ export interface Page {
   links: string[];
   /** The page's one module, when an element it uses has behavior. */
   script?: string;
+  /** The elements it uses that have behavior, by name. */
+  behavior: string[];
   /** What's worth fixing that doesn't stop the build, each as `line N: message`. */
   warnings: string[];
 }
@@ -68,19 +70,27 @@ const DARK = /\n *<meta name="color-scheme" content="light dark" \/>/;
  * frame's references are its own, from its folder, and every reference in the page is then
  * written from where the page is built, `about/` for `about.md`. With a `url` in `pagez.md`, the
  * page's is that and its path, and a page that sets its own fails, since it would be ignored.
+ *
+ * A template gets the page as `page`, every page the site builds as `pages`, sorted by path, and
+ * `pagez.md`'s metadata as `site`. Each page is its metadata with its `path` from the root,
+ * `/about/`, which a link can be written as, and its `url` when the site has one.
  */
 export async function compile(file: string, options: Options = {}): Promise<Page> {
   const dir = dirname(file);
   const site = options.site ?? readSite(dir);
   const { root } = site;
-  const path = pagePath(root, file);
-  const out = join(root, path);
-  const pages: Pages = new Map(site.pages.map((page) => [page.file, join(root, page.path)]));
+  const at = site.all.find((page) => page.file === file);
+  const path = at?.path ?? pagePath(root, file);
+  const out = dirname(join(root, at?.html ?? `${path}index.html`));
+  const links = siteLinks(site);
   let own: Loader | undefined;
   const loader = async () => options.loader ?? (own ??= await createLoader(root));
   try {
     const doc = parse(readFileSync(file, "utf8"));
-    const page = withUrl(file, doc.metadata ?? {}, site, path);
+    const page =
+      at === site.notFound
+        ? { ...doc.metadata }
+        : listed(site, { file, path, metadata: { ...doc.metadata } });
     const definitions = readDefinitions(file, doc, root);
     const host: Host = {
       elements: definitions.elements,
@@ -89,16 +99,20 @@ export async function compile(file: string, options: Options = {}): Promise<Page
         return (await loader()).load(element);
       },
       data: (path) => readData(dir, path),
-      context: { page },
+      context: {
+        page,
+        pages: site.pages.map((page) => listed(site, page)),
+        site: site.metadata,
+      },
     };
-    const text = await textHtml(file, doc, page, definitions, host, pages);
+    const text = await textHtml(file, doc, page, definitions, host, links);
     const body = text.html.trimEnd();
     checkHtml(file, dir, body);
     const frame = readFrame(nearest(root, dir, "frame.html"));
     if (frame.file) {
       const from = dirname(frame.file);
       checkHtml(frame.file, from, frame.html, true);
-      frame.html = relink(frame.file, frame.html, from, dir, pages, true);
+      frame.html = relink(frame.file, frame.html, from, dir, links, true);
     }
     const style = nearest(root, dir, "style.css");
     const css = style ? readFileSync(style, "utf8") : "";
@@ -116,7 +130,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const written = pageHead(shell, fields, fallback).replace(SLOT, () =>
       body ? `\n${body}\n` : "",
     );
-    const html = relink(file, written, dir, out, pages);
+    const html = relink(file, written, dir, out, links);
     const used = usedElements(definitions.elements, html);
     const elements = elementCss(used, out);
     const script = pageScript(used, out);
@@ -134,6 +148,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
       css: [...(frame.file || style ? [] : [THEME]), ...(elements ? [elements] : [])],
       links: style ? [relative(out, style)] : [],
       script,
+      behavior: used.filter((element) => element.script).map((element) => element.name),
       warnings,
     };
   } finally {
@@ -141,18 +156,23 @@ export async function compile(file: string, options: Options = {}): Promise<Page
   }
 }
 
-/** The page's metadata, with its `url` made from `pagez.md`'s when the site has one. */
-function withUrl(file: string, page: Metadata, site: Site, path: string): Metadata {
+/** @prose
+ * A page as a template sees it: its metadata, its `path` from the root, and its `url`, made from
+ * `pagez.md`'s when the site has one. A page that sets its own `url` then fails, since it would be
+ * ignored.
+ */
+function listed(site: Site, page: Pick<SitePage, "file" | "path" | "metadata">): Metadata {
   const { url } = site.metadata;
-  if (typeof url !== "string") return page;
-  const address = new URL(path, url.endsWith("/") ? url : `${url}/`).href;
-  if (page.url !== undefined) {
+  const at = { ...page.metadata, path: `/${page.path}` };
+  if (typeof url !== "string") return at;
+  const address = new URL(page.path, url.endsWith("/") ? url : `${url}/`).href;
+  if (page.metadata.url !== undefined) {
     throw new FileError(
-      file,
-      `url is ${JSON.stringify(page.url)}, and a page's address is pagez.md's url and its path, ${address}. Remove url, or move the file.`,
+      page.file,
+      `url is ${JSON.stringify(page.metadata.url)}, and a page's address is pagez.md's url and its path, ${address}. Remove url, or move the file.`,
     );
   }
-  return { ...page, url: address };
+  return { ...at, url: address };
 }
 
 /** The text of each `<style>` in `html`. */

@@ -109,8 +109,9 @@ The template's scope is the host's context and the element's own.
   the page writes one, as in `tags=${page.tags}`. `data="talks.json"` arrives parsed, as `attrs.data`,
   since the host reads it first. Whether `data` stays is open ([plan.md](plan.md#open-questions),
   "Where data lives").
-- `page` is the page's metadata and URL. `pages` and `site` come with many pages
-  ([folders.md](folders.md#the-rules)), as they were in Sitez.
+- `page` is the page's metadata, with its `path` from the site's root and its `url`. `pages` is
+  every page the site builds, each the same, and `site` is `pagez.md`'s metadata
+  ([Pages of a site](design.md#pages-of-a-site)), as they were in Sitez.
 - `html` is in scope, since the template is its literal.
 - The template's `<script>` adds whatever it declares or imports. A name like anything above
   fails, naming it.

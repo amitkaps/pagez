@@ -22,13 +22,16 @@
  */
 import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite-plus";
 import { FileError } from "./elements/errors.ts";
 import { attribute, decode, scan } from "./elements/markup.ts";
 import { compile, write } from "./page.ts";
 import { createLoader, parts, serverLoader, type Loader } from "./parts.ts";
-import { linksFile } from "./references.ts";
-import { readSite, type Site } from "./site.ts";
+import { redirectPage } from "./redirects.ts";
+import { fromRoot, linksFile } from "./references.ts";
+import { report, type Report, type Reported } from "./report.ts";
+import { readSite, type Site, type SitePage } from "./site.ts";
 
 /** A folder as its real path, so the entries Pagez names and the ones Vite resolves are the same. */
 const real = (dir: string) => (existsSync(dir) ? realpathSync(dir) : dir);
@@ -42,18 +45,39 @@ function shown(error: unknown): unknown {
   return error;
 }
 
-/** The site at `root`, with its mistakes shown. */
-function site(root: string): Site {
+/** The site at `root`, with its mistakes shown, and its drafts in `dev`. */
+function site(root: string, dev = false): Site {
   try {
-    return readSite(root);
+    return readSite(root, { drafts: dev });
   } catch (error) {
     throw shown(error);
   }
 }
 
-/** Each page's entry, the `index.html` it's built as, and the page. */
-const entries = ({ root, pages }: Site) =>
-  new Map(pages.map((page) => [join(root, page.path, "index.html"), page.file]));
+/** What an entry builds: a page, or a redirect to one. */
+type Entry = { page: SitePage } | { redirect: SitePage; html: string };
+
+/** @prose
+ * Each file the site builds, by its path in memory, `about/index.html` under the root: each page,
+ * `404.html` and each redirect.
+ */
+function entries(site: Site): Map<string, Entry> {
+  const found = new Map<string, Entry>();
+  for (const page of [...site.pages, ...(site.notFound ? [site.notFound] : [])]) {
+    found.set(join(site.root, page.html), { page });
+  }
+  for (const [html, { to }] of site.redirects) {
+    found.set(join(site.root, html), { redirect: to, html });
+  }
+  return found;
+}
+
+/** Pagez's version, for the report. */
+const VERSION = (
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
+    version: string;
+  }
+).version;
 
 /** Adds Pagez to a folder's Vite config, with no options. */
 export default function pagez(): Plugin[] {
@@ -62,13 +86,21 @@ export default function pagez(): Plugin[] {
   let server: ViteDevServer | undefined;
   // A build runs every page's templates in one server, closed once the pages are written.
   let built: Promise<Loader> | undefined;
+  // What the report needs, kept as a build goes.
+  let started = 0;
+  const compiled = new Map<string, { ms: number; behavior: string[] }>();
+  let reported: Omit<Report, "ms" | "out" | "version"> | undefined;
 
-  /** A page's HTML, with its warnings printed. */
-  async function html(file: string, from: Site, loader: Loader): Promise<string> {
+  /** What `id`, an entry, builds, with its mistakes shown. */
+  async function html(from: Site, entry: Entry, loader: () => Promise<Loader>): Promise<string> {
+    if ("redirect" in entry) return redirectPage(from, entry.html, entry.redirect);
     try {
-      const compiled = await compile(file, { site: from, loader });
-      for (const warning of compiled.warnings) config.logger.warn(`${file}: ${warning}`);
-      return write(compiled);
+      const ready = await loader();
+      const t = performance.now();
+      const page = await compile(entry.page.file, { site: from, loader: ready });
+      for (const warning of page.warnings) config.logger.warn(`${entry.page.file}: ${warning}`);
+      compiled.set(entry.page.html, { ms: performance.now() - t, behavior: page.behavior });
+      return write(page);
     } catch (error) {
       throw shown(error);
     }
@@ -92,19 +124,23 @@ export default function pagez(): Plugin[] {
       config = resolved;
       root = real(config.root);
     },
+    buildStart() {
+      started = performance.now();
+      compiled.clear();
+    },
     resolveId(id) {
-      return id.startsWith(root) && id.endsWith("index.html") && entries(site(root)).has(id)
+      return id.startsWith(root) && id.endsWith(".html") && entries(site(root, !!server)).has(id)
         ? id
         : undefined;
     },
     async load(id) {
-      const from = site(root);
-      const file = entries(from).get(id);
-      if (!file) return undefined;
-      this.addWatchFile(file);
-      if (server) return html(file, from, serverLoader(server));
+      const from = site(root, !!server);
+      const entry = entries(from).get(id);
+      if (!entry) return undefined;
+      if ("page" in entry) this.addWatchFile(entry.page.file);
+      if (server) return html(from, entry, async () => serverLoader(server!));
       built ??= createLoader(root);
-      return html(file, from, await built);
+      return html(from, entry, () => built!);
     },
     async buildEnd() {
       await (await built)?.close();
@@ -114,23 +150,51 @@ export default function pagez(): Plugin[] {
     generateBundle: {
       order: "post",
       handler(_, bundle) {
-        for (const asset of Object.values(bundle)) {
-          if (asset.type !== "asset" || !asset.fileName.endsWith(".html")) continue;
-          const dir = dirname(asset.fileName);
-          asset.source = withLinkedFiles(String(asset.source), join(root, dir), (file) => {
+        const from = site(root);
+        const pages: Reported[] = [];
+        let [css, js] = [0, 0];
+        for (const file of Object.values(bundle)) {
+          const source = file.type === "asset" ? file.source : file.code;
+          if (file.fileName.endsWith(".css")) css += gzipSync(source).length;
+          if (file.fileName.endsWith(".js")) js += gzipSync(source).length;
+          if (file.type !== "asset" || !file.fileName.endsWith(".html")) continue;
+          const dir = dirname(file.fileName);
+          let out = withLinkedFiles(String(file.source), join(root, dir), (linked) => {
             const ref = this.emitFile({
               type: "asset",
-              name: basename(file),
-              originalFileName: file,
-              source: readFileSync(file),
+              name: basename(linked),
+              originalFileName: linked,
+              source: readFileSync(linked),
             });
             const name = this.getFileName(ref);
             if (!/^\.?\/?$/.test(config.base)) return config.base + name;
-            const out = relative(dir, name);
-            return out.startsWith(".") ? out : `./${out}`;
+            const path = relative(dir, name);
+            return path.startsWith(".") ? path : `./${path}`;
           });
+          if (file.fileName === from.notFound?.html) {
+            out = fromRoot(out, new URL(String(from.metadata.url)).pathname);
+          }
+          file.source = out;
+          const page = compiled.get(file.fileName);
+          if (page) {
+            const path = file.fileName === "404.html" ? "/404.html" : `/${dirname(file.fileName)}/`;
+            pages.push({
+              path: path.replace(/^\/\.\/$/, "/"),
+              html: gzipSync(out).length,
+              ...page,
+            });
+          }
         }
+        pages.sort((a, b) => (a.path < b.path ? -1 : 1));
+        reported = { pages, css, js, redirects: from.redirects.size };
       },
+    },
+    closeBundle() {
+      if (config.command !== "build" || !reported) return;
+      const out = relative(process.cwd(), resolve(root, config.build.outDir)) || ".";
+      const ms = performance.now() - started;
+      config.logger.info(`\n${report({ ...reported, ms, out, version: VERSION })}`);
+      reported = undefined;
     },
     configureServer(dev) {
       server = dev;
@@ -150,22 +214,21 @@ export default function pagez(): Plugin[] {
         const url = request.url ?? "/";
         if (url.includes("?")) return next();
         const path = decodeURI(url).replace(/\/index\.html$/, "/");
-        const from = site(root);
+        const from = site(root, true);
         const found = entries(from);
-        if (!path.endsWith("/")) {
+        const file = path.endsWith("/") ? `${path}index.html` : path;
+        const entry = found.get(join(root, file));
+        if (!entry && !path.endsWith("/") && found.has(join(root, path, "index.html"))) {
           // `/about` is the page at `/about/`, where its relative references are written from.
-          if (!found.has(join(root, path, "index.html"))) return next();
           response.statusCode = 301;
           response.setHeader("Location", `${url}/`);
           return response.end();
         }
-        const file = found.get(join(root, path, "index.html"));
-        if (!file) return next();
+        if (!entry) return next();
         try {
-          const page = await html(file, from, serverLoader(dev));
-          const out = await dev.transformIndexHtml(`${path}index.html`, page);
+          const page = await serve(from, entry, dev);
           response.setHeader("Content-Type", "text/html");
-          response.end(out);
+          response.end(await dev.transformIndexHtml(file, page));
         } catch (error) {
           response.statusCode = 500;
           response.setHeader("Content-Type", "text/plain");
@@ -174,6 +237,13 @@ export default function pagez(): Plugin[] {
       });
     },
   };
+
+  /** An entry in `dev`, `404.html` with its references from the root, as it's built. */
+  async function serve(from: Site, entry: Entry, dev: ViteDevServer): Promise<string> {
+    const out = await html(from, entry, async () => serverLoader(dev));
+    return "page" in entry && entry.page === from.notFound ? fromRoot(out, "/") : out;
+  }
+
   return [main, parts()];
 }
 

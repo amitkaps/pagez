@@ -19,7 +19,7 @@
  * accumulate as Markz's do. A hyphenated tag with no definition is written as Markz writes it,
  * and kept for the warning about undefined tags.
  */
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import {
   html,
   position,
@@ -34,7 +34,7 @@ import { openTag, renderElement, type Host } from "./elements/elements.ts";
 import { FileError } from "./elements/errors.ts";
 import { attributeValue, interpolated, printed } from "./expressions.ts";
 import type { Metadata } from "./head.ts";
-import { exists, isRelative, linksFile, notAPage, type Pages } from "./references.ts";
+import { exists, isRelative, linkTarget, type Links } from "./references.ts";
 
 /** A tag Markz wrote that has a hyphen and no definition, and its line. */
 export interface Undefined {
@@ -44,8 +44,8 @@ export interface Undefined {
 
 /** @prose
  * The page's text as HTML, and its undefined tags. A relative image is checked once its
- * destination is printed, so it fails at its line when it isn't beside the page, and so is a link
- * to a `.md` that isn't one of the site's `pages`.
+ * destination is printed, so it fails at its line when it isn't beside the page, and so does a
+ * link to a page that the site doesn't build, or a path from the root that isn't in `public/`.
  */
 export async function textHtml(
   file: string,
@@ -53,7 +53,7 @@ export async function textHtml(
   page: Metadata,
   { elements, blocks }: Definitions,
   host: Host,
-  pages: Pages,
+  links: Links,
 ): Promise<{ html: string; undefined: Undefined[] }> {
   const at = position(doc.source);
   const fail = (offset: number, message: string) => {
@@ -104,11 +104,9 @@ export async function textHtml(
             `line ${line}: ${destination} isn't there. Add the file, or fix the path.`,
           );
         }
-        if (type === "link" && isRelative(destination) && !linksFile(destination)) {
-          const path = decodeURI(destination.split(/[?#]/)[0]!);
-          if (!pages.has(resolve(dir, path))) {
-            throw new FileError(file, `line ${line}: ${notAPage(destination)}`);
-          }
+        const target = linkTarget(links, dir, destination, type === "link");
+        if (target && "problem" in target) {
+          throw new FileError(file, `line ${line}: ${target.problem}`);
         }
       }
       if (type === "raw" && blocks.has(node)) {

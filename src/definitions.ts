@@ -19,7 +19,7 @@ import { attribute, scan } from "./elements/markup.ts";
 import { siteFiles } from "./site.ts";
 
 /** What Pagez adds to every template's scope. */
-export const SCOPE: string[] = ["page"];
+export const SCOPE: string[] = ["page", "pages", "site"];
 
 /** A page's elements, by name, and the blocks in it that define one, which aren't written. */
 export interface Definitions {

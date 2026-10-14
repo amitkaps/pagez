@@ -1,0 +1,1 @@
+error-draft-yes/index.md: draft is "yes": write draft: true or draft: false.

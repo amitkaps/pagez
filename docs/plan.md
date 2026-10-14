@@ -2,6 +2,18 @@
 
 ## Where it is
 
+### Pages of a site
+
+Sitez's site features are Pagez's ([Pages of a site](design.md#pages-of-a-site)). A template
+gets `pages`, every page the site builds with its `path` and `url`, and `site`, `pagez.md`'s
+metadata, so an index lists its posts. A link may be a path from the root, `/blog/`, which a
+frame or a template writes, and it's checked and written as a relative folder like a `.md`
+link, so `dist/` still works under any path. Drafts are left out of `build` and served by `dev`.
+`404.md` is `404.html`, with its references made absolute from `pagez.md`'s `url`, since a host
+serves it at any path. A page's `redirects` each write a page that refreshes to it, and a link to
+one fails. `build` prints a report of each page's size and time. Links to the repository stayed
+in Sitez, since a linked file is shipped with its page here. `tests/sites/blog` has all of it.
+
 ### Many pages, by folder
 
 Pagez builds a folder of pages, not only its `index.md`: every `.md` is a page at its folder's
@@ -124,18 +136,15 @@ Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with
 The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a
 site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
 
-1. **Sitez's site features.** `pages` and `site` in a template, so an index lists the pages under
-   it, drafts, redirects, `404.md`, links from the site's root and to the repository, and the
-   build report.
-2. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
+1. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories
    repository is archived once the apex moves to Cloudflare.
-3. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and
+2. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and
    no amitkaps.com in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's
    URLs, since they're what's published. History keeps its reason and drops its source, so
    "Sitez 0.3 used a class" becomes why a class was ruled out, and the rest is in git and in
    [Where it is](#where-it-is). Evidence keeps its finding with a neutral example, so
    amitkaps.com's treemap becomes an essay with ten charts of one dataset. What depends on the
-   move, folders.md's comparison with Sitez and steps 1 and 2, becomes plain rules once they're
+   move, folders.md's comparison with Sitez and step 1, becomes plain rules once they're
    done. The `stories` test page becomes a fixture of the same shape. `elements.md` can go
    first, since it's stable.
 

@@ -1,8 +1,8 @@
 # Design
 
 Pagez is a page compiler: a folder of Markz pages in, their HTML out, built to `dist/` through
-Vite. A folder is one page or a site, and Sitez's site features fold in next
-([folders.md](folders.md)), with this design rewritten to that as each step lands. It's built as
+Vite. A folder is one page or a site, with Sitez's site features folded in
+([folders.md](folders.md)). It's built as
 far as [plan.md](plan.md#where-it-is) says. The design started as `pagez.md` in Sitez.
 
 > The build produces the page. JavaScript enhances the page.
@@ -30,8 +30,9 @@ small interactive figure, or a filterable list.
   `style.css` and `frame.html`, images and fonts, and `@x-tag.html` elements.
 - Output is `dist/`: each page's HTML, and their CSS, images and fonts with hashed names, built
   through Vite. The folder is the source, and is never written to ([The folder](#the-folder)).
-- Sitez's site features come next ([plan.md](plan.md#next-in-order)): `pages` and `site` in a
-  template, drafts, redirects, `404.md` and the build report.
+- A site's pages know of each other: a template gets every page, a link between pages is
+  checked, and drafts, redirects and a 404 page are built for it
+  ([Pages of a site](#pages-of-a-site)).
 
 ## The folder
 
@@ -98,10 +99,13 @@ code or file lives.
   import's line. A browser script can't import Pagez or Node's own modules.
 - **A link to a file,** such as `./data.csv`, is checked, and the build gives it a hashed name,
   since Vite bundles what HTML loads and not what it links to.
-- **A link to a page** is to its `.md`, as it reads on GitHub, such as `[hello](essays/first.md)`.
-  It must be one of the site's pages, or the build fails, at its line in the Markdown and naming
-  the frame or the page otherwise. It's written as the folder the page is built in, from where
-  the linking page is, as `./essays/first/`, so `dist/` works under any path.
+- **A link to a page** is to its `.md`, as it reads on GitHub, such as `[hello](essays/first.md)`,
+  or to its path from the site's root, `/essays/first/`, which a frame or a template writes,
+  since it means one page wherever it renders. It must be a page the site builds, or the build
+  fails, at its line in the Markdown and at the frame's line, or naming the page otherwise. It's
+  written as the folder the page is built in, from where the linking page is, as
+  `./essays/first/`, so `dist/` works under any path. Anything else from the root, such as
+  `/favicon.svg`, must be a file in `public/`.
 - `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a
   page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is
@@ -115,6 +119,35 @@ code or file lives.
   1 MB file that couldn't be read or cached. Then it wrote `index.html` beside `index.md`, which
   mixes output into the source, and more so for a site. `dist/` keeps them apart, as Jekyll and
   most static site generators do. Both are parked as single-page exports (plan.md, Later).
+
+## Pages of a site
+
+What a site adds to a page, from Sitez, where it was built and used first.
+
+- **`pages` and `site`** are in every template's scope, beside `page`. `pages` is every page the
+  site builds, sorted by path, each its metadata with its `path` from the root, `/blog/hello/`,
+  and its `url` when `pagez.md` has one. `page` has them too. `site` is `pagez.md`'s metadata, so
+  `site.author` is the site's own key. So an index lists the pages under it, and links to each
+  by its `path`, which works from any page. A page can't set `path`, which is its file's.
+- **A draft,** `draft: true`, is left out of `build`, of `pages` and of what a link reaches, so a
+  link to one fails rather than shipping broken. `dev` builds it like any page, so it can be
+  read as it's written. `draft: yes` is a string to YAML, so it fails rather than publishing.
+- **`404.md`** at the root is built as `404.html`, which a host serves at any path that isn't
+  there. Its references can't be relative, since they'd be read from that path, so the build
+  writes them from the site's root, which `pagez.md`'s `url` gives, and a site with a `404.md`
+  needs one. It isn't in `pages`, and a link to it fails.
+- **Redirects.** A page that moved lists the paths it used to have, `redirects: [/old-name/]`,
+  and each gets a small page, the minimal document, that refreshes to it, names it canonical and
+  asks not to be indexed. An old `/name.html` is written as that file. A redirect can't be a
+  page's path, and two pages can't list one. `/x.html` can't redirect while a page has `/x/`,
+  since a host serves `x.html` at `/x` too, in front of the page. A link to a redirect fails,
+  naming where the page is now, so nothing on the site goes through one.
+- **The build report.** `build` prints each page's HTML, gzipped, the time it took, and the
+  elements that give it behavior, then the CSS and JavaScript the pages share, and the total.
+- **Links to the repository** stay out. Sitez sent a link to any other file in the repository to
+  its page on GitHub, from `pagez.md`'s `repo`. In Pagez a linked file, such as `./data.csv`, is
+  shipped with the page, hashed, which a site of folders needs more, and a link to GitHub is
+  written in full.
 
 ## Markz and Pagez
 
