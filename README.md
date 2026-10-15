@@ -45,12 +45,4 @@ pnpm add -D @amitkaps/pagez vite-plus
 
 It needs Node 26 or newer, the Node it's built and tested on.
 
-## Development
-
-```sh
-pnpm install
-pnpm dev
-pnpm verify    # what CI runs
-```
-
 Read [the docs](docs/README.md) for its design, plan and lessons. It follows [ship's standard](https://ship.amitkaps.com/docs/standard.md) for how it builds, checks and releases.
