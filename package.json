@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@amitkaps/markz": "^0.4.2",
-    "@amitkaps/prose": "^0.5.0",
+    "@amitkaps/prose": "^0.7.0",
     "@types/node": "^26.6.5",
     "happy-dom": "21.0.1",
     "publint": "^0.3.25",

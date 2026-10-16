@@ -1,6 +1,10 @@
-/* Pagez's theme, for a page with no CSS of its own: what Markdown writes, readable, in the
-   system's fonts, light or dark. A style.css replaces it, and any other CSS beats it, since it's
-   all in one layer. https://github.com/amitkaps/pagez */
+/** @prose
+ * # The theme
+ *
+ * [Pagez](https://github.com/amitkaps/pagez)'s theme, for a page with no CSS of its own. It makes
+ * what Markdown writes readable, in the system's fonts, light or dark. A style.css replaces it,
+ * and any other CSS beats it, since it's all in one layer.
+ */
 @layer theme {
   *,
   *::before,
