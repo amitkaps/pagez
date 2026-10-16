@@ -36,7 +36,9 @@
     "fix": "vp check --fix",
     "test": "vp test --run",
     "prose": "prose",
-    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build"
+    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build",
+    "pr": "node scripts/pr.ts",
+    "gone": "node scripts/gone.ts"
   },
   "devDependencies": {
     "@amitkaps/markz": "^0.4.2",
