@@ -355,7 +355,7 @@ function bound(pattern: unknown): string[] {
 }
 
 /** @prose
- * ## The parts as modules
+ * # The parts as modules
  *
  * Each part becomes the whole file with everything but that part blanked, so its lines and
  * columns are the file's. The template is the script's module with one more export, the default,
