@@ -36,11 +36,11 @@
     "fix": "vp check --fix",
     "test": "vp test --run",
     "prose": "prose",
-    "verify": "pnpm check && pnpm test && pnpm build"
+    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "@amitkaps/markz": "^0.4.1",
-    "@amitkaps/prose": "^0.4.1",
+    "@amitkaps/markz": "^0.4.2",
+    "@amitkaps/prose": "^0.5.0",
     "@types/node": "^26.6.5",
     "happy-dom": "21.0.1",
     "publint": "^0.3.25",
