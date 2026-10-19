@@ -37,10 +37,12 @@
     "test": "vp test --run",
     "prose": "prose",
     "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build",
-    "pr": "node scripts/pr.ts",
-    "gone": "node scripts/gone.ts"
+    "pr": "craftz pr",
+    "gone": "craftz gone",
+    "craftz": "craftz"
   },
   "devDependencies": {
+    "@amitkaps/craftz": "^0.1.1",
     "@amitkaps/markz": "^0.6.0",
     "@amitkaps/prose": "^0.8.0",
     "@types/node": "^26.6.5",
