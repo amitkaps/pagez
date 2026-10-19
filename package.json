@@ -41,8 +41,8 @@
     "gone": "node scripts/gone.ts"
   },
   "devDependencies": {
-    "@amitkaps/markz": "^0.4.2",
-    "@amitkaps/prose": "^0.7.1",
+    "@amitkaps/markz": "^0.6.0",
+    "@amitkaps/prose": "^0.8.0",
     "@types/node": "^26.6.5",
     "happy-dom": "21.0.3",
     "publint": "^0.3.25",
