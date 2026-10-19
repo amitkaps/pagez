@@ -2,10 +2,7 @@
 
 pagez — Markdown, as pages.
 
-A folder holds pages written in [Markz](https://github.com/amitkaps/markz), each `.md` at its
-folder's path, and what they use: a `style.css`, a `frame.html`, images and fonts. Pagez compiles
-each page, writes its head from its frontmatter, checks that every file and page it links is
-there, and Vite bundles them with hashed names. One page is the smallest site.
+A folder holds pages written in [Markz](https://github.com/amitkaps/markz), each `.md` at its folder's path, and what they use: a `style.css`, a `frame.html`, images and fonts. Pagez compiles each page, writes its head from its frontmatter, checks that every file and page it links is there, and Vite bundles them with hashed names. One page is the smallest site.
 
 ```text
 site/
@@ -33,9 +30,7 @@ import pagez from "@amitkaps/pagez/vite";
 export default { plugins: [pagez()] };
 ```
 
-0.1 builds one page without elements or `${…}`. Elements, `${…}` and many pages are built since,
-and the rest of Sitez comes next, in [the plan](docs/plan.md#next-in-order).
-[folders.md](docs/folders.md) is where it's going.
+0.1 builds one page without elements or `${…}`. Elements, `${…}` and many pages are built since, and the rest of Sitez comes next, in [the plan](docs/plan.md#next-in-order). [folders.md](docs/folders.md) is where it's going.
 
 ## Install
 
