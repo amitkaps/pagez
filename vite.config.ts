@@ -7,6 +7,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { defineConfig } from "vite-plus";
+import { craftz } from "@amitkaps/craftz";
 import { format } from "vite-plus/fmt";
 
 /** @prose
@@ -50,7 +51,7 @@ const built = {
 const ignored = ["tests/pages/**", "tests/sites/**", "tests/snapshots/**"];
 
 export default defineConfig({
-  plugins: [built],
+  plugins: [craftz(), built],
 
   pack: {
     entry: ["src/index.ts", "src/cli.ts", "src/vite.ts"],
@@ -69,16 +70,9 @@ export default defineConfig({
     plugins: [built],
   },
 
-  // oxfmt's defaults, with each paragraph on one line.
-  fmt: { proseWrap: "never", ignorePatterns: ignored },
-
-  // Type-aware lint that also type-checks, so `pnpm check` needs no separate `tsc`.
-  lint: {
-    plugins: ["typescript", "unicorn", "import"],
-    categories: { correctness: "error" },
-    options: { typeAware: true, typeCheck: true },
-    ignorePatterns: ignored,
-  },
+  // Oxfmt and Oxlint — `vp check`. What they leave alone, beside the rules craftz() sets.
+  fmt: { ignorePatterns: ignored },
+  lint: { ignorePatterns: ignored },
 
   test: {
     expect: { requireAssertions: true },
