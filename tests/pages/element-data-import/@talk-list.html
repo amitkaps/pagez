@@ -1,0 +1,6 @@
+<template>
+  <script>
+    import talks from "./talks.json" with { type: "json" };
+  </script>
+  <ul>${talks.map((talk) => html`<li>${talk.title}, ${talk.year}</li>`)}</ul>
+</template>

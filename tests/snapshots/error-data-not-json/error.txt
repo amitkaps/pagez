@@ -1,1 +1,0 @@
-error-data-not-json/index.md: line 7, column 10: <x-rows> data="rows.csv" isn't JSON, which data is. [error-data-not-json]

@@ -147,9 +147,6 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-browser-import`]{#error-browser-import} | an element's browser script imports Pagez | [`element-script-imports`](elements.md#element-script-imports) |
 | [`error-browser-node`]{#error-browser-node} | an element's browser script imports one of Node's modules, such as `node:fs` | [`element-script-imports`](elements.md#element-script-imports) |
 | [`error-built-file`]{#error-built-file} | an `index.html` is where a page is built | [`folder-dist`](#folder-dist) |
-| [`error-data-invalid`]{#error-data-invalid} | a `data` attribute's file isn't valid JSON | [`element-attrs`](elements.md#element-attrs) |
-| [`error-data-missing`]{#error-data-missing} | a `data` attribute's file isn't there | [`element-attrs`](elements.md#element-attrs) |
-| [`error-data-not-json`]{#error-data-not-json} | a `data` attribute names a file that isn't `.json` | [`element-attrs`](elements.md#element-attrs) |
 | [`error-draft-yes`]{#error-draft-yes} | `draft: yes`, which YAML reads as a string | [`site-draft-yes`](#site-draft-yes) |
 | [`error-element-file-outside`]{#error-element-file-outside} | markup or text in an element file is outside its parts | [`element-parts`](elements.md#element-parts) |
 | [`error-element-file-second-part`]{#error-element-file-second-part} | an element file has a second `<style>` or `<script>` | [`element-parts`](elements.md#element-parts) |
@@ -198,7 +195,7 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-redirect-twice`]{#error-redirect-twice} | a page lists one old address twice, such as `/x/` and `/x.html` | [`site-redirect-taken`](#site-redirect-taken) |
 | [`error-redirect-two-pages`]{#error-redirect-two-pages} | two pages list one old address | [`site-redirect-taken`](#site-redirect-taken) |
 | [`error-redirects-value`]{#error-redirects-value} | `redirects` isn't a list of paths | [`site-redirects`](#site-redirects) |
-| [`error-relative-missing`]{#error-relative-missing} | an image beside the page isn't there | [`files-checked`](#files-checked) |
+| [`error-relative-missing`]{#error-relative-missing} | an image beside the page, or a file a template imports, isn't there | [`files-checked`](#files-checked) |
 | [`error-script-end-in-code`]{#error-script-end-in-code} | `</script>` is inside a script's code | [`element-script-end`](elements.md#element-script-end) |
 | [`error-setup-class`]{#error-setup-class} | an element's browser script exports a class | [`element-setup`](elements.md#element-setup) |
 | [`error-setup-no-default`]{#error-setup-no-default} | an element's browser script has no default export | [`element-setup`](elements.md#element-setup) |

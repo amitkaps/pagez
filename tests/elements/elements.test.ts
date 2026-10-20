@@ -27,7 +27,7 @@ element(
 );
 element(
   "site-card",
-  "<template>\n<script>\nconst count = (rows) => rows?.length ?? 0;\n</script>\n<h2>${attrs.title}</h2><site-note>${count(attrs.data)} rows</site-note>\n</template>",
+  '<template>\n<script>\nconst count = (rows) => rows?.split(",").length ?? 0;\n</script>\n<h2>${attrs.title}</h2><site-note>${count(attrs.data)} rows</site-note>\n</template>',
 );
 element("site-a", "<template><site-b></site-b></template>");
 element("site-b", "<template><site-a></site-a></template>");
@@ -44,10 +44,6 @@ const evaluate = (element: ElementFile): Promise<Record<string, unknown>> =>
 const host: Host = {
   elements,
   load: evaluate,
-  data: (path) =>
-    path === "rows.json"
-      ? { value: [1, 2, 3] }
-      : { id: "error-data-missing", problem: `data="${path}" isn't there.` },
   context: { page: { url: "/about/" } },
 };
 const render = (source: string) => renderElements(host, source, "/site/code/index.html", []);
@@ -85,9 +81,9 @@ describe("renderElements", () => {
     );
   });
 
-  test("renders what an element writes, with its data parsed, for the elements in it", async () => {
-    expect(await render('<site-card title="Cards" data="rows.json" />')).toBe(
-      '<site-card title="Cards"><h2>Cards</h2><site-note><aside><b>Note</b>3 rows</aside></site-note></site-card>',
+  test("renders what an element writes, with a data attribute as a plain string, for the elements in it", async () => {
+    expect(await render('<site-card title="Cards" data="a,b,c" />')).toBe(
+      '<site-card title="Cards" data="a,b,c"><h2>Cards</h2><site-note><aside><b>Note</b>3 rows</aside></site-note></site-card>',
     );
   });
 
@@ -140,11 +136,5 @@ describe("renderElements", () => {
     const error = await fails("<site-wait></site-wait>");
     expect(error.file).toBe("/site/code/@site-wait.html");
     expect(error.message).toMatch(/^a template holds a promise/);
-  });
-
-  test("fails on data that isn't there", async () => {
-    expect((await fails('<site-card data="gone.json" />')).message).toBe(
-      `<site-card> data="gone.json" isn't there.`,
-    );
   });
 });
