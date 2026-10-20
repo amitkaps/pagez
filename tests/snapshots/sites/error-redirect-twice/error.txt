@@ -1,0 +1,1 @@
+error-redirect-twice/index.md: redirects lists /old.html: that's /old/ again, and one redirect sends /old, /old/ and /old.html. List it once.

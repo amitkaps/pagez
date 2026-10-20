@@ -77,8 +77,8 @@ A reference is written as a relative path, a package name or a full URL, and tha
 - [`site-draft`]{#site-draft}: A page with `draft: true` is left out of `build`, of `pages` and of what a link reaches. `dev` builds it, so it can be read as it's written (`blog`, `error-link-draft`).
 - [`site-draft-yes`]{#site-draft-yes}: `draft: yes` fails, since YAML reads it as a string, and a draft written wrong would be published (`error-draft-yes`).
 - [`site-404`]{#site-404}: `404.md` at the root is built as `404.html`. Its references are written from the site's root, so a site with one needs `url` in `pagez.md`. It isn't in `pages` (`blog`, `error-not-found-url`).
-- [`site-redirects`]{#site-redirects}: A page that moved lists its old paths, `redirects: [/old-name/]`, and each gets a small page that refreshes to it. An old `/name.html` is written as that file (`blog`).
-- [`site-redirect-taken`]{#site-redirect-taken}: A redirect can't be a page's path, and two pages can't list one. `/x.html` can't redirect while a page has `/x/`, since a host serves `x.html` at `/x` (`error-redirect-page`, `error-redirect-shadowed`).
+- [`site-redirects`]{#site-redirects}: A page that moved lists its old paths, `redirects: [/old-name/]`, and `build` writes `dist/_redirects`, which Cloudflare Pages and Netlify read. Each old address is a 301 to the page from `/old-name`, `/old-name/` and `/old-name.html`, so it's listed once, in any of them. A `_redirects` in `public/` comes first, and `dev` and `preview` send them too (`blog`, `tests/vite.test.ts`).
+- [`site-redirect-taken`]{#site-redirect-taken}: A redirect can't be a page's path in any spelling, since a host reads `_redirects` before the files it serves. So `/x.html` can't redirect while a page has `/x/`. Two pages can't list one, and a page lists it once (`error-redirect-page`, `error-redirect-shadowed`, `error-redirect-twice`).
 - [`site-report`]{#site-report}: `build` prints each page's size, gzipped, its time and the elements that give it behavior. Then it prints the CSS and JavaScript the pages share, and the total (`tests/vite.test.ts`).
 
 ## Values in prose
@@ -169,7 +169,8 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-page-url`]{#error-page-url} | a page sets a `url` other than the one `pagez.md` gives it | [`folder-url`](#folder-url) |
 | [`error-path-twice`]{#error-path-twice} | `about.md` is beside `about/index.md` | [`folder-page`](#folder-page) |
 | [`error-redirect-page`]{#error-redirect-page} | a redirect is a page's path | [`site-redirect-taken`](#site-redirect-taken) |
-| [`error-redirect-shadowed`]{#error-redirect-shadowed} | an `.html` redirect stands in front of a page's folder | [`site-redirect-taken`](#site-redirect-taken) |
+| [`error-redirect-shadowed`]{#error-redirect-shadowed} | a redirect is a page's path spelled another way, such as `/x.html` | [`site-redirect-taken`](#site-redirect-taken) |
+| [`error-redirect-twice`]{#error-redirect-twice} | a page lists one old address twice, such as `/x/` and `/x.html` | [`site-redirect-taken`](#site-redirect-taken) |
 | [`error-relative-missing`]{#error-relative-missing} | an image beside the page isn't there | [`files-checked`](#files-checked) |
 | [`error-site-file-below`]{#error-site-file-below} | a `pagez.md` is below the root | [`folder-root`](#folder-root) |
 | [`error-style-missing`]{#error-style-missing} | a `url()` in `style.css` isn't there | [`files-checked`](#files-checked) |

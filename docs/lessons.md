@@ -13,6 +13,7 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 
 - **One standalone file didn't scale.** Pagez first wrote each page as one file, with every image, font and stylesheet inlined as a data URL. The real page built to 1 MB of base64 that couldn't be read, cached or shared. Ship files as files, hashed, so a browser caches them.
 - **Output beside the source mixed them.** Then Pagez wrote `index.html` beside `index.md`, which opened from disk with no build step. For a site, that's generated files in every folder of the source. Build to `dist/`, apart from the source ([The folder](pages.md#the-folder)).
+- **Redirects as pages doubled a moved site.** That site listed two old addresses for each of 45 pages, and Pagez wrote 90 pages that refresh, since a static host can't send a 301 from a file. Its host reads `_redirects`, and already sends `/x` and `/x.html` to `/x/`, so one line for each spelling replaced them. Write what the host reads, not pages that stand in for it.
 
 ## CSS
 

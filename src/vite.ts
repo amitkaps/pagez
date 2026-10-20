@@ -24,12 +24,12 @@
 import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
-import type { Plugin, ResolvedConfig, ViteDevServer } from "vite-plus";
+import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from "vite-plus";
 import { FileError } from "./elements/errors.ts";
 import { attribute, decode, scan } from "./elements/markup.ts";
 import { checkShared, compile, write } from "./page.ts";
 import { createLoader, parts, serverLoader, type Loader } from "./parts.ts";
-import { redirectPage } from "./redirects.ts";
+import { redirectsFile, redirectTo } from "./redirects.ts";
 import { fromRoot, linksFile } from "./references.ts";
 import { report, type Report, type Reported } from "./report.ts";
 import { readSite, type Site, type SitePage } from "./site.ts";
@@ -58,13 +58,10 @@ function site(root: string, dev = false): Site {
 /** Each site's entries, once it's been read, since a build asks for them on every resolve. */
 const listed = new WeakMap<Site, Map<string, Entry>>();
 
-/** What an entry builds: a page, or a redirect to one. */
-type Entry = { page: SitePage } | { redirect: SitePage; html: string };
+/** What an entry builds: a page. */
+type Entry = { page: SitePage };
 
-/** @prose
- * Each file the site builds, by its path in memory, `about/index.html` under the root: each page,
- * `404.html` and each redirect.
- */
+/** Each page the site builds, by its path in memory, `about/index.html` under the root, and `404.html`. */
 function entries(site: Site): Map<string, Entry> {
   const known = listed.get(site);
   if (known) return known;
@@ -72,11 +69,24 @@ function entries(site: Site): Map<string, Entry> {
   for (const page of [...site.pages, ...(site.notFound ? [site.notFound] : [])]) {
     found.set(join(site.root, page.html), { page });
   }
-  for (const [html, { to }] of site.redirects) {
-    found.set(join(site.root, html), { redirect: to, html });
-  }
   listed.set(site, found);
   return found;
+}
+
+/** @prose
+ * Sends a request for an old address on to its page, with a 301, as a host does with
+ * `_redirects`, so `dev` and `preview` send what's built.
+ */
+function redirecting(read: () => Site): Connect.NextHandleFunction {
+  return (request, response, next) => {
+    const url = request.url ?? "/";
+    const cut = url.search(/[?#]/);
+    const to = redirectTo(read(), decodeURI(cut === -1 ? url : url.slice(0, cut)));
+    if (!to) return next();
+    response.statusCode = 301;
+    response.setHeader("Location", encodeURI(to) + (cut === -1 ? "" : url.slice(cut)));
+    response.end();
+  };
 }
 
 /** Pagez's version, for the report. */
@@ -104,7 +114,6 @@ export default function pagez(): Plugin[] {
 
   /** What `id`, an entry, builds, with its mistakes shown. */
   async function html(from: Site, entry: Entry, loader: () => Promise<Loader>): Promise<string> {
-    if ("redirect" in entry) return redirectPage(from, entry.html, entry.redirect);
     try {
       const ready = await loader();
       const t = performance.now();
@@ -155,7 +164,7 @@ export default function pagez(): Plugin[] {
       const from = current();
       const entry = entries(from).get(id);
       if (!entry) return undefined;
-      if ("page" in entry) this.addWatchFile(entry.page.file);
+      this.addWatchFile(entry.page.file);
       if (server) return html(from, entry, async () => serverLoader(server!));
       built ??= createLoader(root);
       return html(from, entry, () => built!);
@@ -204,6 +213,17 @@ export default function pagez(): Plugin[] {
           }
         }
         pages.sort((a, b) => (a.path < b.path ? -1 : 1));
+        if (from.redirects.size > 0) {
+          // A host reads one `_redirects`, so one in `public/` goes first, and Vite's copy of it
+          // is replaced.
+          const own = join(config.publicDir, "_redirects");
+          const first = config.publicDir && existsSync(own) ? readFileSync(own, "utf8") : "";
+          this.emitFile({
+            type: "asset",
+            fileName: "_redirects",
+            source: `${first}${first && !first.endsWith("\n") ? "\n" : ""}${redirectsFile(from)}`,
+          });
+        }
         reported = { pages, css, js, redirects: from.redirects.size };
       },
     },
@@ -213,6 +233,9 @@ export default function pagez(): Plugin[] {
       const ms = performance.now() - started;
       config.logger.info(`\n${report({ ...reported, ms, out, version: VERSION })}`);
       reported = undefined;
+    },
+    configurePreviewServer(preview) {
+      preview.middlewares.use(redirecting(() => (read ??= site(root))));
     },
     configureServer(dev) {
       server = dev;
@@ -227,6 +250,7 @@ export default function pagez(): Plugin[] {
       server.watcher.on("change", reload);
       server.watcher.on("add", reload);
       server.watcher.on("unlink", reload);
+      server.middlewares.use(redirecting(() => site(root, true)));
       server.middlewares.use(async (request, response, next) => {
         // With a query, it's one of Vite's own, such as a page's inline module.
         const url = request.url ?? "/";
@@ -259,7 +283,7 @@ export default function pagez(): Plugin[] {
   /** An entry in `dev`, `404.html` with its references from the root, as it's built. */
   async function serve(from: Site, entry: Entry, dev: ViteDevServer): Promise<string> {
     const out = await html(from, entry, async () => serverLoader(dev));
-    return "page" in entry && entry.page === from.notFound ? fromRoot(out, "/") : out;
+    return entry.page === from.notFound ? fromRoot(out, "/") : out;
   }
 
   return [main, parts()];
