@@ -1,0 +1,12 @@
+<template>
+  <script>
+    const posts = [{ title: "First" }, { title: "Second" }];
+  </script>
+  <ul>
+    ${posts.map(
+      (post) => html`
+        <li>${post}</li>
+      `,
+    )}
+  </ul>
+</template>

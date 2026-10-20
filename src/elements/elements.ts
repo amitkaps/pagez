@@ -16,12 +16,13 @@
  * wrote, never the ones it was handed, and an element isn't rendered twice. An element that ends
  * up inside itself would never end, so it fails, naming the chain.
  */
+import { parseAst } from "vite-plus";
 import { FileError } from "./errors.ts";
 import type { ElementFile } from "./file.ts";
-import { namedSlot } from "./file.ts";
+import { lineOf, namedSlot, templateModule } from "./file.ts";
 import { html } from "./html.ts";
 import { attribute, decode, encode, scan, type Tag } from "./markup.ts";
-import { render } from "./render.ts";
+import { render, type TemplateError } from "./render.ts";
 
 /** What rendering an element needs from its host. */
 export interface Host {
@@ -59,11 +60,13 @@ export async function renderElement(
   const { file } = element;
   const id = counter++;
   const token = `<pagez-content-${id}></pagez-content-${id}>`;
-  const fn = (await host.load(element)).default as (scope: object) => unknown;
+  const module = await host.load(element);
+  const fn = module.default as (scope: object) => unknown;
+  const fix = module.fix as ((error: Error) => void) | undefined;
   const attrs = { ...attributes, ...(data && { data: data.value }) };
   const out = inSlot(
     element,
-    rendered(file, () => fn({ ...host.context, attrs, html })),
+    rendered(element, () => fn({ ...host.context, attrs, html }), fix),
     content && token,
   );
   const written = await renderElements(host, out, file, [...chain, name]);
@@ -75,20 +78,68 @@ export async function renderElement(
  * element's file, and the line when its stack has it.
  *
  * The module's lines are the file's, so it's the line the author wrote, once the host has mapped
- * the stack to the module. A template the renderer refuses says why in its own words. The result is
+ * the stack to the module. A template the renderer refuses says why in its own words, at the line
+ * of the value it refused. The result is
  * trimmed, so a template written across lines can still sit inside a paragraph.
  */
-function rendered(file: string, fn: () => unknown): string {
+function rendered(element: ElementFile, fn: () => unknown, fix?: (error: Error) => void): string {
+  const { file } = element;
   try {
     return render(fn()).trim();
   } catch (error) {
     if (error instanceof FileError) throw error;
     const { name, message } = error instanceof Error ? error : { name: "", message: String(error) };
-    if (name === "TemplateError") throw new FileError(file, message, { cause: error });
+    if (name === "TemplateError") {
+      const line = valueLine(element, (error as TemplateError).in, fix);
+      // Its stack is the renderer's, which says nothing the message doesn't.
+      throw new FileError(file, `${line ? `line ${line}: ` : ""}${message}`);
+    }
     const line = lineIn(file, error);
     const at = line ? `line ${line}: ` : "";
     throw new FileError(file, `${at}failed to render: ${message}`, { cause: error });
   }
+}
+
+/** @prose
+ * The line of the value a template failed at. The stack of its `html` call names the call's line,
+ * and the template literal there, in the element's module, has each value's own. A template
+ * written in another module names no line.
+ */
+function valueLine(
+  element: ElementFile,
+  at: TemplateError["in"],
+  fix?: (error: Error) => void,
+): number | undefined {
+  if (!at?.template.called) return undefined;
+  fix?.(at.template.called);
+  const line = lineIn(element.file, at.template.called);
+  if (!line) return undefined;
+  const code = templateModule(element, []);
+  const literal = taggedTemplates(parseAst(code, { lang: "js" })).find(
+    (node) =>
+      lineOf(code, node.start) === line && node.quasi.quasis.length === at.template.strings.length,
+  );
+  const value = literal?.quasi.expressions[at.index];
+  return value ? lineOf(code, value.start) : line;
+}
+
+/** Each tagged template in a parsed module, in no particular order. */
+function taggedTemplates(node: unknown, found: TaggedTemplate[] = []): TaggedTemplate[] {
+  if (Array.isArray(node)) {
+    for (const item of node) taggedTemplates(item, found);
+  } else if (node && typeof node === "object") {
+    if ((node as { type?: unknown }).type === "TaggedTemplateExpression") {
+      found.push(node as TaggedTemplate);
+    }
+    for (const value of Object.values(node)) taggedTemplates(value, found);
+  }
+  return found;
+}
+
+/** The part of a tagged template's node that names where its values are. */
+interface TaggedTemplate {
+  start: number;
+  quasi: { quasis: unknown[]; expressions: { start: number }[] };
 }
 
 /** The line of `file` an error's stack names first, read past the query of a part's module. */

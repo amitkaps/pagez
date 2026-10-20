@@ -1,0 +1,1 @@
+error-template-object/@post-list.html: line 8: a template holds an object where text goes. Write one of its fields.

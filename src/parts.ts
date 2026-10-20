@@ -34,7 +34,7 @@ const RUNTIME_ID = "\0pagez:runtime";
 // made here renders there.
 const HTML_MODULE = `const TEMPLATE = Symbol.for("pagez.template");
 export function html(strings, ...values) {
-  return { [TEMPLATE]: true, strings, values };
+  return { [TEMPLATE]: true, strings, values, called: new Error() };
 }`;
 
 type PartName = "template" | "setup";
@@ -108,7 +108,7 @@ export function browserImport(file: string): FileError {
 
 /** What runs a template at build time. */
 export interface Loader {
-  /** The template's module, whose default export writes it. */
+  /** The template's module, whose default export writes it, and whose `fix` maps a stack in it. */
   load(element: ElementFile): Promise<Record<string, unknown>>;
   close(): Promise<void>;
 }
@@ -135,7 +135,7 @@ export async function createLoader(root: string): Promise<Loader> {
  * on every import, so a template is never stale.
  *
  * A template that throws has its stack mapped to the module, whose lines are the file's, so the
- * error names the line the author wrote. One that doesn't compile fails naming its file, with the
+ * error names the line the author wrote. The module's `fix` maps another stack the same way. One that doesn't compile fails naming its file, with the
  * lines around the mistake.
  */
 export function serverLoader(server: ViteDevServer, close = async (): Promise<void> => {}): Loader {
@@ -157,6 +157,9 @@ export function serverLoader(server: ViteDevServer, close = async (): Promise<vo
             throw error;
           }
         },
+        // A value the renderer refuses fails after the template returns, so its `html` call's
+        // stack is mapped then.
+        fix: (error: Error) => server.ssrFixStacktrace(error),
       };
     },
     close,
