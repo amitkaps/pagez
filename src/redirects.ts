@@ -1,47 +1,39 @@
 /** @prose
  * # Redirects
  *
- * A page that moved lists the paths it used to have under `redirects`, and Pagez writes a small
- * page at each one that sends the browser on (`site.ts` checks them).
+ * A page that moved lists the paths it used to have under `redirects`, and Pagez writes each to
+ * `dist/_redirects` as a 301 to where the page is now (`site.ts` checks them). Cloudflare Pages and
+ * Netlify read that file, before the files they serve.
  *
  * A page's path is still its file's. A redirect only points old addresses at it, so a site can move
  * its files without breaking links from elsewhere. Nothing on the site goes through one, since a
  * link to a redirect fails, asking for the page it reaches.
  *
- * The page is the minimal document, not the page's frame, since it shows for an instant. It
- * refreshes to the page, names it canonical when the site has a `url`, asks not to be indexed, and
- * links to it for a browser that doesn't refresh.
+ * A host serves a page's folder at `/x/` and sends `/x` and `/x.html` there itself, but an old
+ * address is no page's, so nothing sends its spellings. Each is a line, and a page lists an old
+ * address once. With a `url` in `pagez.md`, both sides are written from its path, as `404.html`'s
+ * links are, so a site served under `/stories/` redirects there. A `_redirects` in `public/` comes
+ * first, for the redirects that aren't a page's, such as to another site.
+ *
+ * `dev` and `preview` send them too, from the root, where they serve the site (`vite.ts`).
  */
-import { dirname, join, relative } from "node:path";
-import { encode } from "./elements/markup.ts";
-import type { Site, SitePage } from "./site.ts";
+import { spellings, type Site } from "./site.ts";
 
-/** The page written as `html`, such as `old/index.html`, that sends the browser to `to`. */
-export function redirectPage(site: Site, html: string, to: SitePage): string {
-  const out = relative(dirname(join(site.root, html)), join(site.root, to.path));
-  const href = encode(`${out === "" ? "." : out.startsWith(".") ? out : `./${out}`}/`);
+/** `_redirects`, one line for each spelling of each old address: `/old /blog/new/ 301`. */
+export function redirectsFile(site: Site): string {
   const { url } = site.metadata;
-  const canonical =
-    typeof url === "string"
-      ? [
-          `    <link rel="canonical" href="${encode(new URL(to.path, url.endsWith("/") ? url : `${url}/`).href)}" />`,
-        ]
-      : [];
-  return [
-    "<!doctype html>",
-    '<html lang="en">',
-    "  <head>",
-    '    <meta charset="utf-8" />',
-    '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
-    "    <title>Moved</title>",
-    `    <meta http-equiv="refresh" content="0; url=${href}" />`,
-    ...canonical,
-    '    <meta name="robots" content="noindex" />',
-    "  </head>",
-    "  <body>",
-    `    <p>This page has moved to <a href="${href}">/${encode(to.path)}</a>.</p>`,
-    "  </body>",
-    "</html>",
-    "",
-  ].join("\n");
+  const base = typeof url === "string" ? new URL(url).pathname.replace(/\/$/, "") : "";
+  const lines = [];
+  for (const [address, { to }] of [...site.redirects].sort(([a], [b]) => (a < b ? -1 : 1))) {
+    for (const from of spellings(address)) lines.push(`${base}${from} ${base}/${to.path} 301`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+/** Where a request for `path`, from the root, is sent, when it's an old address's. */
+export function redirectTo(site: Site, path: string): string | undefined {
+  for (const [address, { to }] of site.redirects) {
+    if (spellings(address).includes(path)) return `/${to.path}`;
+  }
+  return undefined;
 }

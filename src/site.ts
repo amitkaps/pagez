@@ -27,8 +27,8 @@
  *   `dev` serves it like any page, so it can be written.
  * - **`404.md`** at the root is what a host serves for a path that isn't there, so it's built as
  *   `404.html`, and it isn't in `pages` or linked to.
- * - **A page that moved** lists the paths it used to have under `redirects`, and each gets a small
- *   page that sends the browser on (`redirects.ts`).
+ * - **A page that moved** lists the paths it used to have under `redirects`, and each is a 301 to
+ *   it in `_redirects` (`redirects.ts`).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
@@ -67,7 +67,7 @@ export interface Site {
   all: SitePage[];
   /** `404.md`, when the site has one. */
   notFound?: SitePage;
-  /** Each old path a built page lists, by the file a redirect is written as: `old/index.html`. */
+  /** Each old address a built page lists, `/old/`, with the path it was listed as. */
   redirects: Map<string, { from: string; to: SitePage }>;
 }
 
@@ -248,23 +248,33 @@ function check(file: string, doc: Document, metadata: Metadata, rules: Record<st
 }
 
 /** @prose
- * The file a redirect from an old path is written as, or `undefined` when no static host could
- * serve one there. A page's path ends in `/`, so `/old` is read as `/old/`, as a link is, and an
- * old page may end in `.html`. Any other extension is a file, which a page can't stand in for.
+ * The address an old path is a spelling of, `/old/` for `/old`, `/old/` or `/old.html`, or
+ * `undefined` when it isn't a path a page could have had.
+ *
+ * A host serves a page's folder at `/x/`, and sends `/x` and `/x.html` there itself, so the three
+ * are one address. Any other extension is a file, which a page can't stand in for.
  */
-export function redirectFile(path: string): string | undefined {
+export function redirectAddress(path: string): string | undefined {
   if (!path.startsWith("/") || path.startsWith("//") || /[?#\s]/.test(path)) return undefined;
   const last = path.slice(path.lastIndexOf("/") + 1);
-  if (last.endsWith(".html")) return path.slice(1);
-  if (last.includes(".")) return undefined;
-  return `${path.slice(1)}${last === "" ? "" : "/"}index.html`;
+  if (!last.endsWith(".html") && last.includes(".")) return undefined;
+  return `${path.replace(/(\/index)?\.html$|\/$/, "")}/`;
+}
+
+/** Each way a host is asked for `address`, `/old/`: `/old`, `/old/` and `/old.html`. */
+export function spellings(address: string): string[] {
+  if (address === "/") return ["/", "/index.html"];
+  const name = address.slice(0, -1);
+  return [name, address, `${name}.html`];
 }
 
 /** @prose
- * Every redirect the built pages list, by the file it's written as. Each must be a path no page
- * has, drafts included, and that no other page lists. An old `/x.html` can't redirect while a page
- * has `/x/`, since a host serves `x.html` at `/x` too, in front of that page. Each failure names
- * the page that lists it.
+ * Every old address the built pages list, `/old/`, with the path it was listed as and the page it
+ * goes to. Each failure names the page that lists it.
+ *
+ * An old address can't be a page's, drafts included, in any spelling, since a host reads redirects
+ * before the files it serves, so one would stand in front of the page. No two pages can list one,
+ * and a page lists it once.
  */
 function readRedirects(
   root: string,
@@ -277,30 +287,36 @@ function readRedirects(
     for (const from of page.redirects) {
       const fail = (problem: string) =>
         new FileError(page.file, `redirects lists ${from}: ${problem}`);
-      const html = redirectFile(from);
-      if (html === undefined) {
+      const address = redirectAddress(from);
+      if (address === undefined) {
         throw fail(
           "write each old path from the site's root, such as /old-name/ or /old-name.html.",
         );
       }
-      const other = built.get(html);
-      if (other === page) {
-        throw fail("that's this page's own path. List the paths that used to reach it.");
-      }
-      if (other) throw fail(`that's the path of ${relative(root, other.file)}.`);
-      const shadowed =
-        html.endsWith(".html") && !html.endsWith("index.html")
-          ? built.get(`${html.slice(0, -".html".length)}/index.html`)
-          : undefined;
-      if (shadowed) {
-        const whose = shadowed === page ? "this page" : relative(root, shadowed.file);
+      const other = built.get(`${address.slice(1)}index.html`);
+      const whose = other === page ? "this page" : other && relative(root, other.file);
+      if (other && from === address) {
         throw fail(
-          `a host serves ${html} at /${html.slice(0, -".html".length)} too, which is ${whose}, so the redirect would stand in front of it.${shadowed === page ? " Remove it." : ""}`,
+          other === page
+            ? "that's this page's own path. List the paths that used to reach it."
+            : `that's the path of ${whose}.`,
         );
       }
-      const listed = redirects.get(html);
+      if (other) {
+        throw fail(
+          `that's ${address} spelled another way, which is ${whose}, and a host sends it there itself.${other === page ? " Remove it." : ""}`,
+        );
+      }
+      const listed = redirects.get(address);
+      if (listed?.to === page) {
+        throw fail(
+          `that's ${address} again, and one redirect sends ${spellings(address)
+            .join(", ")
+            .replace(/, (?=[^,]*$)/, " and ")}. List it once.`,
+        );
+      }
       if (listed) throw fail(`${relative(root, listed.to.file)} lists it too. Keep one.`);
-      redirects.set(html, { from, to: page });
+      redirects.set(address, { from, to: page });
     }
   }
   return redirects;

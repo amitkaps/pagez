@@ -3,8 +3,8 @@ title: Moved
 redirects: [/old-moved/, /moved.html]
 ---
 
-<!-- Expect: the page at /blog/moved/, with a redirect page at old-moved/index.html and at
-moved.html, each refreshing to it from where it is: ../blog/moved/ and ./blog/moved/. -->
+<!-- Expect: the page at /blog/moved/, and a 301 to it in _redirects from each spelling of each old
+address: /old-moved, /old-moved/ and /old-moved.html, and /moved, /moved/ and /moved.html. -->
 
 # Moved
 

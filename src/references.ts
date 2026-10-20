@@ -18,7 +18,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { FileError } from "./elements/errors.ts";
 import { attribute, decode, encode, scan, type Tag } from "./elements/markup.ts";
-import type { Site } from "./site.ts";
+import { spellings, type Site } from "./site.ts";
 
 /** Whether a reference names a file beside the page: not a URL, a site's path or a fragment. */
 export function isRelative(reference: string): boolean {
@@ -137,11 +137,10 @@ export function siteLinks(site: Site): Links {
         : "is a draft, which build leaves out. Publish it, with draft: false, or remove the link.";
     closed.set(page.file, why).set(`/${page.path}`, why);
   }
-  for (const { from, to } of site.redirects.values()) {
-    closed.set(
-      from.endsWith(".html") || from.endsWith("/") ? from : `${from}/`,
-      `redirects to /${to.path}. Link to that, where the page is now.`,
-    );
+  for (const [address, { to }] of site.redirects) {
+    for (const path of spellings(address)) {
+      closed.set(path, `redirects to /${to.path}. Link to that, where the page is now.`);
+    }
   }
   return { root, pages, closed };
 }

@@ -17,7 +17,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
-import { build, createLogger } from "vite-plus";
+import { build, createLogger, createServer, preview, type InlineConfig } from "vite-plus";
 import { describe, expect, test } from "vite-plus/test";
 import pagez from "../src/vite.ts";
 
@@ -80,8 +80,9 @@ describe("pagez()", () => {
     );
   });
 
-  test("builds 404.html from the root, a page at each redirect, no drafts, and reports the pages", async () => {
+  test("builds 404.html from the root, _redirects after public/'s, no drafts, and reports the pages", async () => {
     const root = folder("blog", "sites");
+    writeFileSync(join(root, "public/_redirects"), "/elsewhere https://example.org/ 302");
     const info: string[] = [];
     const logger = createLogger("silent");
     logger.info = (message) => void info.push(message);
@@ -89,25 +90,53 @@ describe("pagez()", () => {
     const dist = join(root, "dist");
     expect(files(dist)).toEqual([
       "404.html",
+      "_redirects",
       "blog/hello/index.html",
       "blog/index.html",
       "blog/moved/index.html",
       "favicon.svg",
       "index.html",
-      "moved.html",
-      "old-moved/index.html",
     ]);
     const missing = readFileSync(join(dist, "404.html"), "utf8");
     expect(missing).toContain('<nav><a href="/">Home</a> · <a href="/blog/">Blog</a></nav>');
     expect(missing).toContain('<a href="/">the home page</a>');
-    expect(readFileSync(join(dist, "old-moved/index.html"), "utf8")).toContain(
-      'content="0; url=../blog/moved/"',
-    );
+    const redirects = readFileSync(join(dist, "_redirects"), "utf8").split("\n");
+    expect(redirects.slice(0, 2)).toEqual([
+      "/elsewhere https://example.org/ 302",
+      "/moved /blog/moved/ 301",
+    ]);
     const shown = info.join("\n");
     expect(shown).toMatch(/^\/blog\/hello\/ +[\d.]+ KB +\d+ ms$/m);
     expect(shown).toMatch(
       /^5 pages and 2 redirects in [\d.]+ m?s → .*dist · pagez \d+\.\d+\.\d+$/m,
     );
+  });
+
+  test("sends an old address on to its page in dev and preview, as a host does", async () => {
+    const root = folder("blog", "sites");
+    const options = (): InlineConfig => ({
+      root,
+      configFile: false,
+      logLevel: "silent",
+      plugins: [pagez()],
+    });
+    const sent = async (url: string, path: string) => {
+      const response = await fetch(new URL(path, url), { redirect: "manual" });
+      return [response.status, response.headers.get("location")];
+    };
+    const dev = await createServer({ ...options(), server: { port: 0 } });
+    await dev.listen();
+    const at = dev.resolvedUrls!.local[0]!;
+    expect(await sent(at, "/old-moved?a=1")).toEqual([301, "/blog/moved/?a=1"]);
+    expect(await sent(at, "/moved.html")).toEqual([301, "/blog/moved/"]);
+    await dev.close();
+    await build(options());
+    const served = await preview({ ...options(), preview: { port: 0 } });
+    expect(await sent(served.resolvedUrls!.local[0]!, "/old-moved/")).toEqual([
+      301,
+      "/blog/moved/",
+    ]);
+    await new Promise((done) => served.httpServer.close(done));
   });
 
   test("fails on an index.html in the folder, which is what Pagez writes", async () => {
