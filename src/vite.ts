@@ -229,7 +229,10 @@ export default function pagez(): Plugin[] {
     },
     closeBundle() {
       if (config.command !== "build" || !reported) return;
-      const out = relative(process.cwd(), resolve(root, config.build.outDir)) || ".";
+      // `dist/` is named from the current folder when it's below it, and by its whole path when not.
+      const dist = resolve(root, config.build.outDir);
+      const below = relative(process.cwd(), dist);
+      const out = below.startsWith("..") ? dist : below || ".";
       const ms = performance.now() - started;
       config.logger.info(`\n${report({ ...reported, ms, out, version: VERSION })}`);
       reported = undefined;

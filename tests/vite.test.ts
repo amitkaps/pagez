@@ -110,6 +110,8 @@ describe("pagez()", () => {
     expect(shown).toMatch(
       /^5 pages and 2 redirects in [\d.]+ m?s → .*dist · pagez \d+\.\d+\.\d+$/m,
     );
+    // A `dist/` outside the current folder is named by its whole path, not by a climb of `../`.
+    expect(shown).not.toContain("→ ..");
   });
 
   test("sends an old address on to its page in dev and preview, as a host does", async () => {
