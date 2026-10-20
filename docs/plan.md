@@ -5,7 +5,6 @@ Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/
 ## Next, in order
 
 1. **What a real site found.** A site of 66 pages, five elements and 90 redirects was copied into one tree and built. Its text matched its old build page for page, and its URLs held. It needed one fix of its own, filtering pages by `path` rather than `url`. These and its redirects, next, come first, and then the site moves in.
-   - **Build time.** It took 10.9 s, where its old build took 1.3 s, a third of it in `resolveId`. Vite's timing warning prints after every build.
    - **One error, once.** A failure that pages share prints for each of them. One `url` printed 66 times.
    - **A template's error names its line.** An object where text goes named the element's file but not its line, and printed Pagez's stack.
    - **`html` is always Pagez's own.** A template got the `html` of an older Pagez installed beside the site, not the running one's, and failed as above.
