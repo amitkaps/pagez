@@ -6,29 +6,31 @@
  * `dist/`. `pagez dev` serves them while they're written, and `pagez preview` serves what was
  * built.
  *
- * Each takes the folder, or works in the current one. They're Vite's own commands with Pagez's
- * plugin, for a folder with no Vite config of its own. A mistake in a page prints its file and what
+ * Each takes the folder, or works in the current one, and `dev` and `preview` take `--port`
+ * (`args.ts`). They're Vite's own commands with Pagez's plugin, for a folder with no Vite config
+ * of its own. A mistake in a page prints its file and what
  * to change, and exits with 1.
  */
 import { resolve } from "node:path";
-import { parseArgs } from "node:util";
 import { build, createServer, preview } from "vite-plus";
+import { readArgs } from "./args.ts";
 import pagez from "./vite.ts";
 
-const USAGE = "Usage: pagez build|dev|preview [folder]";
-
-const { positionals, values } = parseArgs({
-  allowPositionals: true,
-  options: { help: { type: "boolean", short: "h" } },
-});
-const [command, folder = "."] = positionals;
-
-if (values.help || !["build", "dev", "preview"].includes(command ?? "") || positionals.length > 2) {
-  console.log(USAGE);
-  process.exit(values.help ? 0 : 1);
+const args = readArgs(process.argv.slice(2));
+if ("print" in args) {
+  (args.code ? console.error : console.log)(args.print);
+  process.exit(args.code);
 }
+const { command, folder, port } = args;
 
-const config = { root: resolve(folder), configFile: false as const, plugins: [pagez()] };
+const serve = port === undefined ? {} : { port, strictPort: true };
+const config = {
+  root: resolve(folder),
+  configFile: false as const,
+  plugins: [pagez()],
+  server: serve,
+  preview: serve,
+};
 try {
   if (command === "build") {
     await build(config);
