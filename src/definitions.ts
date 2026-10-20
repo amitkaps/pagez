@@ -1,15 +1,17 @@
 /** @prose
  * # A page's elements
  *
- * Where a page's elements are defined ([design.md](../docs/design.md#where-definitions-live)): an
- * `@x-tag.html` anywhere in the site, kept with the pages that use it, or a definition
- * in the page, one `=html` block holding `<template element="x-tag">` and its `<style>` and
- * `<script>`. An element is found by its name, so there's nothing to import, and a name has one
- * definition, so two fail, wherever they are.
+ * A page's elements are defined in one of two places
+ * ([design.md](../docs/design.md#where-definitions-live)). One is an `@x-tag.html` anywhere in the
+ * site, kept with the pages that use it. The other is a definition in the page, one `=html` block
+ * holding `<template element="x-tag">` and its `<style>` and `<script>`.
+ *
+ * An element is found by its name, so there's nothing to import. A name has one definition, so two
+ * fail, wherever they are.
  *
  * A definition in the page is read as an element file is, from the page with all but its block
- * blanked. So its lines are the page's, and a mistake in it names the page's line, as one in a
- * file names the file's.
+ * blanked. So its lines are the page's, and a mistake in it names the page's line, as one in a file
+ * names the file's.
  */
 import { basename, relative } from "node:path";
 import { position, walk, type Document, type NodeId } from "@amitkaps/markz";

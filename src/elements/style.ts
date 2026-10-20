@@ -2,13 +2,14 @@
  * # An element's CSS is its own
  *
  * Every top-level selector in an element's `<style>` starts with its tag, so its CSS can't reach
- * the rest of the page by accident ([elements.md](../../docs/elements.md#the-style)). Rules inside
- * `@media`, `@supports`, `@container`, `@layer` and `@scope` are at the top too, and are checked.
- * Other at-rules, such as `@keyframes` and `@font-face`, hold no selectors for the page and are
- * left alone. A selector nested inside a rule is the rule's, so it's never checked.
+ * the rest of the page by accident ([elements.md](../../docs/elements.md#the-style)).
  *
- * This reads CSS only as far as the check needs: comments, strings, brackets and blocks. What
- * isn't valid CSS is left to the bundler.
+ * Rules inside `@media`, `@supports`, `@container`, `@layer` and `@scope` are at the top too, and
+ * are checked. Other at-rules, such as `@keyframes` and `@font-face`, hold no selectors for the
+ * page and are left alone. A selector nested inside a rule is the rule's, so it's never checked.
+ *
+ * This reads CSS only as far as the check needs, which is comments, strings, brackets and blocks.
+ * What isn't valid CSS is left to the bundler.
  */
 import type { FileError } from "./errors.ts";
 import type { Part } from "./file.ts";

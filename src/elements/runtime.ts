@@ -7,7 +7,7 @@
  * so a listener given the signal goes with the element. A reconnect runs `setup` again.
  *
  * The host writes `define` into its script as source (`String(define)`), so it refers to nothing
- * outside itself, and keeps its state in a closure rather than in private fields that a compiler
+ * outside itself. It keeps its state in a closure rather than in private fields, which a compiler
  * might rewrite with helpers.
  */
 

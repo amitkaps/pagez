@@ -2,6 +2,7 @@
  * # Elements in HTML
  *
  * What an element does in a frame and in another element's output, which is what it does in text.
+ *
  * Elements render innermost first, their content goes in their slot or its fallback shows, and what
  * an element writes is read for elements too. Each failure names the file that wrote the tag. The
  * host here imports each template module from a data URL, where Pagez loads it through Vite.

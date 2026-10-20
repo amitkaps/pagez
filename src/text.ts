@@ -43,9 +43,11 @@ export interface Undefined {
 }
 
 /** @prose
- * The page's text as HTML, and its undefined tags. A relative image is checked once its
- * destination is printed, so it fails at its line when it isn't beside the page, and so does a
- * link to a page that the site doesn't build, or a path from the root that isn't in `public/`.
+ * The page's text as HTML, and its undefined tags.
+ *
+ * A relative image is checked once its destination is printed, so it fails at its line when it
+ * isn't beside the page. So does a link to a page that the site doesn't build, or a path from the
+ * root that isn't in `public/`.
  */
 export async function textHtml(
   file: string,

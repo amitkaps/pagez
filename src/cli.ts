@@ -4,9 +4,11 @@
  *
  * `pagez build` builds the pages in a folder, each `.md` at its folder's path, to the folder's
  * `dist/`. `pagez dev` serves them while they're written, and `pagez preview` serves what was
- * built. Each takes the folder, or works in the current one. They're Vite's own commands with
- * Pagez's plugin, for a folder with no Vite config of its own. A mistake in a page prints its file
- * and what to change, and exits with 1.
+ * built.
+ *
+ * Each takes the folder, or works in the current one. They're Vite's own commands with Pagez's
+ * plugin, for a folder with no Vite config of its own. A mistake in a page prints its file and what
+ * to change, and exits with 1.
  */
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";

@@ -1,16 +1,18 @@
 /** @prose
  * # References
  *
- * A page links the files beside it as they're written ([The folder](../docs/design.md#the-folder)),
- * so Pagez checks that each one is there, and the build fails on one that isn't rather than the
- * page showing a broken image. A reference is a `src` or a `poster`, a `<link>`'s `href`, and an
- * `@import` or a `url()` in CSS, and a link's `href` when it names a file, such as `./data.csv`. A
- * full URL and a fragment are left alone. A link to a page, by its `.md` or its path from the
- * site's root, must be one the site builds, and anything else from the root a file in `public/`.
+ * A page links the files beside it as they're written ([The folder](../docs/design.md#the-folder)).
+ * So Pagez checks that each one is there, and the build fails on one that isn't rather than the
+ * page showing a broken image.
+ *
+ * A reference is a `src` or a `poster`, a `<link>`'s `href`, and an `@import` or a `url()` in CSS.
+ * A link's `href` is one too when it names a file, such as `./data.csv`. A full URL and a fragment
+ * are left alone. A link to a page, by its `.md` or its path from the site's root, must be one the
+ * site builds, and anything else from the root a file in `public/`.
  *
  * A stylesheet's references are its own, from its folder, as the browser reads them. In CSS, an
- * `@import` that doesn't start with `.` names a package, as a script's `import` does. A
- * folder doesn't serve `node_modules`, so it fails, with the two ways to write it instead.
+ * `@import` that doesn't start with `.` names a package, as a script's `import` does. A folder
+ * doesn't serve `node_modules`, so it fails, with the two ways to write it instead.
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -103,10 +105,12 @@ export function rebased(css: string, from: string, to: string): string {
 }
 
 /** @prose
- * What a link can reach. A page a run builds is reached by its `.md` or by its path from the site's
- * root, `/about/`, and is written as the folder it's built in. A draft, `404.md` and a redirect
- * aren't linked to, each for its own reason, and a path from the root that isn't a page is a file
- * in `public/`, which Vite serves as it is.
+ * What a link can reach.
+ *
+ * A page a run builds is reached by its `.md` or by its path from the site's root, `/about/`, and
+ * is written as the folder it's built in. A draft, `404.md` and a redirect aren't linked to, each
+ * for its own reason. A path from the root that isn't a page is a file in `public/`, which Vite
+ * serves as it is.
  */
 export interface Links {
   root: string;
@@ -146,10 +150,12 @@ export function siteLinks(site: Site): Links {
 const isSitePath = (reference: string) => reference.startsWith("/") && !reference.startsWith("//");
 
 /** @prose
- * Where `href` goes, written in `from`, or what's wrong with it. `anchor` is whether it's a link,
- * which may reach a page. A link to a `.md` or a path from the root must be a page this run
- * builds, and anything else from the root must be a file in `public/`. A relative link to another
- * file is checked as an image is (`checkHtml`), so it's `undefined` here, as is a URL.
+ * Where `href` goes, written in `from`, or what's wrong with it.
+ *
+ * `anchor` is whether it's a link, which may reach a page. A link to a `.md` or a path from the
+ * root must be a page this run builds, and anything else from the root must be a file in `public/`.
+ * A relative link to another file is checked as an image is (`checkHtml`), so it's `undefined`
+ * here, as is a URL.
  */
 export function linkTarget(
   links: Links,
@@ -185,11 +191,13 @@ export function linkTarget(
 
 /** @prose
  * `html`, written in `from`, for a page built in `to`. Each relative reference is written from
- * `to`: a `src`, a `poster`, a `<link>`'s or an anchor's `href`, and the paths in a `<style>`. A
- * link to a page, by its `.md` or its path from the root, is written as the folder that page is
+ * `to`, which covers a `src`, a `poster`, a `<link>`'s or an anchor's `href`, and the paths in a
+ * `<style>`.
+ *
+ * A link to a page, by its `.md` or its path from the root, is written as the folder that page is
  * built in, with its fragment kept, so the site works under any path. One that can't be linked to
- * fails naming `file`, and its line when `lines` is set, which is when `html` is the file as
- * written, such as the frame.
+ * fails naming `file`. It names its line too when `lines` is set, which is when `html` is the file
+ * as written, such as the frame.
  */
 export function relink(
   file: string,

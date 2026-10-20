@@ -45,11 +45,12 @@ export const OWN_SCOPE: string[] = ["attrs", "html"];
 export const nameOf = (file: string): string => basename(file).slice(1, -".html".length);
 
 /** @prose
- * Reads `file` and checks it. `scope` is what the host adds to the template's scope, such as
- * `page`, and a name the template's script declares or imports by one of those fails, since the
- * template would never see it. `name` is the file's, unless a host reads an element defined
- * somewhere else, such as in a page, whose `source` is then that file with all but the
- * definition blanked.
+ * Reads `file` and checks it.
+ *
+ * `scope` is what the host adds to the template's scope, such as `page`. A name the template's
+ * script declares or imports by one of those fails, since the template would never see it. `name`
+ * is the file's, unless a host reads an element defined somewhere else, such as in a page. Its
+ * `source` is then that file with all but the definition blanked.
  */
 export function readElement(
   file: string,
@@ -255,9 +256,11 @@ function parsed(code: string) {
 
 /** @prose
  * The template's script is the top of the template's module, so whatever it declares or imports is
- * in the markup's scope, with no `export`. A name the template already has would hide it, or be
- * hidden, so it fails, and `html` most of all, since the script has it with no import. A default
- * export fails too, since the template is the module's default.
+ * in the markup's scope, with no `export`.
+ *
+ * A name the template already has would hide it, or be hidden, so it fails, and `html` most of all,
+ * since the script has it with no import. A default export fails too, since the template is the
+ * module's default.
  */
 function checkBuildScript(
   element: ElementFile,
@@ -302,8 +305,8 @@ function topLevel(statement: Statement): string[] {
 }
 
 /** @prose
- * The browser's script default-exports `setup(el, { signal })`. Sitez 0.3's `.browser.js` file
- * exported a class, so a class fails, saying where its code goes.
+ * The browser's script default-exports `setup(el, { signal })`. A custom element is usually
+ * a class, so an exported class fails, saying where its code goes.
  */
 function checkSetup(element: ElementFile, fail: (at: number, message: string) => FileError): void {
   const body = parsed(setupModule(element));
@@ -357,12 +360,13 @@ function bound(pattern: unknown): string[] {
 /** @prose
  * # The parts as modules
  *
- * Each part becomes the whole file with everything but that part blanked, so its lines and
- * columns are the file's. The template is the script's module with one more export, the default,
- * which is the markup as an `html` literal. Its parameters are the template's scope, and the
- * script's names are its module's, so the markup has both. `html` is imported first, on the
- * file's first line, so the script has it too and no line moves. `from` is where it's imported
- * from, which the host resolves to its own.
+ * Each part becomes the whole file with everything but that part blanked, so its lines and columns
+ * are the file's.
+ *
+ * The template is the script's module with one more export, the default, which is the markup as an
+ * `html` literal. Its parameters are the template's scope, and the script's names are its module's,
+ * so the markup has both. `html` is imported first, on the file's first line, so the script has it
+ * too and no line moves. `from` is where it's imported from, which the host resolves to its own.
  */
 export function templateModule(
   element: ElementFile,

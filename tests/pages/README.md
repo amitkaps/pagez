@@ -17,8 +17,7 @@ does. Each folder holds an `index.md` and whatever sits beside it, such as `@x-t
 
 `tests/pages.test.ts` builds each page and compares it with its snapshot in
 `tests/snapshots/<page>/page.html`, or an `error-…` page with its `error.txt`, each reviewed as it
-changes. A page that warns has its warnings in `warnings.txt`. That's how Sitez tests its example
-sites. What only a build shows, such as what Vite bundles, is in `tests/vite.test.ts`.
+changes. A page that warns has its warnings in `warnings.txt`. What only a build shows, such as what Vite bundles, is in `tests/vite.test.ts`.
 
 ## The cases
 
@@ -26,7 +25,7 @@ sites. What only a build shows, such as what Vite bundles, is in `tests/vite.tes
 | ---------- | ------------------------------------------------------------------------------------------------ |
 | Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `native-tags`, `prose`                               |
 | CSS        | `style-css`, `style-css-elements`, `page-css`, `page-css-wins`                                   |
-| Real pages | `stories`, a stand-in with the shape of amitkaps.com/stories, whose source isn't public           |
+| Real pages | `stories`, a stand-in with the shape of a real Jekyll page                                       |
 | Prose      | `expressions`, `expressions-dotted-key`                                                          |
 | Elements   | `element-…`: in the page, a file or a folder, slots, nesting, attributes, scripts, behavior      |
 | Frames     | `frame`, `frame-elements`                                                                        |

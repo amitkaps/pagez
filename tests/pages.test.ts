@@ -2,10 +2,11 @@
  * # The test pages
  *
  * Each page in `tests/pages/` builds to its snapshot in `tests/snapshots/<page>/page.html`, or an
- * `error-…` page fails with `error.txt`, its file named from `tests/pages/`. A snapshot is reviewed
- * as it changes, and a page that warns has its warnings in `warnings.txt`. Pagez's theme stands
- * as a comment in each, so a change to it doesn't change every snapshot, and is checked in
- * `css.test.ts`.
+ * `error-…` page fails with `error.txt`, its file named from `tests/pages/`.
+ *
+ * A snapshot is reviewed as it changes, and a page that warns has its warnings in `warnings.txt`.
+ * Pagez's theme stands as a comment in each, so a change to it doesn't change every snapshot. The
+ * theme is checked in `css.test.ts`.
  */
 import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";

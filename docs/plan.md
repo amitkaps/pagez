@@ -1,10 +1,16 @@
 # Plan
 
+What Pagez does today, newest first, one section for each piece of work. Then what's next, in order, what's later, and the questions still open.
+
 ## Where it is
+
+### Neutral docs
+
+The docs say what Pagez does, with no other tool's history and no one site's names in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's URLs, since they're what's published. History keeps its reason and drops its source, and evidence keeps its finding with a neutral example.
 
 ### Pages of a site
 
-Sitez's site features are Pagez's ([Pages of a site](design.md#pages-of-a-site)). A template gets `pages`, every page the site builds with its `path` and `url`, and `site`, `pagez.md`'s metadata, so an index lists its posts. A link may be a path from the root, `/blog/`, which a frame or a template writes, and it's checked and written as a relative folder like a `.md` link, so `dist/` still works under any path. Drafts are left out of `build` and served by `dev`. `404.md` is `404.html`, with its references made absolute from `pagez.md`'s `url`, since a host serves it at any path. A page's `redirects` each write a page that refreshes to it, and a link to one fails. `build` prints a report of each page's size and time. Links to the repository stayed in Sitez, since a linked file is shipped with its page here. `tests/sites/blog` has all of it.
+A site's pages know of each other ([Pages of a site](design.md#pages-of-a-site)). A template gets `pages`, every page the site builds with its `path` and `url`, and `site`, `pagez.md`'s metadata, so an index lists its posts. A link may be a path from the root, `/blog/`, which a frame or a template writes. It's checked and written as a relative folder like a `.md` link, so `dist/` still works under any path. Drafts are left out of `build` and served by `dev`. `404.md` is `404.html`, with its references made absolute from `pagez.md`'s `url`, since a host serves it at any path. A page's `redirects` each write a page that refreshes to it, and a link to one fails. `build` prints a report of each page's size and time. A linked file is shipped with its page, not sent to the repository. `tests/sites/blog` has all of it.
 
 ### Many pages, by folder
 
@@ -12,7 +18,7 @@ Pagez builds a folder of pages, not only its `index.md`: every `.md` is a page a
 
 ### One theme, and element CSS that wins
 
-Pagez's reset and prose, about 400 lines in two layers, are one `src/theme.css` of about 150, in `@layer theme`: one readable column of what Markz writes, in the system's font, light or dark, with nothing to configure, since a `style.css` replaces it. It ships inside `dist/` as text, and Markz is bundled there too, as prose does, so Pagez's one dependency is its peer, `vite-plus`. An element's CSS isn't in a layer anymore, and comes before the page's `style.css`. In `@layer elements` it lost to any unlayered rule, so a page's `h2` restyled every element's headings. Now the element's tag outranks the page's tag defaults, and the page has the last word by naming the element ([The cascade](design.md#the-cascade)).
+Pagez's reset and prose, about 400 lines in two layers, are one `src/theme.css` of about 150, in `@layer theme`. It's one readable column of what Markz writes, in the system's font, light or dark. There's nothing to configure, since a `style.css` replaces it. It ships inside `dist/` as text, and Markz is bundled there too, as prose does, so Pagez's one dependency is its peer, `vite-plus`. An element's CSS isn't in a layer anymore, and comes before the page's `style.css`. In `@layer elements` it lost to any unlayered rule, so a page's `h2` restyled every element's headings. Now the element's tag outranks the page's tag defaults, and the page has the last word by naming the element ([The cascade](design.md#the-cascade)).
 
 ### The rest of the compiler
 
@@ -20,11 +26,11 @@ Every test page builds to its reviewed snapshot or fails with its reviewed error
 
 ### Elements, without a name of their own
 
-Sitez's `elementz.md` is `docs/elements.md`, with Pagez as the host and reordered by the file's three parts. The design and the code link to it here, not to sitez.amitkaps.com. `src/elementz/` is `src/elements/`, since a name of its own only fit when Sitez was a second host. It still imports nothing else from Pagez, so what an element is stays apart from how a page uses it. A template value is marked with `pagez.template`.
+`docs/elements.md` is the element's design, with Pagez as the host and reordered by the file's three parts. `src/elementz/` is `src/elements/`, since a name of its own only fit while it had a second host. It still imports nothing else from Pagez, so what an element is stays apart from how a page uses it. A template value is marked with `pagez.template`.
 
-### 0.1.0, and stories on the site
+### 0.1.0, and a section with its own design
 
-0.1.0 is on npm, published by hand, and later versions are staged by the release workflow through npm's trusted publishing. amitkaps.github.io installs it, and its `stories/` is the first section with its own design: `index.md`, `style.css`, `frame.html`, and its images and font beside it. The site builds with Sitez, then Pagez builds `stories/` into `dist/stories/`. svgo, WebP where smaller and a font subset took its SVGs from 528 KB to 308 KB, its photos from 229 KB to 130 KB and its font from 39 KB to 26 KB. Every block sits where the Jekyll page's does, and the quotes are curled in the source, since Markz doesn't curl them.
+0.1.0 is on npm, published by hand, and later versions are staged by the release workflow through npm's trusted publishing. A site installs it, and its `stories/` is the first section with its own design: `index.md`, `style.css`, `frame.html`, and its images and font beside it. The rest of the site builds as before, then Pagez builds `stories/` into `dist/stories/`. svgo, WebP where smaller and a font subset took its SVGs from 528 KB to 308 KB, its photos from 229 KB to 130 KB and its font from 39 KB to 26 KB. Every block sits where the Jekyll page's does, and the quotes are curled in the source, since Markz doesn't curl them.
 
 ### `dist/` through Vite
 
@@ -36,7 +42,7 @@ Sitez's `elementz.md` is `docs/elements.md`, with Pagez as the host and reordere
 
 ### Stories, rebuilt
 
-amitkaps.com/stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz page in its own, private repository, beside the Jekyll site. It builds to a 1 MB file that opens from disk, and its CSS went from 208 lines to about 70. What it found is in the open questions, and a frame may now write social tags Pagez doesn't, such as `twitter:site`.
+Stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz page in its own repository, beside the Jekyll site. It builds to a 1 MB file that opens from disk, and its CSS went from 208 lines to about 70. What it found is in the open questions, and a frame may now write social tags Pagez doesn't, such as `twitter:site`.
 
 ### The compiler, without elements
 
@@ -44,11 +50,11 @@ amitkaps.com/stories, a Jekyll page of six chapters and 41 images, was rebuilt a
 
 ### Reset and prose
 
-`css/reset.css` and `css/prose.css`, exported by the package, from the common modern resets, good-css, Vizchitra's prose and a draft of its own. Serif headings and sans text in the system's fonts, one-way flow, a modular scale, an accent color, and print and contrast styles. Tried on the `stories` test page, whose CSS is now only its look, its sections and its figures, and on the `prose` test page of every Markdown element, in light, dark and at a phone's width ([The theme](design.md#the-theme)).
+`css/reset.css` and `css/prose.css`, exported by the package, from the common modern resets, good-css, Vizchitra's prose and a draft of its own. Serif headings and sans text in the system's fonts, one-way flow, a modular scale, an accent color, and print and contrast styles. Tried on the `stories` test page, whose CSS is now only its look, its sections and its figures. Tried too on the `prose` test page of every Markdown element, in light, dark and at a phone's width ([The theme](design.md#the-theme)).
 
 ### The head moved in
 
-Sitez's `head.ts` is `src/head.ts`: the frame's checks, and the head written from metadata. It dropped what's Sitez's, the 404 page, redirects and linked stylesheets, and settled a page with no title, the head's image and the frame's head ([Head](design.md#head)).
+`src/head.ts` holds the frame's checks, and the head written from metadata. It left out the 404 page, redirects and linked stylesheets, and settled a page with no title, the head's image and the frame's head ([Head](design.md#head)).
 
 ### Test pages
 
@@ -56,18 +62,17 @@ Sitez's `head.ts` is `src/head.ts`: the frame's checks, and the head written fro
 
 ### elementz moved in
 
-Sitez's `src/elementz/` is `src/elementz/` here, unchanged, with its tests in `tests/elementz/`. The package exports its `html`. Sitez keeps its own copy until it renders through Pagez.
+`src/elementz/` came in unchanged, with its tests in `tests/elementz/`. The package exports its `html`.
 
 ### 0.0.0
 
-Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with `pnpm new`. The design moved here from Sitez's `pagez.md`, and nothing of Pagez is built yet.
+Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with `pnpm new`. The design came first, and nothing of Pagez is built yet.
 
 ## Next, in order
 
-The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a site, to `dist/`, and Sitez folds into it. `design.md` is rewritten to it step by step.
+The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a site, to `dist/`. `design.md` is rewritten to it step by step.
 
-1. **amitkaps.github.io moves to Pagez.** Then Sitez is deprecated and archived. The stories repository is archived once the apex moves to Cloudflare.
-2. **Neutral docs.** Pagez compiles Markz to static HTML, and its docs say so with no Sitez and no amitkaps.com in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's URLs, since they're what's published. History keeps its reason and drops its source, so "Sitez 0.3 used a class" becomes why a class was ruled out, and the rest is in git and in [Where it is](#where-it-is). Evidence keeps its finding with a neutral example, so amitkaps.com's treemap becomes an essay with ten charts of one dataset. What depends on the move, folders.md's comparison with Sitez and step 1, becomes plain rules once they're done. The `stories` test page becomes a fixture of the same shape. `elements.md` can go first, since it's stable.
+1. **A real site.** Many pages, one design, a blog index that lists its posts, and links between pages, rebuilt as one tree ([Tests of it](folders.md#tests-of-it)). What it shows turns folders.md's tests into plain rules.
 
 ## Later
 
@@ -77,8 +82,8 @@ The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, 
 
 Each one the test pages raise is also an `Open:` note on the page that shows it (`grep -rn "Open:" tests/pages`).
 
-- **Where data lives.** Jekyll and Sitez name data by a `data/` folder, and an element reads a `data="…"` attribute. The lean is to drop both. An attribute is a plain string, and an element that wants data from it calls `load(attrs.src)`, which the host gives every template. Pagez reads the file, checks it, fails at the use's line, and watches it in dev, which the dev loop needs to rebuild only the pages that use it. A path is relative to the file that wrote it, as `<img src>` is, so a path in a shared `frame.html` or in an element's template means one file wherever it renders. `/…` is the root beside `pagez.md`, for the rare file the whole site shares, which overlaps with how Vite reads `/` for `public/`. An element's own data is a static `import`, and small data is an attribute expression, `rows=${page.sales}`. So each way in has one owner: the element, the page's file or the page's metadata. On amitkaps.com each of the six files in `data/` is used by one page, and `data="notes.json"` is written ten times in one essay. What a folder mostly held, the list of posts, comes from `pages`. The case for `data/` is a site with many files that every page shares, which no site has yet. Rendering stays synchronous, since async changes when a file is read, not how it's named, and an element can't `await import()` a path that's relative to the page.
-- **The theme's look.** The numbers in [The theme](design.md#the-theme) are a first pass, to judge by eye on the `prose` and `stories` pages, in light, dark and at a phone's width: the column's width, the body size, and the heading sizes and their space. What's been tried for the width: 65ch, which measured about 90 characters a line, then 50ch at 18px, about 72, beside a Svbtle post, which read as too narrow in the theme, then 60ch.
+- **Where data lives.** Jekyll names data by a `data/` folder, and an element reads a `data="…"` attribute. The lean is to drop both. An attribute is a plain string, and an element that wants data from it calls `load(attrs.src)`, which the host gives every template. Pagez reads the file, checks it, fails at the use's line, and watches it in dev, which the dev loop needs to rebuild only the pages that use it. A path is relative to the file that wrote it, as `<img src>` is, so a path in a shared `frame.html` or in an element's template means one file wherever it renders. `/…` is the root beside `pagez.md`, for the rare file the whole site shares, which overlaps with how Vite reads `/` for `public/`. An element's own data is a static `import`, and small data is an attribute expression, `rows=${page.sales}`. So each way in has one owner: the element, the page's file or the page's metadata. On one site each of the six files in `data/` is used by one page, and `data="notes.json"` is written ten times in one essay. What a folder mostly held, the list of posts, comes from `pages`. The case for `data/` is a site with many files that every page shares, which no site has yet. Rendering stays synchronous, since async changes when a file is read, not how it's named, and an element can't `await import()` a path that's relative to the page.
+- **The theme's look.** The numbers in [The theme](design.md#the-theme) are a first pass, to judge by eye on the `prose` and `stories` pages, in light, dark and at a phone's width. They set the column's width, the body size, and the heading sizes and their space. The width was 65ch first, which measured about 90 characters a line. Then it was 50ch at 18px, about 72, beside a Svbtle post, which read as too narrow in the theme. Now it's 60ch.
 - **A heading's id repeating an element's.** `{@section #ideas}` holding `## Ideas` writes the id twice. Markz warns for two headings with one id, not for a heading and an element (`native-tags`).
 - **Markz's warnings.** Pagez prints its own, for an undefined tag, and not Markz's yet. Whether it prints them too, or fails on them.
 - **Where `image` resolves.** Against `url`, as now, which differs from the file's place when the page isn't where the site serves it. Or against the file, then made absolute with `url`.

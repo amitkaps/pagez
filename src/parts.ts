@@ -1,17 +1,18 @@
 /** @prose
  * # An element's parts, as Vite's modules
  *
- * Each part of an element that runs is a module of its own (`elements/file.ts`): the template,
- * which the build runs in a Vite server, and `setup`, which the page's script imports and Vite
- * bundles. Its id is its file's, with the part in the query, so Vite resolves the part's imports
- * from the element's own folder. A part of a definition in a page names the element too. The
- * query ends in `lang.js`, as Vue names the parts of a `.vue` file, so Vite reads it as
- * JavaScript.
+ * Each part of an element that runs is a module of its own (`elements/file.ts`). They're the
+ * template, which the build runs in a Vite server, and `setup`, which the page's script imports and
+ * Vite bundles.
+ *
+ * Its id is its file's, with the part in the query, so Vite resolves the part's imports from the
+ * element's own folder. A part of a definition in a page names the element too. The query ends in
+ * `lang.js`, as Vue names the parts of a `.vue` file, so Vite reads it as JavaScript.
  *
  * Two names are Pagez's own, and need no install beside the page. `@amitkaps/pagez`, which a
- * template module and a build script's modules import `html` from, is a module of `html` alone.
- * The elements' runtime is `@amitkaps/pagez/runtime`. In the browser, `@amitkaps/pagez` fails,
- * since `html` renders at build time.
+ * template module and a build script's modules import `html` from, is a module of `html` alone. The
+ * elements' runtime is `@amitkaps/pagez/runtime`. In the browser, `@amitkaps/pagez` fails, since
+ * `html` renders at build time.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -131,9 +132,11 @@ export async function createLoader(root: string): Promise<Loader> {
 
 /** @prose
  * A loader in a Vite server, which is `dev`'s own. Its `ssrLoadModule` checks Vite's module graph
- * on every import, so a template is never stale. A template that throws has its stack mapped to
- * the module, whose lines are the file's, so the error names the line the author wrote. One that
- * doesn't compile fails naming its file, with the lines around the mistake.
+ * on every import, so a template is never stale.
+ *
+ * A template that throws has its stack mapped to the module, whose lines are the file's, so the
+ * error names the line the author wrote. One that doesn't compile fails naming its file, with the
+ * lines around the mistake.
  */
 export function serverLoader(server: ViteDevServer, close = async (): Promise<void> => {}): Loader {
   return {

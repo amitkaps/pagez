@@ -1,17 +1,17 @@
 /** @prose
  * # A page, compiled
  *
- * One Markz page in, its parts out: the page in its frame with its head written, Pagez's CSS and
- * its elements', the stylesheets it links, and its one module. `write` puts them together as the
- * `index.html` the plugin hands to Vite, in memory where the page is built
- * ([The folder](../docs/design.md#the-folder)). Each element the page uses renders from its
- * definition (`definitions.ts`), in the text and in the frame, and each `${…}` in the text prints
+ * One Markz page in, its parts out. They're the page in its frame with its head written, Pagez's
+ * CSS and its elements', the stylesheets it links, and its one module.
+ *
+ * `write` puts them together as the `index.html` the plugin hands to Vite, in memory where the page
+ * is built ([The folder](../docs/design.md#the-folder)). Each element the page uses renders from
+ * its definition (`definitions.ts`), in the text and in the frame. Each `${…}` in the text prints
  * from `page` (`text.ts`). What it ships is in `browser.ts`.
  *
  * The page is Markz's own HTML, raw `=html` blocks included, as written. Each reference must be
- * there, and is written from where the page is built. A relative image in the Markdown fails at
- * its line. One in raw HTML or a stylesheet fails naming it, and one in the frame at the frame's
- * line.
+ * there, and is written from where the page is built. A relative image in the Markdown fails at its
+ * line. One in raw HTML or a stylesheet fails naming it, and one in the frame at the frame's line.
  */
 import { readFileSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
@@ -205,9 +205,9 @@ function readData(dir: string, path: string): { value: unknown } | { problem: st
 }
 
 /** @prose
- * The page as one HTML document: Pagez's CSS in a `<style>` in the head, since it isn't a file
- * beside the page, then a `<link>` to each stylesheet, so the page's own CSS comes last, then the
- * page's one module, which Vite bundles.
+ * The page as one HTML document. Pagez's CSS is in a `<style>` in the head, since it isn't a file
+ * beside the page. A `<link>` to each stylesheet follows, so the page's own CSS comes last, and
+ * then the page's one module, which Vite bundles.
  */
 export function write(page: Page): string {
   const lines = [

@@ -1,18 +1,20 @@
 /** @prose
  * # The head, and the frame it is in
  *
- * A page's head is its frame's, with what follows from its metadata added. The frame is the
- * nearest `frame.html`, beside the page or in a folder above it, or with none, Pagez's minimal
- * document, so both go through the same code. Each tag has one owner. The frame writes `charset`,
- * `viewport` and everything else it chooses. Pagez puts the page's `lang`, `title` and
- * `description` in place of the frame's, and writes the canonical link and the Open Graph and
- * Twitter tags, which repeat those values and `url` and `image` with no choice in them.
+ * A page's head is its frame's, with what follows from its metadata added. The frame is the nearest
+ * `frame.html`, beside the page or in a folder above it, or with none, Pagez's minimal document, so
+ * both go through the same code.
  *
- * A frame fails the build for what would make the page wrong: a missing `lang`, `charset` or
- * `viewport`, a slot count other than one, and a tag Pagez writes. Each message names the frame
- * and shows the line to add or remove, and the line it's on when there is one. Pagez checks nothing else, since it isn't an HTML
- * validator. It moved here from Sitez, which also checked the frame's title and description. A
- * single page needs neither in its frame, since Pagez writes them.
+ * Each tag has one owner. The frame writes `charset`, `viewport` and everything else it chooses.
+ * Pagez puts the page's `lang`, `title` and `description` in place of the frame's. Pagez also
+ * writes the canonical link and the Open Graph and Twitter tags, which repeat those values and
+ * `url` and `image` with no choice in them.
+ *
+ * A frame fails the build for what would make the page wrong. That's a missing `lang`, `charset` or
+ * `viewport`, a slot count other than one, or a tag Pagez writes. Each message names the frame and
+ * shows the line to add or remove, and the line it's on when there is one. Pagez checks nothing
+ * else, since it isn't an HTML validator. A frame needs no title or description either, since
+ * Pagez writes the page's.
  */
 import { readFileSync } from "node:fs";
 import { FileError } from "./elements/errors.ts";
@@ -33,9 +35,11 @@ export interface Frame {
 
 /** @prose
  * The minimal document, which a page with no frame is written into. Its `lang` is replaced by the
- * page's, when it has one. Its `color-scheme` lets the browser paint a dark page dark before any
- * CSS, as the theme's `color-scheme` then does, and goes when the page has a `style.css` of its
- * own. The theme is added by the compiler, not written here, since a frame doesn't get it.
+ * page's, when it has one.
+ *
+ * Its `color-scheme` lets the browser paint a dark page dark before any CSS, as the theme's
+ * `color-scheme` then does, and goes when the page has a `style.css` of its own. The theme is added
+ * by the compiler, not written here, since a frame doesn't get it.
  */
 export const MINIMAL = `<!doctype html>
 <html lang="en">
@@ -149,11 +153,13 @@ export interface HeadFields {
 }
 
 /** @prose
- * The keys the head reads, and what each must be. Each is a string with something in it, `url` is
- * a full `http` or `https` address, and `image` is a full address or a path relative to `url`.
- * Open Graph needs a full address, so a relative `image` with no `url` fails rather than being
- * dropped. The image isn't inlined as the page's own files are, since only a crawler reads it, at
- * the page's address. Every other key is the page's own, and passes through unchecked.
+ * The keys the head reads, and what each must be.
+ *
+ * Each is a string with something in it, `url` is a full `http` or `https` address, and `image` is
+ * a full address or a path relative to `url`. Open Graph needs a full address, so a relative
+ * `image` with no `url` fails rather than being dropped. The image isn't inlined as the page's own
+ * files are, since only a crawler reads it, at the page's address. Every other key is the page's
+ * own, and passes through unchecked.
  */
 export function headFields(file: string, page: Metadata): HeadFields {
   const fields: HeadFields = {};
@@ -188,12 +194,13 @@ export function headFields(file: string, page: Metadata): HeadFields {
 
 /** @prose
  * A page's head, in the frame. The page's `lang`, `title` and `description` go in place of the
- * frame's, or after its last head tag when the frame has none. A page with no title takes the
- * frame's, and with neither, `fallback`, which is the page's first heading or its file's name, so
- * every page has a `<title>`. Then the canonical link and the social tags go at the end of the
- * head. Those that need a `url` or an `image` are left out without one. A title that is the
- * frame's own is read as the frame wrote it, with its entities, so a social tag says what the
- * page does.
+ * frame's, or after its last head tag when the frame has none.
+ *
+ * A page with no title takes the frame's, and with neither, `fallback`, which is the page's first
+ * heading or its file's name, so every page has a `<title>`. Then the canonical link and the social
+ * tags go at the end of the head. Those that need a `url` or an `image` are left out without one. A
+ * title that is the frame's own is read as the frame wrote it, with its entities, so a social tag
+ * says what the page does.
  */
 export function pageHead(html: string, fields: HeadFields, fallback: string): string {
   const tags = scan(html);

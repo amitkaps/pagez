@@ -2,7 +2,7 @@
 
 An element is one `@name.html` file that holds its markup, written at build time, its CSS and its behavior. This is what an element is. Where a page uses one and where its file lives are the page's, in [design.md](design.md#elements).
 
-The code is `src/elements/`, which imports nothing else from Pagez, so what an element is stays apart from how a page uses it. It began in Sitez as elementz, and Sitez keeps its own copy until it's archived.
+The code is `src/elements/`, which imports nothing else from Pagez, so what an element is stays apart from how a page uses it.
 
 ## The file
 
@@ -51,7 +51,7 @@ Each part is optional. A template with no `${…}` is static markup, and an elem
 
 Pagez adds six rules to the three parts, each in its part below: a value or markup in `${…}`, the template's scope, the build script, the slot, the style's selectors, and `setup`. Everything else is HTML or JavaScript.
 
-Colocation is why. amitkaps.github.io's treemap was three places to read, its two scripts and about 70 lines of `style.css`, for one idea. Vue and Svelte keep a component in one file for this reason. An element does it without what they bring with it.
+Colocation is why. A treemap written as a site's scripts was three places to read, its two scripts and about 70 lines of `style.css`, for one idea. Vue and Svelte keep a component in one file for this reason. An element does it without what they bring with it.
 
 - **No template language.** The template is JavaScript's own template literal, tagged with `html`. Loops are `.map`, and conditions are `? :`.
 - **HTML already marks the time.** A browser never renders or runs a template's content, so "written at build time, never shipped" is what `<template>` means. A top-level `<script>` runs in the browser, as it would in any page.
@@ -79,14 +79,14 @@ ${attrs.note && html`
 `}
 ```
 
-The first two write values. The last two write markup, repeated or maybe, so each piece of it is an `html` literal. A string can't say which of its parts are the author's tags and which are data, and `html` does: its literal parts are markup, and every value in it is escaped. So `<li>` stays a tag and `Tom & Jerry` stays text.
+The first two write values. The last two write markup, repeated or maybe, so each piece of it is an `html` literal. A string can't say which of its parts are the author's tags and which are data, and `html` can. Its literal parts are markup, and every value in it is escaped. So `<li>` stays a tag and `Tom & Jerry` stays text.
 
 ### The scope
 
 The template's scope is the host's context and the element's own.
 
 - `attrs` holds the element's attributes, each a string as HTML has it, or the value itself when the page writes one, as in `tags=${page.tags}`. `data="talks.json"` arrives parsed, as `attrs.data`, since the host reads it first. Whether `data` stays is open ([plan.md](plan.md#open-questions), "Where data lives").
-- `page` is the page's metadata, with its `path` from the site's root and its `url`. `pages` is every page the site builds, each the same, and `site` is `pagez.md`'s metadata ([Pages of a site](design.md#pages-of-a-site)), as they were in Sitez.
+- `page` is the page's metadata, with its `path` from the site's root and its `url`. `pages` is every page the site builds, each the same, and `site` is `pagez.md`'s metadata ([Pages of a site](design.md#pages-of-a-site)).
 - `html` is in scope, since the template is its literal.
 - The template's `<script>` adds whatever it declares or imports. A name like anything above fails, naming it.
 
@@ -96,7 +96,7 @@ Rendering is synchronous. No site has async build code, and the page's single pa
 
 ### The build script
 
-A `<script>` first in the template runs at build time, and is how an element uses code that isn't its own: a library such as d3, a layout it shares with its browser script, or markup it shares with other elements. On amitkaps.com, four of seven elements have one, each for an import.
+A `<script>` first in the template runs at build time. It's how an element uses code that isn't its own. That might be a library such as d3, a layout it shares with its browser script, or markup it shares with other elements. On one site, four of seven elements have one, each for an import.
 
 A template literal holds no local variables. An element whose markup needs intermediate values, such as the treemap's layout, declares one function and its template is one line.
 
@@ -161,7 +161,7 @@ Elements use no shadow DOM. The content is written into the element in the light
 An element's CSS is its own, and the page's has the last word.
 
 - Every top-level selector in the `<style>` starts with the tag. Nesting (`notes-treemap { & .frame { … } }`) writes the name once, and `x-tag li` passes too. A rule that doesn't start with the tag fails, naming the rule.
-- Element CSS isn't in a layer, and comes before the page's. Its selectors start with the tag, so `notes-treemap h2` outranks the page's `h2`, and the page's tag defaults don't reach in. The page has the last word by naming the element: its own `notes-treemap h2` is as specific, and later. The host's own defaults, such as Pagez's theme, are in a layer, so any element beats them ([The cascade](design.md#the-cascade)).
+- Element CSS isn't in a layer, and comes before the page's. Its selectors start with the tag, so `notes-treemap h2` outranks the page's `h2`, and the page's tag defaults don't reach in. The page has the last word by naming the element. Its own `notes-treemap h2` is as specific, and comes later. The host's own defaults, such as Pagez's theme, are in a layer, so any element beats them ([The cascade](design.md#the-cascade)).
 - The host ships each element's CSS once, and only for elements its pages use.
 - `:not(:defined)` styles an element before its script runs.
 
@@ -173,7 +173,7 @@ The top-level `<script>` default-exports `setup(el, { signal })`. The elements' 
 
 An element with behavior is a custom element, and its tag is the element's own name. The browser finds and upgrades a custom element by itself, where a `<div data-component>` would need a runtime to scan for it and watch for new ones. A custom element is also what Markz writes. Elements with behavior nest without any effort, since custom elements do.
 
-- **Behavior enhances HTML the build wrote.** On a slow load the script can run after first paint, so markup it inserted would move the page. In Sitez's spike, filter buttons the script prepended pushed the teaching grid down. So the template writes what the element shows, and `setup` wires it.
+- **Behavior enhances HTML the build wrote.** On a slow load the script can run after first paint, so markup it inserted would move the page. In an early spike, filter buttons the script prepended pushed the grid below them down. So the template writes what the element shows, and `setup` wires it.
 - **It reads its children and its attributes.** No data is sent besides the page's HTML, so nothing is sent twice and there is nothing to hydrate.
 - **The two scripts stay apart.** The host cuts each from the file and gives it to its bundler as a module of its own. They share no variables. Code both need, such as the treemap's `treemap.js`, is a module both import if it has no Node imports. A browser script that imports `html` fails, since `html` renders at build time.
 - **A large library loads inside `setup`**, with `await import("d3")`, so only a page where the element connects fetches it.
@@ -198,7 +198,7 @@ Only the host knows how an element was used, from Markz, so the inline check is 
 
 Ruled out:
 
-- **Replacing the tag with the element's output.** Sitez first did that, and a component could return `<aside class="call-out">`. The element's name was gone from the page, so its behavior never ran and its CSS never matched. A tag that is always there is worth more than choosing the root element.
+- **Replacing the tag with the element's output.** A component could then return `<aside class="call-out">`. The element's name is gone from the page, so its behavior never runs and its CSS never matches. A tag that is always there is worth more than choosing the root element.
 - **Passing the kind of use** (inline, leaf or container) to the element. An element that renders differently by where it's used is two elements, such as `{@cite}` and `{@cite-block}`. So a tag means the same everywhere, for CSS and for `setup`.
 
 ### The element attribute
@@ -224,19 +224,19 @@ Element scripts are JavaScript. `.ts` stays for modules, since no site writes it
 
 - **Markers on each script** (`<script build>` and `<script browser>`, or `render` and `setup`). Position says the same thing with no attribute to learn.
 - **`@name.css` beside the scripts.** It kept CSS beside the element but added a fourth suffix.
-- **Separate files by time** (`.html.js` for build markup, `.browser.js` for behavior). They were Sitez 0.3's. They kept the two times apart by name, and an element was up to four places to read.
+- **Separate files by time** (`.html.js` for build markup, `.browser.js` for behavior). They keep the two times apart by name, and an element is up to four places to read.
 - **A template holding markup or a script, never both.** The literal form covers both, so a static element and a computed one are the same shape.
 - **Markup without `html`.** Treating every backtick string in a template as markup would make the template something other than JavaScript, fail on `class=${`a ${b}`}`, and still leave `html` in helpers. A loop written in markup, such as `each="…"`, is a template language.
 - **`${children}`.** Content can only be placed or tested for emptiness, and the slot and its fallback do both in markup. It would also be a second way to say what a frame says with `<slot>`.
 - **One class, run at both times.** The build would run the element in a DOM in Node and save the HTML, and the browser would run it again. Its code would have to work twice, check whether it had already rendered, and couldn't read data files in the browser.
 - **A DOM at build time**, as htl makes nodes. The build would need a DOM in Node only to serialize it back to the string it wanted.
-- **A class as the default export.** Sitez 0.3 used one, since a function said nothing of where its argument came from or that it was an element. In one file the file is the element, and the script's place says it runs in the browser. The class's repeated lines and its easy-to-miss second setup on a move are what the runtime absorbs.
+- **A class as the default export.** It says what a function doesn't, where its argument comes from and that it's an element. In one file the file is the element, and the script's place says it runs in the browser. The class's repeated lines and its easy-to-miss second setup on a move are what the runtime absorbs.
 - **`define(name, setup)`, or `customElements.define` in the file.** It names the element a second time, after its file, and nothing checks that the two agree.
 - **`html` in the browser.** It was htl's, which made DOM nodes, so one name meant a string at build time and nodes in the browser. An element that renders in the browser imports a renderer from npm.
 - **`signal` and `effect`.** They held one value per element in every element written, which a variable holds as well. A site whose state crosses elements imports a signals library.
 - **Declarative behavior** (`click: { "button[data-tab]": "select" }`). It is a framework that grows a verb for every interaction nobody planned. A site that wants one imports Alpine or htmx.
 - **A `live` attribute on each use** (`{@tag-filter live}`). Behavior belongs to the element, not the use.
-- **A name of its own.** elementz was named when Sitez and Pagez were both its hosts. With one, it's Pagez's elements, and the line between them is kept in the code.
+- **A name of its own.** The element layer was elementz while it had two hosts. With one, it's Pagez's elements, and the line between them is kept in the code.
 - **Shadow DOM, async render, and rendering again in the browser.**
 
 ## Costs
@@ -256,7 +256,7 @@ Element scripts are JavaScript. `.ts` stays for modules, since no site writes it
 ## Open questions
 
 - **Re-rendering behavior.** Behavior changes the nodes the build wrote. That covers hiding, toggling and text. An element that re-renders a list would lose focus and input state, and would import a diffing renderer, such as uhtml, from npm.
-- **Data for behavior.** An element that needs rows of data would get them as a JSON `<script>` child. That needs rules for what crosses (a `Date` becomes a string) and how big it may get.
+- **Data for behavior.** An element that needs rows of data would get them as a JSON `<script>` child. That needs rules for what crosses, such as a `Date` becoming a string, and how big it may get.
 - **Markup from a library.** `html` escapes every value, and `raw` isn't exported. So Vega's SVG, a syntax highlighter or KaTeX can't be used in an element. Data Portraits drew its charts with d3 and `html` instead. Exporting `raw` waits until a site needs such a library.
 - **Meaning.** `<call-out>` means nothing to a screen reader, where `<aside>` is a landmark. When the meaning matters on every use, the template writes the `<aside>`.
 - **Child inspection.** Whether an element ever needs its content's structure at build time. Deferred until a real element needs it.

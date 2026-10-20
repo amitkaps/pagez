@@ -2,9 +2,9 @@
  * # The test sites
  *
  * Each site in `tests/sites/` builds every page, its `404.html` and its redirects to their
- * snapshots in `tests/snapshots/sites/<site>/`, at the path each is built at, or an `error-…` site fails
- * with `error.txt`, its file named from `tests/sites/`. Pagez's theme stands as a comment, as in
- * `pages.test.ts`.
+ * snapshots in `tests/snapshots/sites/<site>/`, at the path each is built at. An `error-…` site
+ * fails with `error.txt` instead, its file named from `tests/sites/`. Pagez's theme stands as a
+ * comment, as in `pages.test.ts`.
  */
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
