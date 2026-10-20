@@ -22,6 +22,7 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 
 - **A layer lost to every unlayered rule.** Element CSS was in `@layer elements`, so a page's `h2` restyled every element's headings. Element CSS is unlayered now, before the page's, and its selectors start with the tag. Put only the host's defaults in a layer, never what must win ([CSS](pages.md#css)).
 - **Custom properties didn't survive a page's own CSS.** A reset and a prose stylesheet of about 400 lines had eight custom properties, and a `style.css` replaced both. So an element that used `--prose-step-3` lost it on any page with CSS of its own. One theme with nothing to configure replaced them, and a page that wants another look writes its `style.css` ([CSS](pages.md#css)).
+- **A bare `style.css` was one file to Vite.** Each page linked its nearest `style.css` as `href="style.css"`, and Vite resolved that name to one file for every page, so a folder's own `style.css` was lost whenever the root had one. The test sites had a `style.css` in subfolders and none at the root, so nothing showed it until a real site built. Write a link from the page's folder as `./style.css`, and test a design file at two levels at once.
 
 ## Elements
 

@@ -155,7 +155,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
       path,
       html,
       css: [...(frame.file || style ? [] : [THEME]), ...(elements ? [elements] : [])],
-      links: style ? [relative(out, style)] : [],
+      links: style ? [fromHere(relative(out, style))] : [],
       script,
       behavior: used.filter((element) => element.script).map((element) => element.name),
       warnings,
@@ -222,5 +222,8 @@ export function write(page: Page): string {
   ];
   return lines.length > 0 ? addToHead(page.html, lines.join("\n")) : page.html;
 }
+
+/** A path from the page's folder, `./style.css`, since Vite reads a bare `style.css` as one file wherever it's written. */
+const fromHere = (path: string) => (path.startsWith(".") ? path : `./${path}`);
 
 const indent = (css: string) => css.replace(/^(?=.)/gm, "  ");
