@@ -69,6 +69,9 @@ export function parts(): Plugin {
   return {
     name: "pagez:parts",
     enforce: "pre",
+    // A package in node_modules is externalized, and Node loads it, so a helper module's import
+    // of Pagez would get whichever copy is installed, not this one's `html`.
+    config: () => ({ ssr: { noExternal: [PACKAGE] } }),
     resolveId(id, importer) {
       const from = importer?.startsWith("\0") ? undefined : importer?.split("?")[0];
       if (id === RUNTIME) return RUNTIME_ID;
