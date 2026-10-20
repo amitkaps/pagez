@@ -81,6 +81,21 @@ describe("pagez()", () => {
     );
   });
 
+  test("links each page's own style.css, when a folder above has one too", async () => {
+    const root = folder("folders", "sites");
+    writeFileSync(join(root, "style.css"), "body { color: red; }\n");
+    await run(root);
+    const dist = join(root, "dist");
+    const sheet = (page: string) => {
+      const html = readFileSync(join(dist, page), "utf8");
+      const [, href] = html.match(/<link rel="stylesheet" crossorigin href="([^"]+\.css)">/)!;
+      return readFileSync(join(dist, dirname(page), href!), "utf8");
+    };
+    expect(sheet("index.html")).toContain("color:red");
+    expect(sheet("stories/index.html")).not.toContain("color:red");
+    expect(sheet("essays/index.html")).not.toContain("color:red");
+  });
+
   test("builds 404.html from the root, _redirects after public/'s, no drafts, and reports the pages", async () => {
     const root = folder("blog", "sites");
     writeFileSync(join(root, "public/_redirects"), "/elsewhere https://example.org/ 302");
