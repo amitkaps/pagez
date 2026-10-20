@@ -2,7 +2,7 @@
 # # pnpm's settings
 #
 # pnpm 12 reads project settings from here. It's a settings file, not a workspace, and its
-# settings are the standard's, from ship.
+# settings are craftz's.
 
 # @prose
 # pnpm holds back a version for a day after it's published, so a bad release can be caught

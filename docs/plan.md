@@ -6,7 +6,7 @@ What Pagez does today, newest first, one section for each piece of work. Then wh
 
 ### Neutral docs
 
-The docs say what Pagez does, with no other tool's history and no one site's names in them. Package and tool names stay, such as `@amitkaps/pagez` and ship's URLs, since they're what's published. History keeps its reason and drops its source, and evidence keeps its finding with a neutral example.
+The docs say what Pagez does, with no other tool's history and no one site's names in them. Package and tool names stay, such as `@amitkaps/pagez` and craftz's URLs, since they're what's published. History keeps its reason and drops its source, and evidence keeps its finding with a neutral example.
 
 ### Pages of a site
 
@@ -66,7 +66,7 @@ Stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz p
 
 ### 0.0.0
 
-Started from [ship's standard](https://ship.amitkaps.com/docs/standard.md), with `pnpm new`. The design came first, and nothing of Pagez is built yet.
+Started with `pnpm new`. The design came first, and nothing of Pagez is built yet.
 
 ## Next, in order
 
