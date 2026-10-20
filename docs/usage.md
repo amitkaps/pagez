@@ -18,7 +18,7 @@ The command writes one standalone HTML file beside the page.
 pnpm exec pagez essay.md    # writes essay.html
 ```
 
-The library returns the parts, so a host like Sitez can bundle them itself: the head, the body, and the CSS and JS of the elements the page uses.
+The library returns the parts, so another host can bundle them itself: the head, the body, and the CSS and JS of the elements the page uses.
 
 ## For agents
 

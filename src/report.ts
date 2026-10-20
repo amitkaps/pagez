@@ -1,11 +1,12 @@
 /** @prose
  * # The build report
  *
- * What `build` prints when it's done: each page's HTML, gzipped, as it's sent, and the time it took
- * to compile, so a page that grows heavy or slow shows where the cost is, with the elements that
- * give it behavior. What pages share is one `common` row, since the browser downloads it once: the
- * CSS and JavaScript Vite bundled. The last line is the whole build and the version of Pagez that
- * ran. It came from Sitez.
+ * What `build` prints when it's done. Each page's row has its HTML, gzipped, as it's sent, the time
+ * it took to compile, and the elements that give it behavior. So a page that grows heavy or slow
+ * shows where the cost is.
+ *
+ * What pages share is one `common` row, the CSS and JavaScript Vite bundled, since the browser
+ * downloads it once. The last line is the whole build and the version of Pagez that ran.
  *
  * ```text
  * page           html   time

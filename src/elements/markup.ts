@@ -1,15 +1,16 @@
 /** @prose
  * # Reading HTML's tags
  *
- * Where the tags are in a piece of HTML, with their attributes. HTML is read in three places,
- * which are the host's frame (Sitez's `code/index.html`), an element file and an element's
- * output. It isn't an HTML
- * parser and checks no nesting. It finds each start and end tag the way the HTML tokenizer would,
- * so a `<` in a comment, in an attribute's value, or in a `<script>`, `<style>`, `<textarea>` or
- * `<title>` is text. Everything else, such as which elements close which, is the browser's.
+ * Where the tags are in a piece of HTML, with their attributes. HTML is read in three places, which
+ * are the host's frame (a `frame.html`), an element file and an element's output.
  *
- * A caller changes the HTML by slicing at the offsets, so nothing is written back that wasn't
- * read, and a page keeps the spacing its author gave it.
+ * It isn't an HTML parser and checks no nesting. It finds each start and end tag the way the HTML
+ * tokenizer would, so a `<` in a comment, in an attribute's value, or in a `<script>`, `<style>`,
+ * `<textarea>` or `<title>` is text. Everything else, such as which elements close which, is the
+ * browser's.
+ *
+ * A caller changes the HTML by slicing at the offsets, so nothing is written back that wasn't read,
+ * and a page keeps the spacing its author gave it.
  */
 
 /** One attribute of a start tag, with where its value sits so a caller can replace it. */
@@ -32,7 +33,7 @@ export interface Tag {
   start: number;
   end: number;
   attributes: Attribute[];
-  /** Written `<x />`. HTML ignores the slash on a custom element, and Sitez reads it as empty. */
+  /** Written `<x />`. HTML ignores the slash on a custom element, and Pagez reads it as empty. */
   selfClosing: boolean;
 }
 

@@ -3,7 +3,7 @@
 The sites Pagez must build, or must fail on, one folder each, as [the test pages](../pages/) are
 for one page. Each is a folder of pages, with what [folders.md](../../docs/folders.md#the-rules)
 says about many pages: a page at its folder's path, the nearest `style.css` and `frame.html`,
-`pagez.md` at the root, links between pages, and what Sitez brought, from `pages` to redirects.
+`pagez.md` at the root, links between pages, and what a site adds, from `pages` to redirects.
 
 - Each page opens with a `<!-- Expect: … -->` comment, which says what it builds to.
 - A folder named `error-…` is a site that must fail, at the place its pages' comments name.

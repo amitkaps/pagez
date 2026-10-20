@@ -1,6 +1,6 @@
 # Design
 
-Pagez is a page compiler: a folder of Markz pages in, their HTML out, built to `dist/` through Vite. A folder is one page or a site, with Sitez's site features folded in ([folders.md](folders.md)). It's built as far as [plan.md](plan.md#where-it-is) says. The design started as `pagez.md` in Sitez.
+Pagez is a page compiler: a folder of Markz pages in, their HTML out, built to `dist/` through Vite. A folder is one page or a site ([folders.md](folders.md)). It's built as far as [plan.md](plan.md#where-it-is) says.
 
 > The build produces the page. JavaScript enhances the page.
 
@@ -20,7 +20,7 @@ In short, it's Web Components in the light DOM, rendered at build time.
 
 - Input is a folder of Markz pages, each a `.md` at its folder's path, and what they use: their `style.css` and `frame.html`, images and fonts, and `@x-tag.html` elements.
 - Output is `dist/`: each page's HTML, and their CSS, images and fonts with hashed names, built through Vite. The folder is the source, and is never written to ([The folder](#the-folder)).
-- A site's pages know of each other: a template gets every page, a link between pages is checked, and drafts, redirects and a 404 page are built for it ([Pages of a site](#pages-of-a-site)).
+- A site's pages know of each other. A template gets every page, a link between pages is checked, and drafts, redirects and a 404 page are built for it ([Pages of a site](#pages-of-a-site)).
 
 ## The folder
 
@@ -45,7 +45,7 @@ site/
 
 - **A page is a `.md`,** at its folder's path. `index.md` is its folder's own, and `about.md` is `about/`, built as `about/index.html`, so every page's URL is a folder, which says nothing of how it's built. `about.md` beside `about/index.md` is two files for one path, and fails.
 - **Its design is the nearest** `style.css` and `frame.html`, each found on its own, in the page's folder or the nearest one above it. Nothing is merged unless it's written: a `style.css` that builds on its parent's starts with `@import "../style.css";`, and a frame is a whole document, so markup two frames share is an element.
-- **Each page is compiled in memory** and handed to Vite at the path it's built at, so Vite reads its references from there, and an `index.html` there is what Pagez writes, so it fails. A reference is written from the file it's in, as a browser reads it, so a figure beside `about.md` is `../figure.svg` in `about/index.html`, and a frame's are its own, from its folder, wherever the page it frames is built.
+- **Each page is compiled in memory** and handed to Vite at the path it's built at, so Vite reads its references from there, and an `index.html` there is what Pagez writes, so it fails. A reference is written from the file it's in, as a browser reads it. So a figure beside `about.md` is `../figure.svg` in `about/index.html`. A frame's references are its own, from its folder, wherever the page it frames is built.
 - **`pagez.md` at the root** is the site's metadata, not a page. Its `url` is the site's address, and each page's is that and its path, so a page that sets its own fails. Its `repo` is where the source is. A site needs none, and a page then takes its `url` from its own metadata.
 - **What's skipped:** a name starting with `_` or `.`, `node_modules`, `public/` and `dist/`. Nothing else is special, so a `README.md` is a page.
 
@@ -61,23 +61,23 @@ A reference is written as a relative path, a package name or a full URL, and tha
 - **Scripts are one module.** The elements' scripts become one module, which Vite bundles: the elements' runtime, then the `setup` of each element the page uses, with what they import. A library two elements share is in it once. A page's own `<script type="module" src>` is left as written, and Vite bundles it too.
 - **Imports are checked first.** In an element's script, a relative file must be there and a package must be in a `node_modules` the element's folder reaches, or the build fails at the import's line. A browser script can't import Pagez or Node's own modules.
 - **A link to a file,** such as `./data.csv`, is checked, and the build gives it a hashed name, since Vite bundles what HTML loads and not what it links to.
-- **A link to a page** is to its `.md`, as it reads on GitHub, such as `[hello](essays/first.md)`, or to its path from the site's root, `/essays/first/`, which a frame or a template writes, since it means one page wherever it renders. It must be a page the site builds, or the build fails, at its line in the Markdown and at the frame's line, or naming the page otherwise. It's written as the folder the page is built in, from where the linking page is, as `./essays/first/`, so `dist/` works under any path. Anything else from the root, such as `/favicon.svg`, must be a file in `public/`.
+- **A link to a page** is to its `.md`, as it reads on GitHub, such as `[hello](essays/first.md)`. Or it's to its path from the site's root, `/essays/first/`, which a frame or a template writes, since it means one page wherever it renders. It must be a page the site builds, or the build fails, at its line in the Markdown and at the frame's line, or naming the page otherwise. It's written as the folder the page is built in, from where the linking page is, as `./essays/first/`, so `dist/` works under any path. Anything else from the root, such as `/favicon.svg`, must be a file in `public/`.
 - `dist/` needs a server, as any built site does. Vite marks its stylesheet `crossorigin`, which a page opened from disk can't load.
 - Pagez fetches nothing at build time, so the build never depends on the network. A full URL is the author's choice to depend on it, and it shows in the output.
 - A web component from a package is a script like any other. Pagez bundles it, and the browser defines it when the page runs. Only Pagez's own elements render at build time.
 - The bundler is Vite+'s Rolldown, so `vite-plus` is a peer dependency of Pagez, not only of its build. It's the only one: Markz is bundled into `dist/`, as prose bundles it.
-- **Why not one file, or beside the page.** Pagez first wrote one standalone file, with every image, font and stylesheet inlined as a data URL. Rebuilding amitkaps.com/stories that way made a 1 MB file that couldn't be read or cached. Then it wrote `index.html` beside `index.md`, which mixes output into the source, and more so for a site. `dist/` keeps them apart, as Jekyll and most static site generators do. Both are parked as single-page exports (plan.md, Later).
+- **Why not one file, or beside the page.** Pagez first wrote one standalone file, with every image, font and stylesheet inlined as a data URL. Rebuilding a Jekyll page of six chapters and 41 images that way made a 1 MB file that couldn't be read or cached. Then it wrote `index.html` beside `index.md`, which mixes output into the source, and more so for a site. `dist/` keeps them apart, as Jekyll and most static site generators do. Both are parked as single-page exports (plan.md, Later).
 
 ## Pages of a site
 
-What a site adds to a page, from Sitez, where it was built and used first.
+What a site adds to a page.
 
 - **`pages` and `site`** are in every template's scope, beside `page`. `pages` is every page the site builds, sorted by path, each its metadata with its `path` from the root, `/blog/hello/`, and its `url` when `pagez.md` has one. `page` has them too. `site` is `pagez.md`'s metadata, so `site.author` is the site's own key. So an index lists the pages under it, and links to each by its `path`, which works from any page. A page can't set `path`, which is its file's.
 - **A draft,** `draft: true`, is left out of `build`, of `pages` and of what a link reaches, so a link to one fails rather than shipping broken. `dev` builds it like any page, so it can be read as it's written. `draft: yes` is a string to YAML, so it fails rather than publishing.
 - **`404.md`** at the root is built as `404.html`, which a host serves at any path that isn't there. Its references can't be relative, since they'd be read from that path, so the build writes them from the site's root, which `pagez.md`'s `url` gives, and a site with a `404.md` needs one. It isn't in `pages`, and a link to it fails.
 - **Redirects.** A page that moved lists the paths it used to have, `redirects: [/old-name/]`, and each gets a small page, the minimal document, that refreshes to it, names it canonical and asks not to be indexed. An old `/name.html` is written as that file. A redirect can't be a page's path, and two pages can't list one. `/x.html` can't redirect while a page has `/x/`, since a host serves `x.html` at `/x` too, in front of the page. A link to a redirect fails, naming where the page is now, so nothing on the site goes through one.
 - **The build report.** `build` prints each page's HTML, gzipped, the time it took, and the elements that give it behavior, then the CSS and JavaScript the pages share, and the total.
-- **Links to the repository** stay out. Sitez sent a link to any other file in the repository to its page on GitHub, from `pagez.md`'s `repo`. In Pagez a linked file, such as `./data.csv`, is shipped with the page, hashed, which a site of folders needs more, and a link to GitHub is written in full.
+- **A linked file is shipped, not sent to GitHub.** A link to a file, such as `./data.csv`, ships it with the page, hashed, since a page's files sit beside it. Rewriting the link to the file's page on GitHub, from `pagez.md`'s `repo`, is ruled out. A link to GitHub is written in full.
 
 ## Markz and Pagez
 
@@ -124,16 +124,14 @@ Prose and templates evaluate separately.
 - Prose prints a string or a number, escaped. A list, a boolean and an empty value have no one way to read as text, so each fails, and an element writes it.
 - A link's destination prints its values the same way. An element's attribute that is one `${…}` is the value itself, so `{@tag-list tags=${page.tags} /}` gives the template the list.
 - A heading that prints a value takes its id from what it prints, so `# ${page.title}` is `fish--chips`, where Markz alone makes it `section`.
-- `page` is the page's metadata, the name Sitez uses, so an element that reads only `page` works in both.
-
-Sitez doesn't evaluate `${…}` in prose ([its design](https://sitez.amitkaps.com/docs/design.md), "Not in v1"). That difference is a page feature, not part of the element, so elements stay shared.
+- `page` is the page's metadata, the name a template reads it by, so prose and elements name it the same way.
 
 ## Metadata, never settings
 
-Frontmatter holds the page's metadata, such as `title`, `description`, `url` and `image`. It holds no settings, as Sitez's `site.md` holds none. Each would-be setting is a convention.
+Frontmatter holds the page's metadata, such as `title`, `description`, `url` and `image`. It holds no settings. Each would-be setting is a convention.
 
 - **The page's CSS** is the nearest `style.css`. Pagez links it, in place of its theme ([Pagez's CSS or the page's](#pagezs-css-or-the-pages)).
-- **The frame** is the nearest `frame.html`, with one `<slot>` for the page, as Sitez's `code/index.html` is. With none, Pagez writes a minimal document. It's for a shell the page's CSS can't give, such as a header and footer or tags of its own in the head, so most pages have none. It isn't `index.html`, which is the page Pagez writes. The frame must not grow layouts, partials or site logic.
+- **The frame** is the nearest `frame.html`, with one `<slot>` for the page. With none, Pagez writes a minimal document. It's for a shell the page's CSS can't give, such as a header and footer or tags of its own in the head, so most pages have none. It isn't `index.html`, which is the page Pagez writes. The frame must not grow layouts, partials or site logic.
 - **Elements** are the page's own definitions and the `@x-tag.html` files in the site, found by name. There's nothing to import.
 - **Undefined tags** warn only when a hyphenated tag has no definition and no selector in the page's CSS. That catches a typo without a list of tags to allow. A component that a script defines gets a rule such as `sl-button:not(:defined) { visibility: hidden; }`, which also keeps it from showing unstyled before its script runs. The warning names the tag's line, and `dev` and `build` print it.
 
@@ -148,7 +146,7 @@ A page's head is its frame's, with what follows from its metadata added. Each ta
 - **The title** is the page's `title`, else the frame's `<title>`, else the page's first heading, else the file's name. Every page has one.
 - **`url`** is the page's full address: `pagez.md`'s and the page's path, or the page's own in a site with none. The canonical link and `og:url` need it, and are left out without it.
 - **`image`** is a full address, or a path that resolves against `url`. Open Graph needs a full address, so a relative `image` with no `url` fails. It isn't checked as a file beside the page otherwise say, since only a crawler reads it, at the page's address. With an image, `twitter:card` is `summary_large_image`.
-- Sitez's frame also needs a title and a description, since every page of a site keeps them when it sets none. A single page needs neither in its frame.
+- A frame needs no title or description. Pagez writes the page's, and a page with no title takes the frame's or its fallback.
 
 ## Elements
 
@@ -165,7 +163,7 @@ The element itself, with its template, slot, CSS and `setup`, is in [elements.md
 
 - **In the page,** one `=html` block per element, named by `<template element="x-tag">`. Its `<style>` and `<script>` are siblings in the block. Definitions sit anywhere in the page, typically at the end, like footnotes. A behavior-only element has an empty `<template element="x-tag"></template>`, which writes no markup.
 - **In a file,** `@x-tag.html` anywhere in the site, kept with the pages that use it. The file's name is the tag, and an `element` attribute is optional and must match. `node_modules`, `public/`, `dist/` and a name starting with `_` or `.` are skipped.
-- Moving an element from the page to a file is a cut and paste. The same file works in Sitez.
+- Moving an element from the page to a file is a cut and paste.
 - An element's block isn't emitted. All other `=html` content stays verbatim.
 
 ### Names
@@ -203,7 +201,7 @@ Each kind of CSS has one place, and a later one wins without a setting.
 
 - **It styles what Markz writes,** and the document around it, by tag, with no classes. A test holds it to Markz's tags.
 - **One readable column.** Text and headings are the system's font, `system-ui`, and code is `ui-monospace` in Safari, then Menlo or Consolas, named since Chrome's `monospace` on a Mac is Courier. Every font is sized to its x-height with `font-size-adjust: ex-height from-font`, so code needs no smaller size. Text is 16px on a phone, growing to 18px on a wide screen, in `rem` so the reader's setting scales it. The column is `main`, 60ch, about 85 characters a line, centered, so nothing inside an element is narrowed. The browser's own margins and lists stay.
-- **Light and dark** from `color-scheme: light dark`, which the minimal document's head says too. Tints and rules are mixed from the text's color in `oklch`, so they follow the scheme, and a mark and a selection have a color for each, from `light-dark()`, since the browser's yellow mark glares in dark mode. A page that sets a light background of its own sets `color-scheme: light` too, or its text turns light in dark mode.
+- **Light and dark** from `color-scheme: light dark`, which the minimal document's head says too. Tints and rules are mixed from the text's color in `oklch`, so they follow the scheme. A mark and a selection have a color for each scheme, from `light-dark()`, since the browser's yellow mark glares in dark mode. A page that sets a light background of its own sets `color-scheme: light` too, or its text turns light in dark mode.
 - **Code, quotes, tables and rules** get a tint or a line, and a code block scrolls.
 - It replaced a reset and a prose stylesheet of about 400 lines, with a modular scale, a measure on every block, print and contrast styles, and eight custom properties. A `style.css` replaced them, so the custom properties could only be set from a `<style>` in the page, and an element that used `--prose-step-3` lost it on any page with CSS of its own. It's simpler to judge one readable look, and to write a `style.css` for anything else.
 
@@ -211,8 +209,8 @@ Each kind of CSS has one place, and a later one wins without a setting.
 
 - **With no `style.css` and no frame,** in its folder or above it, the page gets the theme. That's the Markdown-first page, and the minimal document says `color-scheme: light dark`, as the theme does.
 - **With a `style.css`,** the page's CSS is its own design, and replaces the theme. It's linked as written, so it reads, caches and is shared like any file, and it can `@import` and `url()` the fonts and images beside it. The minimal document leaves out `color-scheme`, since a page's own CSS says whether it has a dark mode.
-- **With a frame,** the frame is the design, and doesn't get the theme, as in Sitez. A `style.css` is still linked.
-- So there's no setting. Sitez dropped its reset because amitkaps.github.io's first rules undid it, and a site with a design of its own brings its CSS.
+- **With a frame,** the frame is the design, and doesn't get the theme. A `style.css` is still linked.
+- So there's no setting. A site with a design of its own brings its CSS, and its first rules would only undo a reset under it.
 - **A `<style>` in an `=html` block is raw HTML,** written where it is, like any other. A browser applies it, unlayered, so a page kept as one Markz file can carry its CSS. HTML wants a `<style>` in the head, though, and the page may show unstyled for a moment, so a page that cares has a `style.css`. Pagez once moved such blocks to the head as "page CSS", which a `style.css` made a second way to do one thing.
 
 ### Element CSS
@@ -224,7 +222,7 @@ Element CSS is emitted once and only for elements the page uses, unlayered, befo
 - `setup` scripts are emitted only for elements the page uses that have one.
 - The elements' runtime defines each element, and aborts and cleans up on disconnect.
 - Pagez as a library, `compile`, returns the page in its frame, its CSS and its one module. The plugin hands them to Vite as one HTML page, the CSS as a `<style>` and the JS as an inline module, and Vite bundles and hashes them.
-- Templates run at build time in a Vite server, `dev`'s own or one the build makes for every page, so a build script imports what the site's folder has, and a change shows on the next request.
+- Templates run at build time in a Vite server, `dev`'s own or one the build makes for every page. So a build script imports what the site's folder has, and a change shows on the next request.
 
 ## Errors
 
@@ -245,7 +243,7 @@ An HTML page that an AI writes is output. Pagez is a source format and its compi
 - **AI is an author, and Pagez is its target.** Markz with elements is a small surface, so a model makes fewer mistakes, and the compiler catches the rest at exact positions.
 - An edit is a change to the source that a person can review, not a regenerated file.
 - The value is in collections kept over time, such as data essays, a book or course material, more than in one-off demos.
-- **The test is real pages.** Rebuild two or three, starting with [amitkaps.com/stories](https://amitkaps.com/stories), a Jekyll page of prose, grouped cards and page styling with no behavior. If the source stays pleasant to edit and elements get reused, the case is made. If the output HTML gets edited by hand, it isn't.
+- **The test is real pages.** Rebuild two or three, starting with a Jekyll page of prose, grouped cards and page styling with no behavior. If the source stays pleasant to edit and elements get reused, the case is made. If the output HTML gets edited by hand, it isn't.
 
 ## What it isn't
 

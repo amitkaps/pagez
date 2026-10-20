@@ -38,11 +38,12 @@ export interface Host {
 let counter = 0;
 
 /** @prose
- * What an element writes inside its tag, for these attributes and this content. An attribute is
- * a string, as HTML has it, or any value a host gives, such as a list from the page's metadata.
- * `content` is HTML that is already rendered, or nothing for an element with none. `data` is read by the
- * caller, who knows where the attribute was written. `chain` is the elements this one is inside,
- * by their output. An element with no template writes its content as it is.
+ * What an element writes inside its tag, for these attributes and this content.
+ *
+ * An attribute is a string, as HTML has it, or any value a host gives, such as a list from the
+ * page's metadata. `content` is HTML that is already rendered, or nothing for an element with none.
+ * `data` is read by the caller, who knows where the attribute was written. `chain` is the elements
+ * this one is inside, by their output. An element with no template writes its content as it is.
  */
 export async function renderElement(
   host: Host,
@@ -70,11 +71,12 @@ export async function renderElement(
 }
 
 /** @prose
- * A template that throws is a mistake in the site, not in Pagez, so the build fails naming the
- * element's file, and the line when its stack has it. The module's lines are the file's, so it's
- * the line the author wrote, once the host has mapped the stack to the module. A template the
- * renderer refuses says why in its own words. The result is trimmed, so a template written across
- * lines can still sit inside a paragraph.
+ * A template that throws is a mistake in the site, not in Pagez. So the build fails naming the
+ * element's file, and the line when its stack has it.
+ *
+ * The module's lines are the file's, so it's the line the author wrote, once the host has mapped
+ * the stack to the module. A template the renderer refuses says why in its own words. The result is
+ * trimmed, so a template written across lines can still sit inside a paragraph.
  */
 function rendered(file: string, fn: () => unknown): string {
   try {
@@ -99,10 +101,12 @@ function lineIn(file: string, error: unknown): number | undefined {
 }
 
 /** @prose
- * An element's content goes where its `<slot>` is, in place of the slot's own content, which is
- * the fallback. The slot is found in what the template wrote, so one in a helper's `html` counts.
- * An element given content with no slot would lose it, and one with two would repeat it, so either
- * fails, as a frame that did either would.
+ * An element's content goes where its `<slot>` is, in place of the slot's own content, which is the
+ * fallback.
+ *
+ * The slot is found in what the template wrote, so one in a helper's `html` counts. An element
+ * given content with no slot would lose it, and one with two would repeat it. So either fails, as a
+ * frame that did either would.
  */
 function inSlot(element: ElementFile, out: string, content: string | undefined): string {
   const { file, name } = element;
@@ -134,10 +138,12 @@ interface Node {
 }
 
 /** @prose
- * `html` with each element in it rendered, innermost first. Only a tag with an element file is an
- * element. One with a hyphen and no file is plain HTML, and so is a tag with none, and both are
- * left as written, with whatever elements they hold rendered. `file` is what wrote `html`, which
- * a failure names, and `chain` is the elements it is the output of.
+ * `html` with each element in it rendered, innermost first.
+ *
+ * Only a tag with an element file is an element. One with a hyphen and no file is plain HTML, and
+ * so is a tag with none. Both are left as written, with whatever elements they hold rendered.
+ * `file` is what wrote `html`, which a failure names, and `chain` is the elements it is the output
+ * of.
  */
 export async function renderElements(
   host: Host,
@@ -224,10 +230,12 @@ async function written(
 }
 
 /** @prose
- * An element's opening tag, as Markz writes one: `class` first, a bare attribute with no `=`, and a
- * value escaped. The element is written here, not by Markz, since its inside is the
- * template's. Only text reaches the browser, as in a template's attribute. A string or a number
- * is written, `true` is bare, and anything else, such as a list, went to the template alone.
+ * An element's opening tag, as Markz writes one, with `class` first, a bare attribute with no `=`,
+ * and a value escaped. The element is written here, not by Markz, since its inside is the
+ * template's.
+ *
+ * Only text reaches the browser, as in a template's attribute. A string or a number is written,
+ * `true` is bare, and anything else, such as a list, went to the template alone.
  */
 export function openTag(name: string, attributes: Record<string, unknown>): string {
   const { class: classes, ...others } = attributes;

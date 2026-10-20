@@ -1,18 +1,19 @@
 /** @prose
  * # The Vite plugin
  *
- * `pagez()` builds the site in Vite's root through Vite: every page, each a `.md` at its folder's
- * path (`site.ts`). `vp build` writes `dist/` with its CSS, images and fonts hashed and minified,
- * `vp dev` serves it while it's written, and `vp preview` serves what was built. `public/` is
- * copied as it is, as Vite does ([folders.md](../docs/folders.md#the-rules)). Its other plugin
- * serves the elements' parts (`parts.ts`), so Vite bundles each element's `setup` into its page's
- * one module.
+ * `pagez()` builds the site in Vite's root through Vite, every page, each a `.md` at its folder's
+ * path (`site.ts`).
  *
- * The pages' templates run at build time in a Vite server: `dev`'s own, so a change is seen on
+ * `vp build` writes `dist/` with its CSS, images and fonts hashed and minified, `vp dev` serves it
+ * while it's written, and `vp preview` serves what was built. `public/` is copied as it is, as Vite
+ * does ([folders.md](../docs/folders.md#the-rules)). Pagez's other plugin serves the elements'
+ * parts (`parts.ts`), so Vite bundles each element's `setup` into its page's one module.
+ *
+ * The pages' templates run at build time in a Vite server. It's `dev`'s own, so a change is seen on
  * the next request, or one `build` makes for every page.
  *
  * Vite builds from HTML files, and each page's is the one Pagez compiles. The plugin hands it to
- * Vite in memory, at the path it's built at, `about/index.html` for `about.md`, so Vite reads its
+ * Vite in memory, at the path it's built at, `about/index.html` for `about.md`. So Vite reads its
  * references from there, and the source is never written to. `dev` reads the site again for each
  * request, so a new page is served without a restart.
  *

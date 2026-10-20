@@ -2,10 +2,11 @@
  * # Redirects
  *
  * A page that moved lists the paths it used to have under `redirects`, and Pagez writes a small
- * page at each one that sends the browser on (`site.ts` checks them). A page's path is still its
- * file's. A redirect only points old addresses at it, so a site can move its files without
- * breaking links from elsewhere. Nothing on the site goes through one, since a link to a redirect
- * fails, asking for the page it reaches.
+ * page at each one that sends the browser on (`site.ts` checks them).
+ *
+ * A page's path is still its file's. A redirect only points old addresses at it, so a site can move
+ * its files without breaking links from elsewhere. Nothing on the site goes through one, since a
+ * link to a redirect fails, asking for the page it reaches.
  *
  * The page is the minimal document, not the page's frame, since it shows for an instant. It
  * refreshes to the page, names it canonical when the site has a `url`, asks not to be indexed, and

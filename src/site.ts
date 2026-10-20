@@ -1,15 +1,17 @@
 /** @prose
  * # The site
  *
- * The pages in a folder, and what each one is made from ([folders.md](../docs/folders.md#the-rules)).
- * The folder Pagez builds is the root, and every `.md` under it is a page, at its folder's path.
- * `index.md` is its folder's own page, and `about.md` is `about/`, built as `about/index.html`, so
- * every page is a folder's `index.html` and its URL says nothing of how it's built. `about.md`
+ * The pages in a folder, and what each one is made from
+ * ([folders.md](../docs/folders.md#the-rules)). The folder Pagez builds is the root, and every
+ * `.md` under it is a page, at its folder's path.
+ *
+ * `index.md` is its folder's own page, and `about.md` is `about/`, built as `about/index.html`. So
+ * every page is a folder's `index.html`, and its URL says nothing of how it's built. `about.md`
  * beside `about/index.md` is two files for one path, and fails naming both.
  *
- * What's skipped is skipped for elements too: a name starting with `_` or `.`, `node_modules`,
- * `public/`, which is copied as it is, and `dist/`, which is what's built. A `README.md` is a page
- * like any other.
+ * What's skipped is skipped for elements too. That's a name starting with `_` or `.`,
+ * `node_modules`, `public/`, which is copied as it is, and `dist/`, which is what's built. A
+ * `README.md` is a page like any other.
  *
  * `pagez.md` at the root is the site's metadata, not a page. Its `url` is the site's address, and
  * each page's follows from it and the page's path. Its `repo` is where the site's source is. Every
@@ -96,10 +98,12 @@ export function pagePath(root: string, file: string): string {
 }
 
 /** @prose
- * The site at `root`: its metadata and its pages. A mistake in the folder fails before any page is
- * compiled: no page at all, two files for one path, a `pagez.md` below the root, an `index.html`
- * where a page is built, which is what Pagez writes, a key Pagez reads written wrong, and a
- * redirect that can't be one. `drafts` builds the drafts too, as `dev` does.
+ * The site at `root`, its metadata and its pages. A mistake in the folder fails before any page is
+ * compiled.
+ *
+ * The mistakes are no page at all, two files for one path, a `pagez.md` below the root, and an
+ * `index.html` where a page is built, which is what Pagez writes. A key Pagez reads written wrong is
+ * one too, and so is a redirect that can't be one. `drafts` builds the drafts too, as `dev` does.
  */
 export function readSite(root: string, { drafts = false }: { drafts?: boolean } = {}): Site {
   const all: SitePage[] = [];

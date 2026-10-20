@@ -1,9 +1,9 @@
 /** @prose
  * # The frame and the head
  *
- * What fails a frame, each with the line to add or remove, the metadata the head reads, and what
- * Pagez writes in a page's head: the page's lang, title and description in place of the frame's,
- * and the tags that follow.
+ * What fails a frame, each with the line to add or remove, and the metadata the head reads. Then
+ * what Pagez writes in a page's head, which is the page's lang, title and description in place of
+ * the frame's, and the tags that follow.
  */
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

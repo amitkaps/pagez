@@ -5,5 +5,5 @@
 # what the tests write. So prose doesn't check them
 # ([usage](https://prose.amitkaps.com/docs/usage.md#warnings)).
 tests/pages/** prose-unchecked
-tests/sites/** linguist-vendored
-tests/snapshots/** linguist-generated
+tests/sites/** prose-unchecked
+tests/snapshots/** prose-unchecked

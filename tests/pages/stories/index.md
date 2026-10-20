@@ -5,7 +5,7 @@ url: https://example.com/write-it-down/
 image: cover.svg
 ---
 
-<!-- Expect: a stand-in with the shape of amitkaps.com/stories, whose source isn't public. It has
+<!-- Expect: a stand-in with the shape of a real Jekyll page. It has
 prose, grouped sections, figures and page styling, and no behavior. It's kept as one file, so its
 CSS is a raw <style>, written where it is, and with no style.css it gets Pagez's theme. Its
 background is light, so it sets color-scheme: light. No element CSS and no <script>. Each image is

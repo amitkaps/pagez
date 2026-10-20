@@ -5,9 +5,9 @@
  * it into a string. `html` exists only at build time, and an element's
  * browser `<script>` that imports it fails.
  *
- * A value is marked with a registered symbol, not a class. The site's code loads `sitez` through
- * Vite's module runner, and the build loads it through Node. That makes two copies of this file,
- * and `instanceof` fails between them ([elements.md](../../docs/elements.md#html)).
+ * A value is marked with a registered symbol, not a class. A template loads Pagez through Vite's
+ * module runner, and the build loads it through Node. That makes two copies of this file, and
+ * `instanceof` fails between them ([elements.md](../../docs/elements.md#html)).
  */
 const TEMPLATE: unique symbol = Symbol.for("pagez.template");
 const RAW: unique symbol = Symbol.for("pagez.raw");
@@ -31,8 +31,8 @@ export function html(strings: TemplateStringsArray, ...values: unknown[]): Templ
 }
 
 /** @prose
- * HTML that is already safe, which only Sitez makes, such as Markz's output. A site has no way to
- * write it, so every value it interpolates is escaped.
+ * HTML that is already safe, which only the renderer makes, from a nested `html` template. A site
+ * has no way to write it, so every value it interpolates is escaped.
  */
 export function raw(value: string): Raw {
   return { [RAW]: true, value };

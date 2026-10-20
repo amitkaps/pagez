@@ -1,6 +1,6 @@
 # elements
 
-The element layer: one `@name.html` file, read into its parts, rendered at build time and run in the browser ([elements.md](../../docs/elements.md)). It moved here from Sitez as `elementz`, and nothing here imports the rest of Pagez. Its tests are in `tests/elements/`.
+The element layer: one `@name.html` file, read into its parts, rendered at build time and run in the browser ([elements.md](../../docs/elements.md)). Nothing here imports the rest of Pagez. Its tests are in `tests/elements/`.
 
 - `file.ts` reads an element file into its parts, checks it, and writes each part as a module.
 - `style.ts` checks that an element's CSS starts with its tag.
