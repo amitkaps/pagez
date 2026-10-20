@@ -40,6 +40,7 @@ site/
 ```
 
 - [`folder-page`]{#folder-page}: A page is a `.md`, at its folder's path. `index.md` is its folder's own, and `about.md` is `about/`, built as `about/index.html`. So `about.md` beside `about/index.md` is two files for one path, and fails, as does a site with no page (`folders`, `plain`, `error-path-twice`, `error-no-page`).
+- [`folder-markz`]{#folder-markz}: A page is Markz. A form Markz reads its own way, such as a bare URL or an element line beside text, warns at its line, and ends with Markz's code, such as `[bare-url]`. [Markz](https://github.com/amitkaps/markz) lists its codes (`markz-warnings`).
 - [`folder-design`]{#folder-design}: A page's design is the nearest `style.css` and `frame.html`, each found on its own, in its folder or the nearest one above it (`folders`, `frame`, `style-css`).
 - [`folder-merge`]{#folder-merge}: Nothing is merged unless it's written. A `style.css` that builds on its parent's starts with `@import "../style.css";`. Markup two frames share is an element (`folders`, `references-css`).
 - [`folder-dist`]{#folder-dist}: The build writes `dist/`, and never writes to the folder. So an `index.html` where a page is built fails, since that's the file Pagez writes (`error-built-file`, `tests/vite.test.ts`).
@@ -80,6 +81,8 @@ A reference is written as a relative path, a package name or a full URL, and tha
 - [`site-redirects`]{#site-redirects}: A page that moved lists its old paths, `redirects: [/old-name/]`, and `build` writes `dist/_redirects`, which Cloudflare Pages and Netlify read. Each old address is a 301 to the page from `/old-name`, `/old-name/` and `/old-name.html`, so it's listed once, in any of them. Each is a path from the site's root, and anything else fails. A `_redirects` in `public/` comes first, and `dev` and `preview` send them too (`blog`, `tests/vite.test.ts`, `error-redirect-path`, `error-redirects-value`).
 - [`site-redirect-taken`]{#site-redirect-taken}: A redirect can't be a page's path in any spelling, since a host reads `_redirects` before the files it serves. So `/x.html` can't redirect while a page has `/x/`. Two pages can't list one, and a page lists it once (`error-redirect-page`, `error-redirect-shadowed`, `error-redirect-twice`, `error-redirect-two-pages`).
 - [`site-report`]{#site-report}: `build` prints each page's size, gzipped, its time and the elements that give it behavior. Then it prints the CSS and JavaScript the pages share, and the total (`tests/vite.test.ts`).
+- [`site-check`]{#site-check}: `pagez check` compiles every page `build` would, and writes nothing. It prints each page's failure and each warning, a line each, and exits with 1 if there's any, where `build` passes with a warning. A mistake every page shares is one line (`tests/check.test.ts`).
+- [`site-rules`]{#site-rules}: `pagez rules <id>` prints a rule, or an error or a warning with its rule, from the docs of the version installed. With no id, it prints every rule (`tests/check.test.ts`).
 
 ## Values in prose
 
@@ -222,7 +225,7 @@ A mistake fails the build, and the error names its file and line, or the referen
 
 ## Warnings
 
-A warning doesn't stop the build. It names its file and line, and ends with its id, as an error does.
+A warning doesn't stop the build. It names its file and line, and ends with its id, as an error does. Pagez's own are here. A page's Markz warnings end with Markz's code instead ([`folder-markz`](#folder-markz)).
 
 | Warning | Warns when | Rule |
 | --- | --- | --- |

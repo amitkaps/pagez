@@ -25,9 +25,13 @@ pagez build site     # writes site/dist/
 pagez dev site       # serves it while it's written
 pagez preview site   # serves what was built
 pagez preview site --port 4173   # on that port, or fails if it's taken
+pagez check site     # lists what to fix in every page, and writes nothing
+pagez rules folder-page   # prints a rule, an error or a warning
 ```
 
 Each command takes the folder, or works in the current one, and `dev` and `preview` take `--port`. They're Vite's own commands with Pagez's plugin, and they never write to the folder outside `dist/`. A mistake prints its file, its line and what to change, and exits with 1. `build` then prints each page's size and the CSS and JavaScript the pages share.
+
+`check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, ending with its id. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships. `rules` prints a rule, an error or a warning by its id, from the docs of the version installed, and every rule with no id.
 
 `dist/` needs a server, as any built site does. Its base is `./`, so it works at a site's root or under a path.
 
@@ -58,7 +62,7 @@ What an agent writing pages for Pagez should know, as a snippet to copy into its
 ```md
 ## Pagez
 
-This folder is built by Pagez. Read its rules at https://github.com/amitkaps/pagez/blob/main/docs/pages.md and https://github.com/amitkaps/pagez/blob/main/docs/elements.md before writing a page or an element.
+This folder is built by Pagez. Run `pnpm exec pagez rules` before writing a page or an element. It prints the rules for the version installed, and `pnpm exec pagez rules <id>` prints one, or what an error or a warning's id asks for.
 
 - A page is a `.md` in Markz, at its folder's path. What it uses sits beside it, by relative path.
 - Frontmatter is metadata, such as `title`, `description` and `image`. It holds no settings.
@@ -66,5 +70,5 @@ This folder is built by Pagez. Read its rules at https://github.com/amitkaps/pag
 - Link to a page by its `.md`. Every link and file is checked, so a broken one fails the build.
 - Use a native tag, `{@section}`, for grouping and styling. Write an `@x-tag.html` element only for markup that's reused or derived, or for behavior.
 - Prose `${…}` prints a path into `page`. Anything that computes belongs in an element.
-- Run `pagez build` after a change. Fix each failure at the file and line it names.
+- Run `pnpm exec pagez check` after a change. Fix each line it prints at the file and line it names, until it passes.
 ```

@@ -1,0 +1,2 @@
+markz-warnings/index.md: line 8: bare URL. Instead: `<https://…>` or `[text](url)`. [bare-url]
+markz-warnings/index.md: line 10: an element or attribute line beside text or a table, which a formatter joins to it. Instead: a blank line between them. [element-blank-lines]

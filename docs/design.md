@@ -24,7 +24,7 @@ Pagez is a page compiler. A folder of Markz pages goes in, and their HTML comes 
 
 So a page rendered by Markz alone stays readable. Expressions show as code, and raw HTML passes through.
 
-**Pagez is a library, a plugin and a command.** `compile` returns the page in its frame, its CSS and its one module. `pagez()` hands each page to Vite at the path it's built at, and `pagez build|dev|preview` runs Vite with it. Templates run at build time in a Vite server, `dev`'s own or one the build makes. Markz is bundled into `dist/`, so `vite-plus` is Pagez's only peer dependency.
+**Pagez is a library, a plugin and a command.** `compile` returns the page in its frame, its CSS and its one module. `pagez()` hands each page to Vite at the path it's built at, and `pagez build|dev|preview` runs Vite with it. `pagez check` compiles every page without Vite's bundle. Templates run at build time in a Vite server, `dev`'s own or one the build makes. Markz is bundled into `dist/`, so `vite-plus` is Pagez's only peer dependency.
 
 ## Why
 

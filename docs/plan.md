@@ -4,8 +4,7 @@ Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/
 
 ## Next, in order
 
-1. **`pagez check` and `pagez rules`.** `pagez check [folder]` compiles every page without bundling or writing `dist/`, and prints each page's first failure, one a line, with its id. Markz's warnings print too, and any warning or failure exits with 1. `build` prints warnings and passes, as now. `pagez rules <id>` prints a rule from the docs the package ships, so `docs/` joins its files. Reporting more than one failure in a page waits until a page needs it.
-2. **Speed and size, measured.** A script writes a large site, a few hundred pages with shared elements, a template that imports a large package, data beside its pages and redirects, since the test sites' three pages never showed the 12 s build. `pnpm speed` builds it with this tree and with `origin/main` in turns, over three processes, and a change counts only when all three show it. `pnpm hotspots` shows where its time goes. `pnpm size` holds what Pagez adds to a page, its theme, the elements' runtime and the head, to a budget in `verify`, so growth shows in the pull request that causes it.
+1. **Speed and size, measured.** A script writes a large site, a few hundred pages with shared elements, a template that imports a large package, data beside its pages and redirects, since the test sites' three pages never showed the 12 s build. `pnpm speed` builds it with this tree and with `origin/main` in turns, over three processes, and a change counts only when all three show it. `pnpm hotspots` shows where its time goes. `pnpm size` holds what Pagez adds to a page, its theme, the elements' runtime and the head, to a budget in `verify`, so growth shows in the pull request that causes it.
 
 ## Where it is
 
@@ -15,7 +14,7 @@ Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/
 - **Values in prose.** `${…}` prints a path into `page`, and anything more fails at its line and column ([Values in prose](pages.md#values-in-prose)).
 - **The head and the frame.** The frame is checked, and the head is written from the page's metadata ([The head and the frame](pages.md#the-head-and-the-frame)).
 - **The theme.** A page with no `style.css` and no frame gets one readable column, light or dark, in `@layer theme` ([CSS](pages.md#css)).
-- **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it. Files are checked, then hashed in `dist/assets/`, and an undefined tag warns.
+- **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it, and `pagez check` lists what to fix in every page. Files are checked, then hashed in `dist/assets/`. An undefined tag warns, as Markz's warnings do, and `pagez rules <id>` prints the rule behind any id.
 - **Tests.** Each page in `tests/pages/` and each site in `tests/sites/` builds to its reviewed snapshot or fails with its reviewed error. Every rule in the docs cites the cases that hold it, and every case is cited by a rule.
 - **Ids.** Each error and warning ends with its id, such as `[error-link-draft]`, a row of [the Errors table](pages.md#errors) or [the Warnings table](pages.md#warnings). A test holds the ids in `src/` and the rows to each other, so a mistake can't ship without one.
 - **Releases.** 0.1.0 was published by hand. Later versions are staged by the release workflow through npm's trusted publishing.

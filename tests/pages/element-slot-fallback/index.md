@@ -8,7 +8,9 @@ replaces the fallback. -->
 {@empty-note /}
 
 {@empty-note}
+
 Something to say after all.
+
 {/empty-note}
 
 ```=html

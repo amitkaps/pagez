@@ -7,7 +7,9 @@ and so does the key-word that term-list's template writes. call-out is in a file
 two are in the page, so the two forms mix. -->
 
 {@call-out}
+
 Press [Ctrl]{@key-word} to begin.
+
 {/call-out}
 
 {@term-list /}

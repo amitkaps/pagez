@@ -13,10 +13,11 @@
  * without one. An `error-…` case fails with an id, the last thing in its `error.txt`, and the rule
  * its row names cites the case. Each row is held by a case that fails with it or a test file that
  * names it, and its rule cites one of them. The Warnings table has a row for each `WarningId`, held
- * the same way by the `warnings.txt` of a case.
+ * the same way by the `warnings.txt` of a case, which may warn with a Markz code too.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { WARNINGS } from "@amitkaps/markz";
 import { expect, test } from "vite-plus/test";
 
 const root = new URL("../", import.meta.url).pathname;
@@ -184,6 +185,6 @@ test("the Warnings table has a row for every WarningId, each held by a case its 
     ).toBe(true);
   }
   for (const [name, id] of warnsWith) {
-    expect(warningIds, `${name} warns with ${id}`).toContain(id);
+    expect([...warningIds, ...Object.keys(WARNINGS)], `${name} warns with ${id}`).toContain(id);
   }
 });

@@ -13,7 +13,9 @@ url() is written from essays/first/, as ../../mark.svg. -->
 ![A figure](first.svg)
 
 {@site-note}
+
 An element from the root of the site.
+
 {/site-note}
 
 Back to [the essays](index.md).

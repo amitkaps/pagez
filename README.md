@@ -21,6 +21,8 @@ pagez build site     # writes site/dist/
 pagez dev site       # serves it while it's written
 pagez preview site   # serves what was built
 pagez preview site --port 4173   # on that port, or fails if it's taken
+pagez check site     # lists what to fix in every page, and writes nothing
+pagez rules folder-page   # prints a rule, an error or a warning
 ```
 
 A folder with its own Vite config adds the plugin instead:

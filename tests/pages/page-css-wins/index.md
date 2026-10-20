@@ -6,7 +6,9 @@ title: The page's CSS wins
 selector as specific, so the page's border color applies. -->
 
 {@call-out}
+
 A red border, from the page.
+
 {/call-out}
 
 ```=html

@@ -6,5 +6,7 @@ title: name-two-files
 has one definition anywhere in the folder. -->
 
 {@call-out}
+
 Text.
+
 {/call-out}
