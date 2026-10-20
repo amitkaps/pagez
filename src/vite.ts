@@ -55,6 +55,9 @@ function site(root: string, dev = false): Site {
   }
 }
 
+/** Each site's entries, once it's been read, since a build asks for them on every resolve. */
+const listed = new WeakMap<Site, Map<string, Entry>>();
+
 /** What an entry builds: a page, or a redirect to one. */
 type Entry = { page: SitePage } | { redirect: SitePage; html: string };
 
@@ -63,6 +66,8 @@ type Entry = { page: SitePage } | { redirect: SitePage; html: string };
  * `404.html` and each redirect.
  */
 function entries(site: Site): Map<string, Entry> {
+  const known = listed.get(site);
+  if (known) return known;
   const found = new Map<string, Entry>();
   for (const page of [...site.pages, ...(site.notFound ? [site.notFound] : [])]) {
     found.set(join(site.root, page.html), { page });
@@ -70,6 +75,7 @@ function entries(site: Site): Map<string, Entry> {
   for (const [html, { to }] of site.redirects) {
     found.set(join(site.root, html), { redirect: to, html });
   }
+  listed.set(site, found);
   return found;
 }
 
