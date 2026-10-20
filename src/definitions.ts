@@ -32,12 +32,18 @@ export interface Definitions {
 
 /** @prose
  * Every element `file`, a page, can use: each file in the site under `root`, then each definition
- * in the page.
+ * in the page. `files` is the site's, read once for a build, so a page doesn't walk the folder.
+ *
  * A name in a file and in the page fails at the page's definition, and two in the page fail at
  * the second, naming the first's line.
  */
-export function readDefinitions(file: string, doc: Document, root: string): Definitions {
-  const elements = readFiles(root);
+export function readDefinitions(
+  file: string,
+  doc: Document,
+  root: string,
+  files: string[] = siteFiles(root),
+): Definitions {
+  const elements = readFiles(root, files);
   const blocks = new Set<NodeId>();
   const lines = new Map<string, number>();
   for (const { node, element, line } of pageElements(file, doc)) {
@@ -106,10 +112,12 @@ function blankedTo(source: string, value: string, start: number): string {
  * (`site.ts`). Two files for one name fail at the second, in sorted order, so the same one fails on
  * every run.
  */
-export function readFiles(root: string): Map<string, ElementFile> {
+export function readFiles(
+  root: string,
+  files: string[] = siteFiles(root),
+): Map<string, ElementFile> {
   const elements = new Map<string, ElementFile>();
-  const files = siteFiles(root).filter((file) => /^@.*\.html$/.test(basename(file)));
-  for (const file of files) {
+  for (const file of files.filter((file) => /^@.*\.html$/.test(basename(file)))) {
     const name = nameOf(file);
     const problem = nameProblem(name);
     if (problem) {

@@ -123,8 +123,13 @@ export interface Links {
   closed: Map<string, Problem>;
 }
 
+/** Each site's links, made once, since every page of a build asks. */
+const made = new WeakMap<Site, Links>();
+
 /** What a link in the site can reach. */
 export function siteLinks(site: Site): Links {
+  const known = made.get(site);
+  if (known) return known;
   const { root } = site;
   const pages = new Map<string, string>();
   const closed = new Map<string, Problem>();
@@ -156,7 +161,9 @@ export function siteLinks(site: Site): Links {
       });
     }
   }
-  return { root, pages, closed };
+  const links = { root, pages, closed };
+  made.set(site, links);
+  return links;
 }
 
 /** Whether a reference is a path from the site's root, `/about/`, not a URL with no scheme. */

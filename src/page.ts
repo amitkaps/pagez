@@ -91,7 +91,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
       at === site.notFound
         ? { ...doc.metadata }
         : listed(site, { path, metadata: { ...doc.metadata } });
-    const definitions = readDefinitions(file, doc, root);
+    const definitions = readDefinitions(file, doc, root, site.files);
     const host: Host = {
       elements: definitions.elements,
       load: async (element) => {
@@ -172,7 +172,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
  * once, not in every page that uses it. `compile` checks them again, for a page compiled alone.
  */
 export function checkShared(site: Site): void {
-  readFiles(site.root);
+  readFiles(site.root, site.files);
   const seen = new Set<string>();
   for (const page of [...site.pages, ...(site.notFound ? [site.notFound] : [])]) {
     const dir = dirname(page.file);

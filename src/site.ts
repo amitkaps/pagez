@@ -59,6 +59,8 @@ export interface SitePage {
 /** A folder of pages, read and checked. */
 export interface Site {
   root: string;
+  /** Every file that's part of the site, read once (`siteFiles`). */
+  files: string[];
   /** `pagez.md`'s metadata, or nothing when there's none. */
   metadata: Metadata;
   /** Every page this run builds, sorted by path, without `404.md`, and without drafts in `build`. */
@@ -110,7 +112,8 @@ export function pagePath(root: string, file: string): string {
 export function readSite(root: string, { drafts = false }: { drafts?: boolean } = {}): Site {
   const all: SitePage[] = [];
   const byPath = new Map<string, SitePage>();
-  for (const file of siteFiles(root)) {
+  const files = siteFiles(root);
+  for (const file of files) {
     if (!file.endsWith(".md")) continue;
     if (file === join(root, SITE_FILE)) continue;
     if (file.endsWith(`${sep}${SITE_FILE}`)) {
@@ -164,7 +167,15 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
     if (page !== notFound) checkUrl(metadata, page);
   }
   const pages = all.filter((page) => page !== notFound && (drafts || !page.draft));
-  return { root, metadata, pages, all, notFound, redirects: readRedirects(root, all, pages) };
+  return {
+    root,
+    files,
+    metadata,
+    pages,
+    all,
+    notFound,
+    redirects: readRedirects(root, all, pages),
+  };
 }
 
 /** A page's address, from the site's `url` and the page's path. */
