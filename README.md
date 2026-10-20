@@ -20,6 +20,7 @@ A folder below uses the nearest `style.css` and `frame.html` above it, or its ow
 pagez build site     # writes site/dist/
 pagez dev site       # serves it while it's written
 pagez preview site   # serves what was built
+pagez preview site --port 4173   # on that port, or fails if it's taken
 ```
 
 A folder with its own Vite config adds the plugin instead:

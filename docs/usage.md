@@ -24,9 +24,10 @@ site/
 pagez build site     # writes site/dist/
 pagez dev site       # serves it while it's written
 pagez preview site   # serves what was built
+pagez preview site --port 4173   # on that port, or fails if it's taken
 ```
 
-Each command takes the folder, or works in the current one. They're Vite's own commands with Pagez's plugin, and they never write to the folder outside `dist/`. A mistake prints its file, its line and what to change, and exits with 1. `build` then prints each page's size and the CSS and JavaScript the pages share.
+Each command takes the folder, or works in the current one, and `dev` and `preview` take `--port`. They're Vite's own commands with Pagez's plugin, and they never write to the folder outside `dist/`. A mistake prints its file, its line and what to change, and exits with 1. `build` then prints each page's size and the CSS and JavaScript the pages share.
 
 `dist/` needs a server, as any built site does. Its base is `./`, so it works at a site's root or under a path.
 
