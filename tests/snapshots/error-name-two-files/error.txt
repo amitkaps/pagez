@@ -1,1 +1,1 @@
-error-name-two-files/notes/@call-out.html: <call-out> is also in @call-out.html. A name has one definition, wherever it sits. Remove one, or rename the element.
+error-name-two-files/notes/@call-out.html: <call-out> is also in @call-out.html. A name has one definition, wherever it sits. Remove one, or rename the element. [error-name-two-files]

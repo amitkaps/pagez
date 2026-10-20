@@ -12,4 +12,4 @@ says about many pages: a page at its folder's path, the nearest `style.css` and 
 in `tests/snapshots/sites/<site>/`, at the path it's built at, or an `error-…` site with its
 `error.txt`. What only a build shows, such as `dist/`'s folders, is in `tests/vite.test.ts`.
 
-Each site is cited by the rules it holds, in [pages](../../docs/pages.md), and each `error-…` site is a row of [the Errors table](../../docs/pages.md#errors).
+Each site is cited by the rules it holds, in [pages](../../docs/pages.md), and each `error-…` site fails with an id from [the Errors table](../../docs/pages.md#errors), its last word in `error.txt`.

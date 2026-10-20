@@ -9,7 +9,7 @@
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
-import { FileError } from "../src/elements/errors.ts";
+import { FileError, printedError } from "../src/elements/errors.ts";
 import { compile, write } from "../src/page.ts";
 import { createLoader, type Loader } from "../src/parts.ts";
 import { redirectsFile } from "../src/redirects.ts";
@@ -53,8 +53,8 @@ describe("the test sites", () => {
           error = thrown;
         }
         expect(error).toBeInstanceOf(FileError);
-        const { file, message } = error as FileError;
-        await expect(`${relative(sites, file)}: ${message}\n`).toMatchFileSnapshot(
+        const failed = error as FileError;
+        await expect(`${printedError(failed, relative(sites, failed.file))}\n`).toMatchFileSnapshot(
           `snapshots/sites/${name}/error.txt`,
         );
       });

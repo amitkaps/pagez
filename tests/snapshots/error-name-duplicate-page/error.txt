@@ -1,1 +1,1 @@
-error-name-duplicate-page/index.md: line 16: <call-out> is already defined at line 12. A name has one definition, wherever it sits. Remove one, or rename the element.
+error-name-duplicate-page/index.md: line 16: <call-out> is already defined at line 12. A name has one definition, wherever it sits. Remove one, or rename the element. [error-name-duplicate-page]

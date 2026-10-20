@@ -17,7 +17,7 @@
  * up inside itself would never end, so it fails, naming the chain.
  */
 import { parseAst } from "vite-plus";
-import { FileError } from "./errors.ts";
+import { FileError, type Problem } from "./errors.ts";
 import type { ElementFile } from "./file.ts";
 import { lineOf, namedSlot, templateModule } from "./file.ts";
 import { html } from "./html.ts";
@@ -31,7 +31,7 @@ export interface Host {
   /** The module of an element's template (`templateModule`), whose default export renders it. */
   load(element: ElementFile): Promise<Record<string, unknown>>;
   /** The parsed data a `data` attribute names, or what is wrong with the path. */
-  data(path: string): { value: unknown } | { problem: string };
+  data(path: string): { value: unknown } | Problem;
   /** What the host adds to every template's scope, such as `page`. */
   context: Record<string, unknown>;
 }
@@ -92,11 +92,17 @@ function rendered(element: ElementFile, fn: () => unknown, fix?: (error: Error) 
     if (name === "TemplateError") {
       const line = valueLine(element, (error as TemplateError).in, fix);
       // Its stack is the renderer's, which says nothing the message doesn't.
-      throw new FileError(file, `${line ? `line ${line}: ` : ""}${message}`);
+      throw new FileError(
+        (error as TemplateError).id,
+        file,
+        `${line ? `line ${line}: ` : ""}${message}`,
+      );
     }
     const line = lineIn(file, error);
     const at = line ? `line ${line}: ` : "";
-    throw new FileError(file, `${at}failed to render: ${message}`, { cause: error });
+    throw new FileError("error-template-render", file, `${at}failed to render: ${message}`, {
+      cause: error,
+    });
   }
 }
 
@@ -163,13 +169,20 @@ function inSlot(element: ElementFile, out: string, content: string | undefined):
   const { file, name } = element;
   const tags = scan(out);
   const slots = tags.filter((tag) => tag.kind === "start" && tag.name === "slot");
-  if (slots.some((slot) => attribute(slot, "name"))) throw new FileError(file, namedSlot);
-  if (slots.length > 1 || (content !== undefined && slots.length === 0)) {
+  if (slots.some((slot) => attribute(slot, "name")))
+    throw new FileError("error-slot-named", file, namedSlot);
+  if (content !== undefined && slots.length === 0) {
     throw new FileError(
+      "error-slot-missing",
       file,
-      slots.length === 0
-        ? `<${name}> is given content, and its template has no <slot></slot> for it. Write one where the content goes.`
-        : `the template writes ${slots.length} slots, and <${name}>'s content goes in one. Keep a single <slot></slot>.`,
+      `<${name}> is given content, and its template has no <slot></slot> for it. Write one where the content goes.`,
+    );
+  }
+  if (slots.length > 1) {
+    throw new FileError(
+      "error-slot-two",
+      file,
+      `the template writes ${slots.length} slots, and <${name}>'s content goes in one. Keep a single <slot></slot>.`,
     );
   }
   const [slot] = slots;
@@ -244,6 +257,7 @@ function nodes(host: Host, html: string, file: string): Node[] {
 
 function unclosed(file: string, node: Node): FileError {
   return new FileError(
+    "error-element-unclosed",
     file,
     `<${node.name}> is never closed. Write </${node.name}> after its content, or <${node.name} /> if it has none.`,
   );
@@ -260,6 +274,7 @@ async function written(
   const { name } = node;
   if (chain.includes(name)) {
     throw new FileError(
+      "error-element-inside-itself",
       file,
       `this writes <${name}>, which ends up inside itself: ${[...chain, name].map((tag) => `<${tag}>`).join(" → ")}. Remove one of them, or the element would never finish.`,
     );
@@ -271,7 +286,7 @@ async function written(
   let data: { value: unknown } | undefined;
   if ("data" in attributes) {
     const found = host.data(attributes.data!);
-    if ("problem" in found) throw new FileError(file, `<${name}> ${found.problem}`);
+    if ("problem" in found) throw new FileError(found.id, file, `<${name}> ${found.problem}`);
     data = found;
     delete attributes.data;
   }

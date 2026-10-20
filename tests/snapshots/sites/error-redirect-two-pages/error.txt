@@ -1,0 +1,1 @@
+error-redirect-two-pages/about.md: redirects lists /old/: index.md lists it too. Keep one. [error-redirect-two-pages]

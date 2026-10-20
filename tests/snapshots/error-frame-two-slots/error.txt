@@ -1,1 +1,1 @@
-error-frame-two-slots/frame.html: line 9: there are 2 slots, and the page goes in one. Keep a single <slot></slot>.
+error-frame-two-slots/frame.html: line 9: there are 2 slots, and the page goes in one. Keep a single <slot></slot>. [error-frame-two-slots]

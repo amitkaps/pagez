@@ -25,7 +25,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from "vite-plus";
-import { FileError } from "./elements/errors.ts";
+import { FileError, printedError } from "./elements/errors.ts";
 import { attribute, decode, scan } from "./elements/markup.ts";
 import { checkShared, compile, write } from "./page.ts";
 import { createLoader, parts, serverLoader, type Loader } from "./parts.ts";
@@ -37,10 +37,10 @@ import { readSite, type Site, type SitePage } from "./site.ts";
 /** A folder as its real path, so the entries Pagez names and the ones Vite resolves are the same. */
 const real = (dir: string) => (existsSync(dir) ? realpathSync(dir) : dir);
 
-/** A mistake as `file: message`, which Vite prints, since the file and the message are the whole story. */
+/** A mistake as `file: message [id]`, which Vite prints, since that's the whole story. */
 function shown(error: unknown): unknown {
   if (error instanceof FileError && !error.message.startsWith(`${error.file}: `)) {
-    error.message = `${error.file}: ${error.message}`;
+    error.message = printedError(error);
     error.stack = "";
   }
   return error;

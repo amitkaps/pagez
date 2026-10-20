@@ -1,0 +1,1 @@
+error-link-not-found/index.md: line 3: 404.md is the page a host serves for a path that isn't there, not one to link to. Link to a page that is. [error-link-not-found]

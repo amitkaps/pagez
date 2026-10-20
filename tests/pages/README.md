@@ -21,4 +21,4 @@ changes. A page that warns has its warnings in `warnings.txt`. What only a build
 
 ## The cases
 
-Each case is cited by the rule it holds, in [pages](../../docs/pages.md) and [elements](../../docs/elements.md). Each `error-…` case is a row of [the Errors table](../../docs/pages.md#errors). `tests/docs.test.ts` keeps the docs and the cases in line.
+Each case is cited by the rule it holds, in [pages](../../docs/pages.md) and [elements](../../docs/elements.md). Each `error-…` case fails with an id from [the Errors table](../../docs/pages.md#errors), its last word in `error.txt`. `tests/docs.test.ts` keeps the docs and the cases in line.

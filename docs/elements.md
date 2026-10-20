@@ -73,9 +73,9 @@ ${attrs.note && html`
 The first two write values. The last two write markup, repeated or maybe, so each piece of it is an `html` literal. Its literal parts are markup, and every value in it is escaped. So `<li>` stays a tag and `Tom & Jerry` stays text.
 
 - [`element-markup`]{#element-markup}: A value goes in bare, and markup goes in `html` (`element-nested`, `tests/elements/render.test.ts`).
-- [`element-scope`]{#element-scope}: The template has `attrs`, `page`, `pages`, `site` and `html`, and whatever its build script declares or imports. A build script name like one of those fails (`element-in-page`, `blog`, `tests/elements/render.test.ts`).
-- [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. A `data="talks.json"` attribute arrives parsed, as `attrs.data` (`element-attr-expression`, `tests/elements/elements.test.ts`).
-- [`element-sync`]{#element-sync}: Rendering is synchronous, so a promise fails (`tests/elements/elements.test.ts`).
+- [`element-scope`]{#element-scope}: The template has `attrs`, `page`, `pages`, `site` and `html`, and whatever its build script declares or imports. A build script name like one of those fails (`element-in-page`, `blog`, `tests/elements/render.test.ts`, `tests/elements/file.test.ts`).
+- [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. A `data="talks.json"` attribute arrives parsed, as `attrs.data`, and a file that isn't there, isn't `.json` or isn't valid JSON fails, at the attribute (`element-attr-expression`, `tests/elements/elements.test.ts`, `error-data-invalid`, `error-data-missing`, `error-data-not-json`).
+- [`element-sync`]{#element-sync}: Rendering is synchronous, so a promise fails (`tests/elements/elements.test.ts`, `tests/elements/render.test.ts`).
 - [`element-render`]{#element-render}: A template that throws as it renders fails, at its line in the file. So does a value the renderer refuses, at the line of its `${…}`, in a nested template too (`error-template-render`, `error-template-object`).
 
 ### The build script
@@ -93,7 +93,7 @@ A `<script>` first in the template runs at build time. It's how an element uses 
 </template>
 ```
 
-- [`element-build-script`]{#element-build-script}: A template holds at most one `<script>`, and it comes first. What it declares or imports is in the markup's scope, with no `export`, and none of it ships (`element-template-script`, `tests/vite.test.ts`).
+- [`element-build-script`]{#element-build-script}: A template holds at most one `<script>`, and it comes first. What it declares or imports is in the markup's scope, with no default export, and none of it ships. A module it imports that doesn't compile fails, naming the module (`element-template-script`, `tests/vite.test.ts`, `error-module-load`, `tests/elements/file.test.ts`).
 - [`element-html-import`]{#element-html-import}: The build script has `html` with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own, even with another copy of Pagez installed beside the site (`tests/elements/file.test.ts`, `tests/vite.test.ts`).
 - [`element-script-end`]{#element-script-end}: `</script>` inside a script's string ends the script, as in any HTML, so it fails, asking for `<\/script>`. `<template>` in a string is safe (`tests/elements/file.test.ts`).
 
@@ -119,7 +119,7 @@ An element's content goes where its `<slot>` is, as a page goes in its `frame.ht
 </template>
 ```
 
-- [`element-slot`]{#element-slot}: An element has one unnamed slot. Content with no slot fails, and so do two slots, a named one and `<template shadowrootmode>` (`error-in-page-definition`, `tests/elements/elements.test.ts`).
+- [`element-slot`]{#element-slot}: An element has one unnamed slot. Content with no slot fails, and so do two slots, a named one and `<template shadowrootmode>` (`error-in-page-definition`, `tests/elements/elements.test.ts`, `tests/elements/file.test.ts`).
 - [`element-fallback`]{#element-fallback}: The slot's own content is its fallback, shown only when the element has none. A slot in a helper's `html` works too (`element-slot-fallback`).
 - [`element-light-dom`]{#element-light-dom}: Content is written into the element in the light DOM, where the page's CSS reaches it, so `::slotted()` matches nothing (`element-in-page`).
 
@@ -138,9 +138,9 @@ Nesting isn't scoping. `notes-treemap .frame` also reaches a `.frame` in an elem
 
 The top-level `<script>` default-exports `setup(el, { signal })`. It works on the DOM the build wrote, and reads its children and attributes, so nothing is sent twice. A large library loads inside `setup`, with `await import("d3")`, so only a page where the element connects fetches it.
 
-- [`element-setup`]{#element-setup}: The elements' runtime calls `setup` once per connection with a fresh signal. On disconnect it aborts the signal and calls the cleanup `setup` returned (`element-behavior`, `tests/elements/runtime.test.ts`).
+- [`element-setup`]{#element-setup}: The elements' runtime calls `setup` once per connection with a fresh signal. On disconnect it aborts the signal and calls the cleanup `setup` returned. A `<script>` with no default export fails, and so does one that exports a class, since the runtime defines the element (`element-behavior`, `tests/elements/runtime.test.ts`, `tests/elements/file.test.ts`).
 - [`element-one-module`]{#element-one-module}: The runtime and each used element's `setup` are one module, which Vite bundles, with what they import. A library two elements share is in it once (`element-behavior`, `references-shared-import`).
-- [`element-script-imports`]{#element-script-imports}: A browser script can't import `html`, Pagez or Node's own modules, and a relative import must be there (`error-browser-import`, `error-package-missing`, `tests/vite.test.ts`).
+- [`element-script-imports`]{#element-script-imports}: A browser script can't import `html`, Pagez or Node's own modules, and a relative import must be there (`error-browser-import`, `error-package-missing`, `tests/vite.test.ts`, `error-browser-node`).
 
 ## Nesting and wrapping
 

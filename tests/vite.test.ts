@@ -139,6 +139,20 @@ describe("pagez()", () => {
     await new Promise((done) => served.httpServer.close(done));
   });
 
+  test("fails in dev on a part of a definition the page no longer has", async () => {
+    const root = folder("element-in-page");
+    const dev = await createServer({
+      root,
+      configFile: false,
+      logLevel: "silent",
+      plugins: [pagez()],
+    });
+    await expect(
+      dev.transformRequest("/index.md?pagez=setup&element=x-gone&lang.js"),
+    ).rejects.toMatchObject({ id: "error-element-gone" });
+    await dev.close();
+  });
+
   test("fails on an index.html in the folder, which is what Pagez writes", async () => {
     const root = folder("plain");
     writeFileSync(join(root, "index.html"), "<p>old</p>");

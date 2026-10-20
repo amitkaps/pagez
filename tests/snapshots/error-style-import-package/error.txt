@@ -1,0 +1,1 @@
+error-style-import-package/style.css: @import "some-theme/base.css" names a package, which the page's folder doesn't serve. Import it by its full URL, or keep a copy beside the page and import that, as "./base.css". [error-style-import-package]

@@ -1,1 +1,1 @@
-error-link-redirect/index.md: line 3: /old/ redirects to /new/. Link to that, where the page is now.
+error-link-redirect/index.md: line 3: /old/ redirects to /new/. Link to that, where the page is now. [error-link-redirect]

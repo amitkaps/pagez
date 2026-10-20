@@ -85,11 +85,12 @@ export function checkImports(element: ElementFile, part: "template" | "setup"): 
     const at = `line ${lineOf(source, statement.start)}: `;
     if (part === "setup" && (specifier === PACKAGE || specifier.startsWith(`${PACKAGE}/`))) {
       const error = browserImport(file);
-      throw new FileError(file, at + error.message);
+      throw new FileError(error.id, file, at + error.message);
     }
     if (isBuiltin(specifier)) {
       if (part === "template") continue;
       throw new FileError(
+        "error-browser-node",
         file,
         `${at}this imports ${specifier}, which is Node's, and the browser doesn't have it. Read files in the template's script, which runs at build time.`,
       );
@@ -97,7 +98,11 @@ export function checkImports(element: ElementFile, part: "template" | "setup"): 
     if (URL.canParse(specifier) || specifier === PACKAGE) continue;
     if (/^\.{0,2}\//.test(specifier)) {
       if (isRelative(specifier) && !exists(dirname(file), specifier)) {
-        throw new FileError(file, `${at}${specifier} isn't there. Add the file, or fix the path.`);
+        throw new FileError(
+          "error-relative-missing",
+          file,
+          `${at}${specifier} isn't there. Add the file, or fix the path.`,
+        );
       }
       continue;
     }
@@ -105,6 +110,7 @@ export function checkImports(element: ElementFile, part: "template" | "setup"): 
       findPackageJSON(specifier, pathToFileURL(file));
     } catch {
       throw new FileError(
+        "error-package-missing",
         file,
         `${at}this imports ${specifier}, which isn't in a node_modules beside the page. Install it there, with pnpm add ${packageName(specifier)}.`,
       );

@@ -6,11 +6,17 @@
  * tests to each other, so a rule can't be stated without a test, and a case can't test what no
  * rule states.
  *
- * A case is a folder in `tests/pages/` or `tests/sites/`, or a test file. Every `error-…` case
- * has a row in the Errors table, keyed by its name, and the rule the row names cites the case.
- * Code blocks are skipped, so an example can't state a rule.
+ * A case is a folder in `tests/pages/` or `tests/sites/`, or a test file. Code blocks are skipped,
+ * so an example can't state a rule.
+ *
+ * The Errors table has a row for each id in `src/`, and only those, so a mistake can't ship
+ * without one. An `error-…` case fails with an id, the last thing in its `error.txt`, and the rule
+ * its row names cites the case. Each row is held by a case that fails with it or a test file that
+ * names it, and its rule cites one of them. The Warnings table has a row for each `WarningId`, held
+ * the same way by the `warnings.txt` of a case.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test } from "vite-plus/test";
 
 const root = new URL("../", import.meta.url).pathname;
@@ -39,13 +45,17 @@ function rules(doc: string): Rule[] {
   });
 }
 
-/** Each row of the Errors table, with the rule it names. */
-function errors(): { id: string; rule: string; doc: string }[] {
-  return lines("pages.md").flatMap((line) => {
-    const row =
-      /^\| \[`(error-[a-z-]+)`\]\{#\1\} +\|.*\| +\[`([a-z0-9-]+)`\]\(([a-z.]*)#\2\) *\|$/.exec(
-        line,
-      );
+type Row = { id: string; rule: string; doc: string };
+
+/** Each row of the table under `heading` in pages.md, with the rule it names. */
+function table(heading: string): Row[] {
+  const all = lines("pages.md");
+  const from = all.indexOf(`## ${heading}`);
+  const end = all.findIndex((line, i) => i > from && line.startsWith("## "));
+  return all.slice(from, end === -1 ? undefined : end).flatMap((line) => {
+    const row = /^\| \[`([a-z-]+)`\]\{#\1\} +\|.*\| +\[`([a-z0-9-]+)`\]\(([a-z.]*)#\2\) *\|$/.exec(
+      line,
+    );
     return row ? [{ id: row[1]!, rule: row[2]!, doc: row[3] || "pages.md" }] : [];
   });
 }
@@ -56,11 +66,59 @@ const folders = (dir: string) =>
     .map((entry) => entry.name);
 
 const cases = [...folders("pages"), ...folders("sites")];
+
+/** Every file under `dir`, from the root. */
+const under = (dir: string) =>
+  readdirSync(`${root}${dir}`, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => join(entry.parentPath, entry.name).slice(root.length));
+
+/** Each id the source fails with, written as a string, such as `"error-link-draft"`. */
+const ids = new Set(
+  under("src")
+    .filter((file) => file.endsWith(".ts"))
+    .flatMap((file) => [...readFileSync(`${root}${file}`, "utf8").matchAll(/"(error-[a-z-]+)"/g)])
+    .map((match) => match[1]!),
+);
+
+/** The id each `error-…` case fails with, from its snapshot. */
+const failsWith = new Map(
+  cases
+    .filter((name) => name.startsWith("error-"))
+    .map((name) => {
+      const dir = folders("pages").includes(name) ? "" : "sites/";
+      const text = readFileSync(`${root}tests/snapshots/${dir}${name}/error.txt`, "utf8");
+      return [name, /\[(error-[a-z-]+)\]\n$/.exec(text)?.[1]] as const;
+    }),
+);
+
+/** Each `WarningId`, from its type. */
+const warningIds = (
+  /export type WarningId = ([^;]+);/.exec(
+    readFileSync(`${root}src/elements/errors.ts`, "utf8"),
+  )?.[1] ?? ""
+)
+  .split("|")
+  .map((id) => id.trim().replace(/^"|"$/g, ""));
+
+/** The ids each case warns with, from its snapshot. */
+const warnsWith = cases.flatMap((name) => {
+  const file = `${root}tests/snapshots/${name}/warnings.txt`;
+  if (!existsSync(file)) return [];
+  const text = readFileSync(file, "utf8");
+  return [...text.matchAll(/ \[([a-z-]+)\]$/gm)].map((match) => [name, match[1]!] as const);
+});
+
+/** The test files, with their text, which may name an id. */
+const testFiles = under("tests")
+  .filter((file) => file.endsWith(".test.ts") && file !== "tests/docs.test.ts")
+  .map((file) => ({ file, text: readFileSync(`${root}${file}`, "utf8") }));
 const all = [...rules("pages.md"), ...rules("elements.md")];
-const rows = errors();
+const rows = table("Errors");
+const warningRows = table("Warnings");
 
 test("each rule and each error has one id across the docs", () => {
-  const ids = [...all.map((rule) => rule.id), ...rows.map((row) => row.id)];
+  const ids = [...all, ...rows, ...warningRows].map((row) => row.id);
   expect(ids.length).toBeGreaterThan(0);
   expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
 });
@@ -84,15 +142,48 @@ test("every case is cited by a rule", () => {
   expect(cases.filter((name) => !cited.has(name))).toEqual([]);
 });
 
-test("the Errors table has a row for every error case, and only those", () => {
-  const failing = cases.filter((name) => name.startsWith("error-"));
-  expect(rows.map((row) => row.id).sort()).toEqual(failing.sort());
+const ruleOf = (row: Row) => all.find((rule) => rule.id === row.rule && rule.doc === row.doc);
+
+test("the Errors table has a row for every id in the source, and only those", () => {
+  expect(ids.size).toBeGreaterThan(0);
+  expect(rows.map((row) => row.id).sort()).toEqual([...ids].sort());
 });
 
-test("each error's rule is stated, and cites the error's case", () => {
+test("each error case fails with an id, and its row's rule cites the case", () => {
+  for (const [name, id] of failsWith) {
+    const row = rows.find((row) => row.id === id);
+    expect(row, `${name} fails with ${id}`).toBeDefined();
+    expect(ruleOf(row!)?.cases, `${row!.rule} cites ${name}`).toContain(name);
+  }
+});
+
+test("each error's rule is stated, and cites a case or a test file that holds the error", () => {
   for (const row of rows) {
-    const rule = all.find((r) => r.id === row.rule && r.doc === row.doc);
+    const rule = ruleOf(row);
     expect(rule, `${row.id} names ${row.doc}#${row.rule}`).toBeDefined();
-    expect(rule!.cases, `${row.rule} cites ${row.id}`).toContain(row.id);
+    const holders = [
+      ...[...failsWith].filter(([, id]) => id === row.id).map(([name]) => name),
+      ...testFiles.filter(({ text }) => text.includes(`"${row.id}"`)).map(({ file }) => file),
+    ];
+    expect(holders, `${row.id} is held by a test`).not.toEqual([]);
+    expect(
+      rule!.cases.some((name) => holders.includes(name)),
+      `${row.rule} cites one of ${holders.join(", ")}, for ${row.id}`,
+    ).toBe(true);
+  }
+});
+
+test("the Warnings table has a row for every WarningId, each held by a case its rule cites", () => {
+  expect(warningRows.map((row) => row.id).sort()).toEqual(warningIds.toSorted());
+  for (const row of warningRows) {
+    const holders = warnsWith.filter(([, id]) => id === row.id).map(([name]) => name);
+    expect(holders, `${row.id} is held by a case`).not.toEqual([]);
+    expect(
+      ruleOf(row)?.cases.some((name) => holders.includes(name)),
+      row.id,
+    ).toBe(true);
+  }
+  for (const [name, id] of warnsWith) {
+    expect(warningIds, `${name} warns with ${id}`).toContain(id);
   }
 });

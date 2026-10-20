@@ -57,7 +57,12 @@ function readPart(id: string): ElementFile {
   const found = pageElements(file, parse(readFileSync(file, "utf8"))).find(
     ({ element }) => element.name === name,
   );
-  if (!found) throw new FileError(file, `<${name}> isn't defined in this page anymore.`);
+  if (!found)
+    throw new FileError(
+      "error-element-gone",
+      file,
+      `<${name}> isn't defined in this page anymore.`,
+    );
   return found.element;
 }
 
@@ -104,6 +109,7 @@ export function parts(): Plugin {
 /** The failure for a module the browser loads that imports Pagez. */
 export function browserImport(file: string): FileError {
   return new FileError(
+    "error-browser-import",
     file,
     `this imports ${PACKAGE}, whose html renders at build time. An element's <script> works on the page's DOM the build wrote, with nothing from Pagez.`,
   );
@@ -148,7 +154,7 @@ export function serverLoader(server: ViteDevServer, close = async (): Promise<vo
       try {
         module = await server.ssrLoadModule(partId(element, "template"));
       } catch (error) {
-        throw loadError(error, element.file);
+        throw loadError(error, element.file, server.config.root);
       }
       const write = module.default as (scope: object) => unknown;
       return {
@@ -169,13 +175,20 @@ export function serverLoader(server: ViteDevServer, close = async (): Promise<vo
   };
 }
 
-/** A module that failed to load, as a mistake in the file Vite names, or the element's. */
-function loadError(error: unknown, file: string): FileError {
+/** @prose
+ * A module that failed to load, as a mistake in the file Vite names, or the element's. Vite names
+ * a file under its root from the root, as `/blog/words.js`, so it's made absolute.
+ */
+function loadError(error: unknown, file: string, root: string): FileError {
   if (error instanceof FileError) return error;
   const { message, id, frame } = error as { message?: string; id?: string; frame?: string };
+  const named = id?.split("?")[0];
+  const shown = message ?? String(error);
   return new FileError(
-    id?.split("?")[0] ?? file,
-    `${message ?? String(error)}${frame ? `\n\n${frame}` : ""}`,
+    "error-module-load",
+    named === undefined ? file : existsSync(named) ? named : join(root, named),
+    // Rolldown's message shows the line already, and Vite's frame would repeat it.
+    `${shown}${frame && !shown.includes("\n") ? `\n\n${frame}` : ""}`,
     { cause: error },
   );
 }

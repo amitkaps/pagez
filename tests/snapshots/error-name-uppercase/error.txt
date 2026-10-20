@@ -1,1 +1,1 @@
-error-name-uppercase/index.md: line 10: Call-Out has capitals, and an element's name is lowercase, as a tag is. Write call-out.
+error-name-uppercase/index.md: line 10: Call-Out has capitals, and an element's name is lowercase, as a tag is. Write call-out. [error-name-uppercase]

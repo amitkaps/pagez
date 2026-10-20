@@ -17,7 +17,7 @@
  * Pagez writes the page's.
  */
 import { readFileSync } from "node:fs";
-import { FileError } from "./elements/errors.ts";
+import { FileError, type ErrorId } from "./elements/errors.ts";
 import { attribute, decode, encode, scan, type Attribute, type Tag } from "./elements/markup.ts";
 
 /** What stands where the page goes, until the page is put there. */
@@ -75,29 +75,37 @@ function withSlot(html: string, slot: Tag): string {
 function checkFrame(file: string, html: string): Tag {
   const tags = scan(html);
   const start = (name: string) => tags.find((tag) => tag.kind === "start" && tag.name === name);
-  const fail = (message: string) => new FileError(file, message);
+  const fail = (id: ErrorId, message: string) => new FileError(id, file, message);
   const line = (tag: Tag) => `line ${html.slice(0, tag.start).split("\n").length}: `;
   if (!attribute(start("html") ?? tags[0]!, "lang")?.value) {
     throw fail(
+      "error-frame-lang",
       `<html> has no lang. Add it, such as <html lang="en">, so screen readers read the page in its language.`,
     );
   }
   if (!tags.some((tag) => tag.name === "meta" && attribute(tag, "charset"))) {
     throw fail(
+      "error-frame-charset",
       `there's no charset. Add <meta charset="utf-8" /> to the head, or accented text garbles.`,
     );
   }
   if (!metaNamed(tags, "viewport")) {
     throw fail(
+      "error-frame-viewport",
       `there's no viewport. Add <meta name="viewport" content="width=device-width, initial-scale=1" /> to the head, or a phone zooms out.`,
     );
   }
   const slots = tags.filter((tag) => tag.kind === "start" && tag.name === "slot");
-  if (slots.length !== 1) {
+  if (slots.length === 0) {
     throw fail(
-      slots.length === 0
-        ? "there's no <slot></slot>. Write it where the page goes, such as <main><slot></slot></main>."
-        : `${line(slots[1]!)}there are ${slots.length} slots, and the page goes in one. Keep a single <slot></slot>.`,
+      "error-frame-no-slot",
+      "there's no <slot></slot>. Write it where the page goes, such as <main><slot></slot></main>.",
+    );
+  }
+  if (slots.length > 1) {
+    throw fail(
+      "error-frame-two-slots",
+      `${line(slots[1]!)}there are ${slots.length} slots, and the page goes in one. Keep a single <slot></slot>.`,
     );
   }
   for (const tag of tags) {
@@ -117,6 +125,7 @@ function checkFrame(file: string, html: string): Tag {
             : [];
     if (what) {
       throw fail(
+        "error-frame-head-tag",
         `${line(tag)}this writes ${what}, but Pagez writes it, from ${from}. Remove ${written}`,
       );
     }
@@ -168,6 +177,7 @@ export function headFields(file: string, page: Metadata): HeadFields {
     if (value === undefined) continue;
     if (typeof value !== "string" || value.trim() === "") {
       throw new FileError(
+        "error-head-text",
         file,
         `${key} is ${JSON.stringify(value)}, and it must be text. Write it as ${key}: …, or leave the line out.`,
       );
@@ -176,6 +186,7 @@ export function headFields(file: string, page: Metadata): HeadFields {
   }
   if (fields.url !== undefined && !/^https?:\/\/[^/]/i.test(fields.url)) {
     throw new FileError(
+      "error-head-url",
       file,
       `url is ${fields.url}, and it must be the page's full address, such as https://example.com/page/.`,
     );
@@ -183,6 +194,7 @@ export function headFields(file: string, page: Metadata): HeadFields {
   if (fields.image !== undefined && !/^https?:\/\//i.test(fields.image)) {
     if (fields.url === undefined) {
       throw new FileError(
+        "error-image-no-url",
         file,
         `image is ${fields.image}, and Open Graph needs a full address. Add the page's url, which it's found from, or write the image's full address.`,
       );

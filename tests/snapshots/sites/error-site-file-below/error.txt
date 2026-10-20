@@ -1,1 +1,1 @@
-error-site-file-below/notes/pagez.md: pagez.md is the site's metadata, at its root, and a folder's address follows from the root's. Move its keys into ../pagez.md, or rename it if it's a page.
+error-site-file-below/notes/pagez.md: pagez.md is the site's metadata, at its root, and a folder's address follows from the root's. Move its keys into ../pagez.md, or rename it if it's a page. [error-site-file-below]

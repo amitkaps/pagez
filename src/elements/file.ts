@@ -14,7 +14,7 @@
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { parseAst } from "vite-plus";
-import { FileError } from "./errors.ts";
+import { FileError, type ErrorId } from "./errors.ts";
 import { attribute, scan, type Tag } from "./markup.ts";
 import { checkStyle } from "./style.ts";
 
@@ -59,8 +59,8 @@ export function readElement(
   name: string = nameOf(file),
 ): ElementFile {
   const element: ElementFile = { name, file, source };
-  const fail = (at: number, message: string) =>
-    new FileError(file, `line ${lineOf(source, at)}: ${message}`);
+  const fail: Fail = (id, at, message) =>
+    new FileError(id, file, `line ${lineOf(source, at)}: ${message}`);
   const tags = scan(source);
   const seen = new Set<string>();
   let at = 0;
@@ -68,21 +68,35 @@ export function readElement(
     const tag = tags[i]!;
     outside(source, at, tag.start, fail);
     if (tag.kind === "end") {
-      throw fail(tag.start, `</${tag.name}> closes nothing. Remove it.`);
+      throw fail(
+        "error-element-file-stray-end",
+        tag.start,
+        `</${tag.name}> closes nothing. Remove it.`,
+      );
     }
     const kind = tag.name as "template" | "style" | "script";
     if (kind !== "template" && kind !== "style" && kind !== "script") {
       throw fail(
+        "error-element-file-outside",
         tag.start,
         `<${tag.name}> is outside the <template>. An element file holds a <template>, a <style> and a <script>, so markup goes inside <template>…</template>.`,
       );
     }
     if (seen.has(kind)) {
-      throw fail(tag.start, `this is a second <${kind}>. An element file holds one of each.`);
+      throw fail(
+        "error-element-file-second-part",
+        tag.start,
+        `this is a second <${kind}>. An element file holds one of each.`,
+      );
     }
     seen.add(kind);
     const close = closing(tags, i);
-    if (close === -1) throw fail(tag.start, `<${kind}> is never closed. Write </${kind}>.`);
+    if (close === -1)
+      throw fail(
+        "error-element-file-unclosed",
+        tag.start,
+        `<${kind}> is never closed. Write </${kind}>.`,
+      );
     const part = { start: tag.end, end: tags[close]!.start, text: "" };
     part.text = source.slice(part.start, part.end);
     if (kind === "template") {
@@ -117,16 +131,12 @@ function closing(tags: Tag[], i: number): number {
 }
 
 /** Fails on anything but space and comments between the file's parts. */
-function outside(
-  source: string,
-  from: number,
-  to: number,
-  fail: (at: number, message: string) => FileError,
-): void {
+function outside(source: string, from: number, to: number, fail: Fail): void {
   const text = source.slice(from, to).replace(/<!--[\s\S]*?-->/g, (c) => " ".repeat(c.length));
   const found = /\S/.exec(text);
   if (!found) return;
   throw fail(
+    "error-element-file-outside",
     from + found.index,
     `this text is outside the <template>. An element file holds a <template>, a <style> and a <script>, so markup goes inside <template>…</template>.`,
   );
@@ -142,12 +152,13 @@ function template(
   open: Tag,
   inside: Tag[],
   part: Part,
-  fail: (at: number, message: string) => FileError,
+  fail: Fail,
 ): { markup: Part; script?: Part } {
   const { source, name } = element;
   const named = attribute(open, "element")?.value;
   if (named !== undefined && named !== name) {
     throw fail(
+      "error-name-mismatch",
       open.start,
       `<template element="${named}"> is in @${name}.html. The file's name is the element's, so write element="${name}" or leave it out.`,
     );
@@ -157,17 +168,19 @@ function template(
   );
   if (shadow) {
     throw fail(
+      "error-template-shadow-root",
       shadow.start,
       `shadowrootmode makes a shadow root, and elements have none. Write the markup in the light DOM, with <slot></slot> where the content goes.`,
     );
   }
   for (const slot of inside.filter((tag) => tag.kind === "start" && tag.name === "slot")) {
-    if (attribute(slot, "name")) throw fail(slot.start, namedSlot);
+    if (attribute(slot, "name")) throw fail("error-slot-named", slot.start, namedSlot);
   }
   const scripts = inside.filter((tag) => tag.kind === "start" && tag.name === "script");
   const [first, second] = scripts;
   if (second) {
     throw fail(
+      "error-template-two-scripts",
       second.start,
       `this is a second <script> in the <template>. A template has one, first, whose names the markup uses.`,
     );
@@ -175,6 +188,7 @@ function template(
   if (!first) return { markup: part };
   if (/\S/.test(source.slice(part.start, first.start).replace(/<!--[\s\S]*?-->/g, ""))) {
     throw fail(
+      "error-template-script-after",
       first.start,
       `the template's <script> comes after its markup. Move it to the top of the <template>, since it gives the markup its names.`,
     );
@@ -188,6 +202,9 @@ function template(
   };
 }
 
+/** A mistake at an offset in the file, with its id. */
+export type Fail = (id: ErrorId, at: number, message: string) => FileError;
+
 export const namedSlot =
   "an element has one slot, with no name, where its content goes. Remove the name.";
 
@@ -196,12 +213,7 @@ export const namedSlot =
  * the rest of the code would be read as markup. Only a script that doesn't parse is checked, so a
  * regular expression with a quote in it is never taken for a string.
  */
-function scriptEnds(
-  source: string,
-  script: Part,
-  close: Tag,
-  fail: (at: number, message: string) => FileError,
-): void {
+function scriptEnds(source: string, script: Part, close: Tag, fail: Fail): void {
   try {
     parseAst(script.text, { lang: "js" });
     return;
@@ -209,6 +221,7 @@ function scriptEnds(
   const after = source.slice(close.end, source.indexOf("\n", close.end) + 1 || source.length);
   if (!inside(script.text, /\S/.test(after))) return;
   throw fail(
+    "error-script-end-in-code",
     close.start,
     "this </script> is inside the script's code, and ends the script there, as in any HTML page. Write it <\\/script>.",
   );
@@ -262,15 +275,12 @@ function parsed(code: string) {
  * since the script has it with no import. A default export fails too, since the template is the
  * module's default.
  */
-function checkBuildScript(
-  element: ElementFile,
-  scope: string[],
-  fail: (at: number, message: string) => FileError,
-): void {
+function checkBuildScript(element: ElementFile, scope: string[], fail: Fail): void {
   const names = [...OWN_SCOPE, ...scope];
   for (const statement of parsed(setupModule(element, element.template!.script!)) ?? []) {
     if (statement.type === "ExportDefaultDeclaration") {
       throw fail(
+        "error-template-default-export",
         statement.start,
         "the template's script has a default export, and the template is the module's default. Name it, as in const chart = …, and the markup has it.",
       );
@@ -279,12 +289,14 @@ function checkBuildScript(
     const clash = topLevel(statement).find((name) => names.includes(name));
     if (clash === "html") {
       throw fail(
+        "error-template-own-name",
         statement.start,
         `this ${imported ? "imports" : "declares"} html, which the template's script already has. Remove it.`,
       );
     }
     if (clash) {
       throw fail(
+        "error-template-own-name",
         statement.start,
         `this ${imported ? "imports" : "declares"} ${clash}, which the template already has (${names.join(", ")}). Rename it.`,
       );
@@ -308,13 +320,14 @@ function topLevel(statement: Statement): string[] {
  * The browser's script default-exports `setup(el, { signal })`. A custom element is usually
  * a class, so an exported class fails, saying where its code goes.
  */
-function checkSetup(element: ElementFile, fail: (at: number, message: string) => FileError): void {
+function checkSetup(element: ElementFile, fail: Fail): void {
   const body = parsed(setupModule(element));
   if (!body) return;
   const setup = "export default (el, { signal }) => { … }";
   const found = body.find((statement) => statement.type === "ExportDefaultDeclaration");
   if (!found) {
     throw fail(
+      "error-setup-no-default",
       element.script!.start,
       `the <script> has no default export. It exports the element's setup, which the browser runs on each element: ${setup}.`,
     );
@@ -322,6 +335,7 @@ function checkSetup(element: ElementFile, fail: (at: number, message: string) =>
   const { type } = found.declaration;
   if (type === "ClassDeclaration" || type === "ClassExpression") {
     throw fail(
+      "error-setup-class",
       found.start,
       `the <script> exports a class. It exports the element's setup instead, which the browser runs on each element: ${setup}. Move connectedCallback's code into it, and pass signal to each listener.`,
     );

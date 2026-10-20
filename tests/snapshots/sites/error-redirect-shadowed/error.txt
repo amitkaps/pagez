@@ -1,1 +1,1 @@
-error-redirect-shadowed/index.md: redirects lists /about.html: that's /about/ spelled another way, which is about.md, and a host sends it there itself.
+error-redirect-shadowed/index.md: redirects lists /about.html: that's /about/ spelled another way, which is about.md, and a host sends it there itself. [error-redirect-shadowed]

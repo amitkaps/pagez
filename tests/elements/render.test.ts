@@ -58,21 +58,21 @@ describe("render", () => {
 
 describe("render fails", () => {
   // oxfmt-ignore
-  test.each<[string, unknown, RegExp]>([
-    ["a function in text", html`<button>${() => {}}</button>`, /holds a function.*element's <script>/],
-    ["a function as an attribute", html`<button onclick=${() => {}}>x</button>`, /holds a function.*element's <script>/],
-    ["a function in an array", html`<ul>${[() => {}]}</ul>`, /holds a function/],
-    ["a promise", html`<p>${Promise.resolve("x")}</p>`, /holds a promise/],
-    ["a promise in an array", html`<ul>${[Promise.resolve("x")]}</ul>`, /holds a promise/],
-    ["a value where an attribute's name goes", html`<a ${"href"}="/">x</a>`, /attribute's name goes/],
-    ["an object spread as attributes", html`<a ${{ href: "/" }}>x</a>`, /attribute's name goes/],
-    ["a value as a tag's name", html`<${"div"}>x</div>`, /tag's name/],
-    ["a value right after a tag's name", html`<div${"x"}>x</div>`, /tag's name/],
-    ["a template in an attribute", html`<a title=${html`<b>x</b>`}>x</a>`, /template can't go in an attribute/],
-    ["a plain object in text", html`<p>${{ title: "x" }}</p>`, /object where text goes/],
-    ["a plain object in an attribute", html`<a title=${{ title: "x" }}>x</a>`, /object where text goes/],
-    ["a closing tag in <script>", html`<script>${"</script><p>"}</script>`, /holds <\/script>/],
-  ])("on %s", (_, value, message) => {
+  test.each<[string, unknown, RegExp, string]>([
+    ["a function in text", html`<button>${() => {}}</button>`, /holds a function.*element's <script>/, "error-template-function"],
+    ["a function as an attribute", html`<button onclick=${() => {}}>x</button>`, /holds a function.*element's <script>/, "error-template-function"],
+    ["a function in an array", html`<ul>${[() => {}]}</ul>`, /holds a function/, "error-template-function"],
+    ["a promise", html`<p>${Promise.resolve("x")}</p>`, /holds a promise/, "error-template-promise"],
+    ["a promise in an array", html`<ul>${[Promise.resolve("x")]}</ul>`, /holds a promise/, "error-template-promise"],
+    ["a value where an attribute's name goes", html`<a ${"href"}="/">x</a>`, /attribute's name goes/, "error-template-name"],
+    ["an object spread as attributes", html`<a ${{ href: "/" }}>x</a>`, /attribute's name goes/, "error-template-name"],
+    ["a value as a tag's name", html`<${"div"}>x</div>`, /tag's name/, "error-template-name"],
+    ["a value right after a tag's name", html`<div${"x"}>x</div>`, /tag's name/, "error-template-name"],
+    ["a template in an attribute", html`<a title=${html`<b>x</b>`}>x</a>`, /template can't go in an attribute/, "error-template-in-attribute"],
+    ["a plain object in text", html`<p>${{ title: "x" }}</p>`, /object where text goes/, "error-template-object"],
+    ["a plain object in an attribute", html`<a title=${{ title: "x" }}>x</a>`, /object where text goes/, "error-template-object"],
+    ["a closing tag in <script>", html`<script>${"</script><p>"}</script>`, /holds <\/script>/, "error-template-closes"],
+  ])("on %s", (_, value, message, id) => {
     let error: unknown;
     try {
       render(value);
@@ -81,5 +81,6 @@ describe("render fails", () => {
     }
     expect(error).toBeInstanceOf(TemplateError);
     expect((error as Error).message).toMatch(message);
+    expect((error as TemplateError).id).toBe(id);
   });
 });
