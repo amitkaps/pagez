@@ -5,12 +5,12 @@ Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/
 ## Next, in order
 
 1. **What a real site found.** A site of 66 pages, five elements and 90 redirects was copied into one tree and built. Its text matched its old build page for page, and its URLs held. It needed one fix of its own, filtering pages by `path` rather than `url`. These and its redirects, next, come first, and then the site moves in.
-   - **A template's error names its line.** An object where text goes named the element's file but not its line, and printed Pagez's stack.
-   - **`html` is always Pagez's own.** A template got the `html` of an older Pagez installed beside the site, not the running one's, and failed as above.
+   - **`html` is always Pagez's own.** A template got the `html` of an older Pagez installed beside the site, not the running one's, and failed with an object where text goes.
    - **`preview` takes a port.** An unknown option prints one line, not a stack.
 2. **Redirects for Cloudflare.** The site moved 45 pages into folders, and listed two old addresses for each, as 90 pages that refresh. Cloudflare serves `x/index.html` at `/x/` and sends `/x` and `/x.html` there itself, so only a page that moved needs a redirect. Pagez writes `dist/_redirects` from each page's `redirects`, one 301 for each spelling Cloudflare would miss, such as `/x`, `/x/` and `/x.html`. So a page lists an old address once, and the refresh pages go. The checks stay, so an old address a page shadows, or one that leads nowhere, still fails.
 3. **Errors carry their ids.** Each failure in `src/` names its id from [the Errors table](pages.md#errors), such as `error-link-draft`. A test holds the ids in the source and the table to each other, both ways, so an error can't ship without a row. `undefined-tag` gets a row in a Warnings table the same way.
 4. **`pagez check` and `pagez rules`.** `pagez check [folder]` compiles every page without bundling or writing `dist/`, and prints each page's first failure, one a line, with its id. Markz's warnings print too, and any warning or failure exits with 1. `build` prints warnings and passes, as now. `pagez rules <id>` prints a rule from the docs the package ships, so `docs/` joins its files. Reporting more than one failure in a page waits until a page needs it.
+5. **Speed and size, measured.** A script writes a large site, a few hundred pages with shared elements, a template that imports a large package, data beside its pages and redirects, since the test sites' three pages never showed the 12 s build. `pnpm speed` builds it with this tree and with `origin/main` in turns, over three processes, and a change counts only when all three show it. `pnpm hotspots` shows where its time goes. `pnpm size` holds what Pagez adds to a page, its theme, the elements' runtime and the head, to a budget in `verify`, so growth shows in the pull request that causes it.
 
 ## Where it is
 

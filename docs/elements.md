@@ -76,7 +76,7 @@ The first two write values. The last two write markup, repeated or maybe, so eac
 - [`element-scope`]{#element-scope}: The template has `attrs`, `page`, `pages`, `site` and `html`, and whatever its build script declares or imports. A build script name like one of those fails (`element-in-page`, `blog`, `tests/elements/render.test.ts`).
 - [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. A `data="talks.json"` attribute arrives parsed, as `attrs.data` (`element-attr-expression`, `tests/elements/elements.test.ts`).
 - [`element-sync`]{#element-sync}: Rendering is synchronous, so a promise fails (`tests/elements/elements.test.ts`).
-- [`element-render`]{#element-render}: A template that throws as it renders fails, at its line in the file (`error-template-render`).
+- [`element-render`]{#element-render}: A template that throws as it renders fails, at its line in the file. So does a value the renderer refuses, at the line of its `${…}`, in a nested template too (`error-template-render`, `error-template-object`).
 
 ### The build script
 

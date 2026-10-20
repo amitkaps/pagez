@@ -17,6 +17,8 @@ export interface Template {
   readonly [TEMPLATE]: true;
   readonly strings: readonly string[];
   readonly values: readonly unknown[];
+  /** Where `html` was called, whose stack is read only if a value fails, to name its line. */
+  readonly called?: Error;
 }
 
 /** HTML that goes into a page as it is. */
@@ -27,7 +29,7 @@ export interface Raw {
 
 /** Records a template for the build's renderer, escaping nothing yet. */
 export function html(strings: TemplateStringsArray, ...values: unknown[]): Template {
-  return { [TEMPLATE]: true, strings, values };
+  return { [TEMPLATE]: true, strings, values, called: new Error() };
 }
 
 /** @prose

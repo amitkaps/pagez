@@ -5,7 +5,7 @@
  * tokenizer makes of it there. The rules are in
  * [elements.md](../../docs/elements.md#html), and `render.test.ts` holds a case for each.
  */
-import { isRaw, isTemplate, raw } from "./html.ts";
+import { isRaw, isTemplate, raw, type Template } from "./html.ts";
 
 /** @prose
  * A template the renderer can't write. The renderer sees only the value, so the element's renderer
@@ -13,6 +13,8 @@ import { isRaw, isTemplate, raw } from "./html.ts";
  */
 export class TemplateError extends Error {
   override name = "TemplateError";
+  /** The innermost template it failed in, and the value's place in it. */
+  in?: { template: Template; index: number };
 }
 
 /** @prose
@@ -25,20 +27,24 @@ export function render(value: unknown): string {
   return text(resolve(value));
 }
 
-function renderTemplate({
-  strings,
-  values,
-}: {
-  strings: readonly string[];
-  values: readonly unknown[];
-}): string {
-  const resolved = values.map(resolve);
+function renderTemplate(template: Template): string {
+  const { strings, values } = template;
   const scan = new Scanner();
   for (let i = 0; i < strings.length; i++) {
     scan.read(strings[i]!);
-    if (i < values.length) scan.value(resolved[i], strings[i + 1]!);
+    if (i < values.length) at(template, i, () => scan.value(resolve(values[i]), strings[i + 1]!));
   }
   return scan.out;
+}
+
+/** Runs `fn` for a template's value `index`, so a failure there knows where it was. */
+function at(template: Template, index: number, fn: () => void): void {
+  try {
+    fn();
+  } catch (error) {
+    if (error instanceof TemplateError) error.in ??= { template, index };
+    throw error;
+  }
 }
 
 /** A value with its templates rendered, as `Raw`. */

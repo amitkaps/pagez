@@ -173,4 +173,5 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-relative-missing`]{#error-relative-missing} | an image beside the page isn't there | [`files-checked`](#files-checked) |
 | [`error-site-file-below`]{#error-site-file-below} | a `pagez.md` is below the root | [`folder-root`](#folder-root) |
 | [`error-style-missing`]{#error-style-missing} | a `url()` in `style.css` isn't there | [`files-checked`](#files-checked) |
+| [`error-template-object`]{#error-template-object} | a template writes an object where text goes | [`element-render`](elements.md#element-render) |
 | [`error-template-render`]{#error-template-render} | a template throws as it renders | [`element-render`](elements.md#element-render) |
