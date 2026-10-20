@@ -6,5 +6,7 @@ title: An element with behavior
 once the page runs, and the text reads without JavaScript. -->
 
 {@fold-out label=Details}
+
 Folded text, still HTML in the page.
+
 {/fold-out}

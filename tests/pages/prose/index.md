@@ -50,9 +50,11 @@ function greet(name) {
 ![A square](./square.svg) An image in a paragraph stays inline.
 
 {@figure}
+
 ![A square, in a figure](./square.svg)
 
 [A caption under the square.]{@figcaption /}
+
 {/figure}
 
 - [x] A task that's done
@@ -73,22 +75,33 @@ defined once. Let [n]{@var} be the count, and the output be [Done.]{@samp} On
 [مرحبا]{@bdi} sits in a line, and [backwards]{@bdo dir="rtl"} runs right to left.
 
 {@dl}
+
 [Term]{@dt /}
+
 [Its definition.]{@dd /}
+
 [Another]{@dt /}
+
 [And its own.]{@dd /}
+
 {/dl}
 
 {@details}
+
 [More]{@summary /}
 
 What was folded away.
+
 {/details}
 
 {@aside}
+
 An aside, which is a block like any other.
+
 {/aside}
 
 {@address}
+
 1 Example Street, Example City
+
 {/address}

@@ -12,6 +12,7 @@ the page's `note-card h2` is as specific and later, so its heading is green. No 
 ## A card
 
 Its heading is the element's size, in the page's green.
+
 {/note-card}
 
 ## After the card

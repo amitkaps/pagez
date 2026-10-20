@@ -7,7 +7,9 @@ the build defines it, so it would warn as an undefined tag, but the page's CSS h
 defined, which also keeps it from flashing unstyled. -->
 
 {@sl-button}
+
 Click
+
 {/sl-button}
 
 ```=html

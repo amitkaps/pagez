@@ -11,6 +11,12 @@ describe("readArgs", () => {
   test("reads a command, its folder, and the current one when there's none", () => {
     expect(readArgs(["build", "site"])).toEqual({ command: "build", folder: "site" });
     expect(readArgs(["dev"])).toEqual({ command: "dev", folder: "." });
+    expect(readArgs(["check", "site"])).toEqual({ command: "check", folder: "site" });
+  });
+
+  test("reads rules and the id it prints, or none for every rule", () => {
+    expect(readArgs(["rules", "folder-page"])).toEqual({ command: "rules", id: "folder-page" });
+    expect(readArgs(["rules"])).toEqual({ command: "rules" });
   });
 
   test("gives dev and preview a port", () => {
@@ -33,6 +39,8 @@ describe("readArgs", () => {
       [[], "Give a command."],
       [["build", "a", "b"], "Give one folder."],
       [["build", "--port", "4173"], "build serves nothing, so it takes no --port."],
+      [["check", "--port", "4173"], "check serves nothing, so it takes no --port."],
+      [["rules", "a", "b"], "Give one id."],
       [["dev", "--port", "http"], "--port is http, and a port is a whole number from 1 to 65535."],
     ] as const) {
       const read = readArgs([...args]);

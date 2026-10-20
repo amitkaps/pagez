@@ -11,7 +11,9 @@
     "pagez": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "docs/pages.md",
+    "docs/elements.md"
   ],
   "type": "module",
   "exports": {

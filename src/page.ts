@@ -15,7 +15,7 @@
  */
 import { readFileSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
-import { headings, parse } from "@amitkaps/markz";
+import { headings, parse, position } from "@amitkaps/markz";
 import { elementCss, checkImports, pageScript, usedElements } from "./browser.ts";
 import { readDefinitions, readFiles } from "./definitions.ts";
 import { renderElements, type Host } from "./elements/elements.ts";
@@ -136,12 +136,21 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const script = pageScript(used, out);
     const sheets = [css, ...styles(html), elements ?? ""].join("\n");
     const undefinedTag: WarningId = "undefined-tag";
-    const warnings = text.undefined
-      .filter(({ name }) => !selects(sheets, name))
-      .map(
-        ({ name, line }) =>
-          `line ${line}: {@${name}} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as ${name}:not(:defined) { visibility: hidden; }. [${undefinedTag}]`,
-      );
+    const lineOf = position(doc.source);
+    const warnings = [
+      ...doc.warnings.map(({ code, message, instead, start }) => ({
+        line: lineOf(start).line,
+        text: `${message}. Instead: ${instead}. [${code}]`,
+      })),
+      ...text.undefined
+        .filter(({ name }) => !selects(sheets, name))
+        .map(({ name, line }) => ({
+          line,
+          text: `{@${name}} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as ${name}:not(:defined) { visibility: hidden; }. [${undefinedTag}]`,
+        })),
+    ]
+      .toSorted((a, b) => a.line - b.line)
+      .map(({ line, text }) => `line ${line}: ${text}`);
     return {
       file,
       path,

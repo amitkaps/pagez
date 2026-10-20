@@ -8,9 +8,13 @@ and paste. -->
 # Notes
 
 {@call-out type=note}
+
 Markdown **inside**, in the slot.
+
 {/call-out}
 
 {@call-out type=warning}
+
 A second one. Its CSS is still written once.
+
 {/call-out}

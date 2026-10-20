@@ -6,11 +6,15 @@ title: Undefined tags
 doesn't warn. Both are written as Markz writes them. -->
 
 {@x-typo}
+
 No definition, and no CSS.
+
 {/x-typo}
 
 {@sl-badge}
+
 Styled by the page.
+
 {/sl-badge}
 
 ```=html
