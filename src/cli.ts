@@ -38,6 +38,9 @@ try {
     server.printUrls();
   }
 } catch (error) {
-  console.error((error as Error).message);
+  // A build gathers each page's failure, so one that pages share prints once.
+  const { errors } = error as { errors?: Error[] };
+  const messages = errors?.length ? errors.map((each) => each.message) : [(error as Error).message];
+  console.error([...new Set(messages)].join("\n\n"));
   process.exit(1);
 }

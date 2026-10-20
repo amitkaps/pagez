@@ -16,8 +16,10 @@
  * `pagez.md` at the root is the site's metadata, not a page. Its `url` is the site's address, and
  * each page's follows from it and the page's path. Its `repo` is where the site's source is. Every
  * other key is the site's own, as `site.author` in a template. One anywhere else fails, since a
- * folder's address follows from the root's. A site needs no `pagez.md`, and a page with none takes
- * its `url` from its own metadata.
+ * folder's address follows from the root's. A page's own `url` passes when it's that address, so a
+ * section that wrote it joins unchanged, and fails otherwise, since it would be ignored. That's
+ * checked as the site is read, so it fails once, not in every page that lists it. A site needs no
+ * `pagez.md`, and a page with none takes its `url` from its own metadata.
  *
  * Three pages are built differently ([A site](../docs/pages.md#a-site)):
  *
@@ -153,8 +155,29 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
       `a host serves 404.html at any path that isn't there, so its links are written from the site's root, which needs its address. Add url to ${SITE_FILE}, such as url: https://example.com/`,
     );
   }
+  for (const page of all) {
+    if (page !== notFound) checkUrl(metadata, page);
+  }
   const pages = all.filter((page) => page !== notFound && (drafts || !page.draft));
   return { root, metadata, pages, all, notFound, redirects: readRedirects(root, all, pages) };
+}
+
+/** A page's address, from the site's `url` and the page's path. */
+export function pageUrl(url: string, path: string): string {
+  return new URL(path, url.endsWith("/") ? url : `${url}/`).href;
+}
+
+/** A page's own `url`, which must be the address the site gives it. */
+function checkUrl(metadata: Metadata, page: SitePage): void {
+  const { url } = metadata;
+  const own = page.metadata.url;
+  if (typeof url !== "string" || own === undefined) return;
+  const address = pageUrl(url, page.path);
+  if (typeof own === "string" && URL.canParse(own) && new URL(own).href === address) return;
+  throw new FileError(
+    page.file,
+    `url is ${JSON.stringify(own)}, and a page's address is pagez.md's url and its path, ${address}. Remove url, or move the file.`,
+  );
 }
 
 /** @prose

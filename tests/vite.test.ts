@@ -169,6 +169,20 @@ describe("pagez()", () => {
     );
   });
 
+  test("fails once for a mistake its pages share", async () => {
+    const root = folder("folders", "sites");
+    writeFileSync(
+      join(root, "frame.html"),
+      "<!doctype html>\n<html>\n<body><slot></slot></body>\n</html>\n",
+    );
+    const error = await run(root).then(
+      () => undefined,
+      (thrown: { errors?: unknown[]; message: string }) => thrown,
+    );
+    expect(error?.errors ?? [error]).toHaveLength(1);
+    expect(error?.message).toMatch(/frame\.html: /);
+  });
+
   test("fails with the page's mistake, naming its file", async () => {
     const root = folder("error-relative-missing");
     await expect(run(root)).rejects.toThrow(/index\.md: line 7: \.\/missing\.svg isn't there/);
