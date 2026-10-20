@@ -91,6 +91,10 @@ export default function pagez(): Plugin[] {
   let started = 0;
   const compiled = new Map<string, { ms: number; behavior: string[] }>();
   let reported: Omit<Report, "ms" | "out" | "version"> | undefined;
+  // A build reads the site once, since nothing in it changes as it runs. `dev` reads it again for
+  // each request, so a new page is served without a restart.
+  let read: Site | undefined;
+  const current = () => (server ? site(root, true) : (read ??= site(root)));
 
   /** What `id`, an entry, builds, with its mistakes shown. */
   async function html(from: Site, entry: Entry, loader: () => Promise<Loader>): Promise<string> {
@@ -128,14 +132,15 @@ export default function pagez(): Plugin[] {
     buildStart() {
       started = performance.now();
       compiled.clear();
+      read = undefined;
     },
     resolveId(id) {
-      return id.startsWith(root) && id.endsWith(".html") && entries(site(root, !!server)).has(id)
+      return id.startsWith(root) && id.endsWith(".html") && entries(current()).has(id)
         ? id
         : undefined;
     },
     async load(id) {
-      const from = site(root, !!server);
+      const from = current();
       const entry = entries(from).get(id);
       if (!entry) return undefined;
       if ("page" in entry) this.addWatchFile(entry.page.file);
@@ -151,7 +156,7 @@ export default function pagez(): Plugin[] {
     generateBundle: {
       order: "post",
       handler(_, bundle) {
-        const from = site(root);
+        const from = current();
         const pages: Reported[] = [];
         let [css, js] = [0, 0];
         for (const file of Object.values(bundle)) {
