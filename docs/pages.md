@@ -46,7 +46,7 @@ site/
 - [`folder-skipped`]{#folder-skipped}: A name starting with `_` or `.`, `node_modules`, `public/` and `dist/` are skipped. Nothing else is special, so a `README.md` is a page (`folders`).
 - [`folder-public`]{#folder-public}: `public/` at the root is copied as it is. It's for files nothing links but a host or a browser asks for, such as `robots.txt` or `favicon.ico` (`blog`).
 - [`folder-root`]{#folder-root}: `pagez.md` at the root is the site's metadata, not a page. Its `url` is the site's address, and its `repo` is where the source is. One below the root fails (`folders`, `blog`, `error-site-file-below`).
-- [`folder-url`]{#folder-url}: A page's `url` is `pagez.md`'s and the page's path, so a page that sets its own fails. With no `pagez.md`, a page takes its `url` from its own metadata (`folders`, `head`, `error-page-url`).
+- [`folder-url`]{#folder-url}: A page's `url` is `pagez.md`'s and the page's path, so a page that sets another fails. One that sets that address passes, so a section joins a site unchanged. With no `pagez.md`, a page takes its `url` from its own metadata (`folders`, `head`, `error-page-url`).
 
 ## Files and links
 
@@ -166,7 +166,7 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-name-uppercase`]{#error-name-uppercase} | a name isn't lowercase | [`element-name`](elements.md#element-name) |
 | [`error-not-found-url`]{#error-not-found-url} | a site has a `404.md` and no `url` in `pagez.md` | [`site-404`](#site-404) |
 | [`error-package-missing`]{#error-package-missing} | an import names a package that isn't installed | [`files-packages`](#files-packages) |
-| [`error-page-url`]{#error-page-url} | a page sets `url` beside `pagez.md`'s | [`folder-url`](#folder-url) |
+| [`error-page-url`]{#error-page-url} | a page sets a `url` other than the one `pagez.md` gives it | [`folder-url`](#folder-url) |
 | [`error-path-twice`]{#error-path-twice} | `about.md` is beside `about/index.md` | [`folder-page`](#folder-page) |
 | [`error-redirect-page`]{#error-redirect-page} | a redirect is a page's path | [`site-redirect-taken`](#site-redirect-taken) |
 | [`error-redirect-shadowed`]{#error-redirect-shadowed} | an `.html` redirect stands in front of a page's folder | [`site-redirect-taken`](#site-redirect-taken) |

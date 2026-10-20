@@ -27,7 +27,7 @@ import { gzipSync } from "node:zlib";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite-plus";
 import { FileError } from "./elements/errors.ts";
 import { attribute, decode, scan } from "./elements/markup.ts";
-import { compile, write } from "./page.ts";
+import { checkShared, compile, write } from "./page.ts";
 import { createLoader, parts, serverLoader, type Loader } from "./parts.ts";
 import { redirectPage } from "./redirects.ts";
 import { fromRoot, linksFile } from "./references.ts";
@@ -139,6 +139,12 @@ export default function pagez(): Plugin[] {
       started = performance.now();
       compiled.clear();
       read = undefined;
+      // What pages share fails here, once, rather than in each page's build.
+      try {
+        checkShared(current());
+      } catch (error) {
+        throw shown(error);
+      }
     },
     resolveId(id) {
       return id.startsWith(root) && id.endsWith(".html") && entries(current()).has(id)

@@ -105,7 +105,7 @@ function blankedTo(source: string, value: string, start: number): string {
  * (`site.ts`). Two files for one name fail at the second, in sorted order, so the same one fails on
  * every run.
  */
-function readFiles(root: string): Map<string, ElementFile> {
+export function readFiles(root: string): Map<string, ElementFile> {
   const elements = new Map<string, ElementFile>();
   const files = siteFiles(root).filter((file) => /^@.*\.html$/.test(basename(file)));
   for (const file of files) {

@@ -17,13 +17,12 @@ import { readFileSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { headings, parse } from "@amitkaps/markz";
 import { elementCss, checkImports, pageScript, usedElements } from "./browser.ts";
-import { readDefinitions } from "./definitions.ts";
+import { readDefinitions, readFiles } from "./definitions.ts";
 import { renderElements, type Host } from "./elements/elements.ts";
-import { FileError } from "./elements/errors.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT, type Metadata } from "./head.ts";
 import { createLoader, type Loader } from "./parts.ts";
 import { checkCss, checkHtml, relink, siteLinks } from "./references.ts";
-import { nearest, pagePath, readSite, type Site, type SitePage } from "./site.ts";
+import { nearest, pagePath, pageUrl, readSite, type Site, type SitePage } from "./site.ts";
 import { textHtml } from "./text.ts";
 import theme from "./theme.css?built";
 
@@ -69,7 +68,7 @@ const DARK = /\n *<meta name="color-scheme" content="light dark" \/>/;
  * one above it ([pages](../docs/pages.md#folder-design)). Each is written where it is, so the
  * frame's references are its own, from its folder, and every reference in the page is then
  * written from where the page is built, `about/` for `about.md`. With a `url` in `pagez.md`, the
- * page's is that and its path, and a page that sets its own fails, since it would be ignored.
+ * page's is that and its path (`site.ts`).
  *
  * A template gets the page as `page`, every page the site builds as `pages`, sorted by path, and
  * `pagez.md`'s metadata as `site`. Each page is its metadata with its `path` from the root,
@@ -90,7 +89,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const page =
       at === site.notFound
         ? { ...doc.metadata }
-        : listed(site, { file, path, metadata: { ...doc.metadata } });
+        : listed(site, { path, metadata: { ...doc.metadata } });
     const definitions = readDefinitions(file, doc, root);
     const host: Host = {
       elements: definitions.elements,
@@ -157,22 +156,36 @@ export async function compile(file: string, options: Options = {}): Promise<Page
 }
 
 /** @prose
- * A page as a template sees it: its metadata, its `path` from the root, and its `url`, made from
- * `pagez.md`'s when the site has one. A page that sets its own `url` then fails, since it would be
- * ignored.
+ * What every page in a folder shares, checked once: the site's element files, and each page's
+ * nearest frame and `style.css`. A build checks them before any page, so a mistake in one fails
+ * once, not in every page that uses it. `compile` checks them again, for a page compiled alone.
  */
-function listed(site: Site, page: Pick<SitePage, "file" | "path" | "metadata">): Metadata {
+export function checkShared(site: Site): void {
+  readFiles(site.root);
+  const seen = new Set<string>();
+  for (const page of [...site.pages, ...(site.notFound ? [site.notFound] : [])]) {
+    const dir = dirname(page.file);
+    const frame = nearest(site.root, dir, "frame.html");
+    if (frame && !seen.has(frame)) {
+      seen.add(frame);
+      checkHtml(frame, dirname(frame), readFrame(frame).html, true);
+    }
+    const style = nearest(site.root, dir, "style.css");
+    if (style && !seen.has(style)) {
+      seen.add(style);
+      checkCss(style, dirname(style), readFileSync(style, "utf8"));
+    }
+  }
+}
+
+/** @prose
+ * A page as a template sees it: its metadata, its `path` from the root, and its `url`, made from
+ * `pagez.md`'s when the site has one.
+ */
+function listed(site: Site, page: Pick<SitePage, "path" | "metadata">): Metadata {
   const { url } = site.metadata;
   const at = { ...page.metadata, path: `/${page.path}` };
-  if (typeof url !== "string") return at;
-  const address = new URL(page.path, url.endsWith("/") ? url : `${url}/`).href;
-  if (page.metadata.url !== undefined) {
-    throw new FileError(
-      page.file,
-      `url is ${JSON.stringify(page.metadata.url)}, and a page's address is pagez.md's url and its path, ${address}. Remove url, or move the file.`,
-    );
-  }
-  return { ...at, url: address };
+  return typeof url === "string" ? { ...at, url: pageUrl(url, page.path) } : at;
 }
 
 /** The text of each `<style>` in `html`. */
