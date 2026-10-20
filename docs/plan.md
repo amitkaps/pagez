@@ -1,82 +1,27 @@
 # Plan
 
-What Pagez does today, newest first, one section for each piece of work. Then what's next, in order, what's later, and the questions still open.
-
-## Where it is
-
-### Neutral docs
-
-The docs say what Pagez does, with no other tool's history and no one site's names in them. Package and tool names stay, such as `@amitkaps/pagez` and craftz's URLs, since they're what's published. History keeps its reason and drops its source, and evidence keeps its finding with a neutral example.
-
-### Pages of a site
-
-A site's pages know of each other ([Pages of a site](design.md#pages-of-a-site)). A template gets `pages`, every page the site builds with its `path` and `url`, and `site`, `pagez.md`'s metadata, so an index lists its posts. A link may be a path from the root, `/blog/`, which a frame or a template writes. It's checked and written as a relative folder like a `.md` link, so `dist/` still works under any path. Drafts are left out of `build` and served by `dev`. `404.md` is `404.html`, with its references made absolute from `pagez.md`'s `url`, since a host serves it at any path. A page's `redirects` each write a page that refreshes to it, and a link to one fails. `build` prints a report of each page's size and time. A linked file is shipped with its page, not sent to the repository. `tests/sites/blog` has all of it.
-
-### Many pages, by folder
-
-Pagez builds a folder of pages, not only its `index.md`: every `.md` is a page at its folder's path, `about.md` built as `about/index.html`, and each uses the nearest `style.css` and `frame.html` ([The folder](design.md#the-folder)). `src/site.ts` reads the folder: its pages, what's skipped, and `pagez.md`, whose `url` makes every page's. A reference is written from the file it's in, a frame's from its folder, and each page's are rewritten from where it's built, so `dist/` works under any path. A link to a `.md` must be a page, and becomes its folder, such as `../essays/first/`. Elements are found anywhere in the site. `tests/sites/` holds a set of folders, each with its own design, built as one site, and the folder's mistakes, each failing at its file.
-
-### One theme, and element CSS that wins
-
-Pagez's reset and prose, about 400 lines in two layers, are one `src/theme.css` of about 150, in `@layer theme`. It's one readable column of what Markz writes, in the system's font, light or dark. There's nothing to configure, since a `style.css` replaces it. It ships inside `dist/` as text, and Markz is bundled there too, as prose does, so Pagez's one dependency is its peer, `vite-plus`. An element's CSS isn't in a layer anymore, and comes before the page's `style.css`. In `@layer elements` it lost to any unlayered rule, so a page's `h2` restyled every element's headings. Now the element's tag outranks the page's tag defaults, and the page has the last word by naming the element ([The cascade](design.md#the-cascade)).
-
-### The rest of the compiler
-
-Every test page builds to its reviewed snapshot or fails with its reviewed error, and none is a todo. Elements render from an `@x-tag.html` anywhere in the folder or a definition in the page, in the text and the frame, with one definition per name. Their CSS is one `@layer elements` block, and their behavior is one module that Vite bundles, with what each `setup` imports checked first. A template runs in a Vite server, `dev`'s own or one the build makes, and one that throws names its line. `${…}` in prose prints a path into `page`, and a missing value, a list or anything more fails at its line and column. A build script's names are the markup's with no `export`, and it has `html` with no import. A link to a file is checked and hashed, and an undefined tag warns.
-
-### Elements, without a name of their own
-
-`docs/elements.md` is the element's design, with Pagez as the host and reordered by the file's three parts. `src/elementz/` is `src/elements/`, since a name of its own only fit while it had a second host. It still imports nothing else from Pagez, so what an element is stays apart from how a page uses it. A template value is marked with `pagez.template`.
-
-### 0.1.0, and a section with its own design
-
-0.1.0 is on npm, published by hand, and later versions are staged by the release workflow through npm's trusted publishing. A site installs it, and its `stories/` is the first section with its own design: `index.md`, `style.css`, `frame.html`, and its images and font beside it. The rest of the site builds as before, then Pagez builds `stories/` into `dist/stories/`. svgo, WebP where smaller and a font subset took its SVGs from 528 KB to 308 KB, its photos from 229 KB to 130 KB and its font from 39 KB to 26 KB. Every block sits where the Jekyll page's does, and the quotes are curled in the source, since Markz doesn't curl them.
-
-### `dist/` through Vite
-
-`pagez()`, from `@amitkaps/pagez/vite`, builds a folder's `index.md` through Vite, and `pagez build|dev|preview` runs Vite with it. The compiled HTML is handed to Vite in memory, so the folder is never written to, and an `index.html` in it fails. CSS, images, fonts and the favicon come out hashed in `dist/assets/`. Stories, built this way and served, sits block for block where the Jekyll page does. The test pages are `index.md` now, and a mistake is a `PagezError`.
-
-### The compiler writes the folder
-
-`pagez index.md` writes `index.html` beside it, with its files linked as written and each checked, so a missing one fails the build. A `style.css` beside the page is linked in place of the reset and prose, the frame is `frame.html`, and a `<style>` in an `=html` block is raw HTML like any other. `standalone.ts` and its data URLs are gone. The design changed after rebuilding stories, as one file was 1 MB of base64 that couldn't be read, cached or shared ([The folder](design.md#the-folder)). 17 test pages build, and 33 are todos. Stories builds through it, with its Jekyll CSS, images and font as they are, to a 34 KB `index.html` whose every block sits where the Jekyll page's does, wide and on a phone.
-
-### Stories, rebuilt
-
-Stories, a Jekyll page of six chapters and 41 images, was rebuilt as one Markz page in its own repository, beside the Jekyll site. It builds to a 1 MB file that opens from disk, and its CSS went from 208 lines to about 70. What it found is in the open questions, and a frame may now write social tags Pagez doesn't, such as `twitter:site`.
-
-### The compiler, without elements
-
-`src/page.ts` compiles a page into its parts: Markz's HTML in the frame, the head written from its metadata, and its CSS, with the reset and prose when there's no frame. Page CSS moves to the head, each block its own `<style>`, which settled where a URL `@import` goes. `src/standalone.ts` writes the parts as one file, with each file beside the page inlined as a data URL, and the `pagez` command runs both. 16 test pages build to their reviewed snapshots or fail with their reviewed errors, and 33 are todos, waiting for elements, expressions, the bundler and links. The frame's errors now give their line.
-
-### Reset and prose
-
-`css/reset.css` and `css/prose.css`, exported by the package, from the common modern resets, good-css, Vizchitra's prose and a draft of its own. Serif headings and sans text in the system's fonts, one-way flow, a modular scale, an accent color, and print and contrast styles. Tried on the `stories` test page, whose CSS is now only its look, its sections and its figures. Tried too on the `prose` test page of every Markdown element, in light, dark and at a phone's width ([The theme](design.md#the-theme)).
-
-### The head moved in
-
-`src/head.ts` holds the frame's checks, and the head written from metadata. It left out the 404 page, redirects and linked stylesheets, and settled a page with no title, the head's image and the frame's head ([Head](design.md#head)).
-
-### Test pages
-
-`tests/pages/` holds 49 pages Pagez must build, or must fail on, each saying what it expects. Their `Open:` notes are design questions to settle before the compiler needs them.
-
-### elementz moved in
-
-`src/elementz/` came in unchanged, with its tests in `tests/elementz/`. The package exports its `html`.
-
-### 0.0.0
-
-Started with `pnpm new`. The design came first, and nothing of Pagez is built yet.
+Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/` through Vite. What each release changed is in its [notes on GitHub](https://github.com/amitkaps/pagez/releases). This plan says what's next, in order, and what works now. [The design](design.md) is the whole of what Pagez becomes, and [the lessons](lessons.md) are what building it taught.
 
 ## Next, in order
 
-The direction is [folders.md](folders.md): Pagez builds a hierarchy of folders, one page or a site, to `dist/`. `design.md` is rewritten to it step by step.
+1. **A real site.** Many pages, one design, a blog index that lists its posts, and links between pages, rebuilt as one tree ([Tests of it](folders.md#tests-of-it)). It shows which of a site's features a real one uses, and turns folders.md's tests into plain rules. Until then, a site can build its own pages as before and one section with Pagez, to a folder of its own.
+2. **Usage, as it is.** [usage.md](usage.md) still says Pagez isn't built and writes a file beside the page. It's rewritten to `pagez()` and `pagez build|dev|preview`, with its section for agents. Until then, the README's example is how to use it.
 
-1. **A real site.** Many pages, one design, a blog index that lists its posts, and links between pages, rebuilt as one tree ([Tests of it](folders.md#tests-of-it)). What it shows turns folders.md's tests into plain rules.
+## Where it is
+
+- **A site of folders.** Every `.md` is a page at its folder's path, `about.md` built as `about/index.html`, with the nearest `style.css` and `frame.html` as its design ([The folder](design.md#the-folder)). `pagez.md` at the root gives the site's `url`, and every page's follows from it.
+- **Pages of a site.** A template gets `pages` and `site`, and a link to a page is checked and written as a relative folder, so `dist/` works under any path. Drafts, `404.md`, redirects and the build report are there too ([Pages of a site](design.md#pages-of-a-site)).
+- **Elements.** An element is an `@x-tag.html` anywhere in the site or a definition in the page, one per name, rendered in the text and the frame ([elements.md](elements.md)). Its CSS comes before the page's, and its behavior is one module that Vite bundles, with each import checked first. A template runs in a Vite server, and one that throws names its line.
+- **Values in prose.** `${…}` prints a path into `page`, and anything more fails at its line and column ([Expressions](design.md#expressions)).
+- **The head and the frame.** The frame is checked, and the head is written from the page's metadata ([Head](design.md#head)).
+- **The theme.** A page with no `style.css` and no frame gets one readable column, light or dark, in `@layer theme` ([The theme](design.md#the-theme)).
+- **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it. Files are checked, then hashed in `dist/assets/`, and an undefined tag warns.
+- **Tests.** Each page in `tests/pages/` and each site in `tests/sites/` builds to its reviewed snapshot or fails with its reviewed error.
+- **Releases.** 0.1.0 was published by hand. Later versions are staged by the release workflow through npm's trusted publishing.
 
 ## Later
 
-- **A single page's exports.** `index.html` written beside the page, or the whole page inlined into one HTML file, for opening from disk or sending as one file. Pagez had both, and dropped them for `dist/`. They come back if a single page turns out to need them.
+- **A single page's exports.** `index.html` written beside the page, or the whole page inlined into one HTML file, for opening from disk or sending as one file. Pagez had both, and dropped them for `dist/` ([lessons](lessons.md#where-the-output-goes)). They come back if a single page turns out to need them.
 
 ## Open questions
 
