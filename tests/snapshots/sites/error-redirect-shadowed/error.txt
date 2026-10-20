@@ -1,0 +1,1 @@
+error-redirect-shadowed/index.md: redirects lists /about.html: a host serves about.html at /about too, which is about.md, so the redirect would stand in front of it.

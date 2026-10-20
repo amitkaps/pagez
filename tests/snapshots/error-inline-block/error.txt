@@ -1,0 +1,1 @@
+error-inline-block/index.md: line 7: {@key-note} is used inline, but its template writes a <div>, which ends a paragraph. Write inline HTML, such as a <span>.

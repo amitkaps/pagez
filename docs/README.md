@@ -1,14 +1,15 @@
 ---
-nav: [design.md, elements.md, usage.md, plan.md, lessons.md, development.md]
+nav: [usage.md, pages.md, elements.md, design.md, plan.md, lessons.md, development.md]
 ---
 
 # Docs
 
 The writing that spans the code, in reading order.
 
-1. [Design](design.md): the page, its elements, its head and its frame, and what Pagez isn't.
-2. [Elements](elements.md): the element itself, one `@name.html` file of markup, CSS and behavior.
-3. [Usage](usage.md): what using it will look like, once it's built.
-4. [Plan](plan.md): what's next, in order, and what works now.
-5. [Lessons](lessons.md): what building it taught, for the next change.
-6. [Development](development.md): build, test and release it.
+1. [Usage](usage.md): install it, build a folder, and what an agent should know.
+2. [Pages](pages.md): the rules a page and a site follow, each held to its tests.
+3. [Elements](elements.md): the rules for an element, one `@name.html` file of markup, CSS and behavior.
+4. [Design](design.md): what Pagez is, why, and what it isn't.
+5. [Plan](plan.md): what's next, in order, and what works now.
+6. [Lessons](lessons.md): what building it taught, for the next change.
+7. [Development](development.md): build, test and release it.

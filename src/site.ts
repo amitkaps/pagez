@@ -2,7 +2,7 @@
  * # The site
  *
  * The pages in a folder, and what each one is made from
- * ([folders.md](../docs/folders.md#the-rules)). The folder Pagez builds is the root, and every
+ * ([pages](../docs/pages.md#the-folder)). The folder Pagez builds is the root, and every
  * `.md` under it is a page, at its folder's path.
  *
  * `index.md` is its folder's own page, and `about.md` is `about/`, built as `about/index.html`. So
@@ -19,7 +19,7 @@
  * folder's address follows from the root's. A site needs no `pagez.md`, and a page with none takes
  * its `url` from its own metadata.
  *
- * Three pages are built differently ([Pages of a site](../docs/design.md#pages-of-a-site)):
+ * Three pages are built differently ([A site](../docs/pages.md#a-site)):
  *
  * - **A draft,** `draft: true`, is left out of `build`, of `pages` and of what a link can reach.
  *   `dev` serves it like any page, so it can be written.

@@ -5,7 +5,7 @@
  * CSS and its elements', the stylesheets it links, and its one module.
  *
  * `write` puts them together as the `index.html` the plugin hands to Vite, in memory where the page
- * is built ([The folder](../docs/design.md#the-folder)). Each element the page uses renders from
+ * is built ([The folder](../docs/pages.md#the-folder)). Each element the page uses renders from
  * its definition (`definitions.ts`), in the text and in the frame. Each `${…}` in the text prints
  * from `page` (`text.ts`). What it ships is in `browser.ts`.
  *
@@ -66,7 +66,7 @@ const DARK = /\n *<meta name="color-scheme" content="light dark" \/>/;
  * The page at `file`, compiled into its parts. A mistake in it throws a `FileError`.
  *
  * Its design is the nearest `style.css` and `frame.html`, each found on its own, in its folder or
- * one above it ([folders.md](../docs/folders.md#the-rules)). Each is written where it is, so the
+ * one above it ([pages](../docs/pages.md#folder-design)). Each is written where it is, so the
  * frame's references are its own, from its folder, and every reference in the page is then
  * written from where the page is built, `about/` for `about.md`. With a `url` in `pagez.md`, the
  * page's is that and its path, and a page that sets its own fails, since it would be ignored.

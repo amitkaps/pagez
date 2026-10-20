@@ -6,7 +6,7 @@
  * `renderElement` for each element its Markz wrote.
  *
  * An element's template writes the inside of its tag, and this writes the tag around it
- * ([elements.md](../../docs/elements.md#wrapping)). The template gets `attrs`, the host's context
+ * ([elements.md](../../docs/elements.md#element-wrap)). The template gets `attrs`, the host's context
  * and its script's names. Its content goes where its `<slot>` is, and the slot's own content is
  * the fallback for an element with none. What an element writes is read for elements too, until
  * none is left.
