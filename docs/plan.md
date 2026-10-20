@@ -4,7 +4,13 @@ Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/
 
 ## Next, in order
 
-1. **A real site.** Many pages, one design, a blog index that lists its posts, and links between pages, rebuilt as one tree. One page with its own design builds, as `stories` does, and so does a set of folders, as `folders` does. A real site shows which of a site's features it uses, and whether the folders stay pleasant to work in. Where a rule gets messy, it changes before the site moves in. Until then, a site can build its own pages as before and one section with Pagez, to a folder of its own.
+1. **What a real site found.** A site of 66 pages, five elements and 90 redirects was copied into one tree and built. Its text matched its old build page for page, and its URLs held. It needed one fix of its own, filtering pages by `path` rather than `url`. These come first, and then the site moves in.
+   - **Build time.** It took 10.9 s, where its old build took 1.3 s, a third of it in `resolveId`. Vite's timing warning prints after every build.
+   - **One error, once.** A failure that pages share prints for each of them. One `url` printed 66 times.
+   - **A template's error names its line.** An object where text goes named the element's file but not its line, and printed Pagez's stack.
+   - **`html` is always Pagez's own.** A template got the `html` of an older Pagez installed beside the site, not the running one's, and failed as above.
+   - **A section joins unchanged.** A section's own `url` fails inside a site, even when it equals the address the site gives. So it passes, or [the design](design.md#why) stops claiming a section joins unchanged.
+   - **`preview` takes a port.** An unknown option prints one line, not a stack.
 2. **Errors carry their ids.** Each failure in `src/` names its id from [the Errors table](pages.md#errors), such as `error-link-draft`. A test holds the ids in the source and the table to each other, both ways, so an error can't ship without a row. `undefined-tag` gets a row in a Warnings table the same way.
 3. **`pagez check` and `pagez rules`.** `pagez check [folder]` compiles every page without bundling or writing `dist/`, and prints each page's first failure, one a line, with its id. Markz's warnings print too, and any warning or failure exits with 1. `build` prints warnings and passes, as now. `pagez rules <id>` prints a rule from the docs the package ships, so `docs/` joins its files. Reporting more than one failure in a page waits until a page needs it.
 
@@ -43,3 +49,4 @@ Each one the test pages raise is also an `Open:` note on the page that shows it 
 - **Meaning.** `<call-out>` means nothing to a screen reader, where `<aside>` is a landmark. When the meaning matters on every use, the template writes the `<aside>`.
 - **Child inspection.** Whether an element ever needs its content's structure at build time. It waits until a real element needs it.
 - **Moves,** with `connectedMoveCallback`, once connect and disconnect are proven.
+- **Element CSS as a file.** A page's element CSS is in a `<style>` in its head, a few hundred bytes on a real site. A large element on many pages would send it with each, and a shared hashed file past some size would let a browser cache it.
