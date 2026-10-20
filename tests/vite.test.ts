@@ -6,7 +6,15 @@
  * and leaves the folder as it was. A folder that has an `index.html` where a page is built fails,
  * since that's the file Pagez writes.
  */
-import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { build, createLogger } from "vite-plus";
@@ -181,6 +189,36 @@ describe("pagez()", () => {
     );
     expect(error?.errors ?? [error]).toHaveLength(1);
     expect(error?.message).toMatch(/frame\.html: /);
+  });
+
+  test("gives a helper module Pagez's own html, not a copy installed beside the site", async () => {
+    const root = folder("element-in-folder");
+    const old = join(root, "node_modules/@amitkaps/pagez");
+    mkdirSync(old, { recursive: true });
+    writeFileSync(
+      join(old, "package.json"),
+      '{"name":"@amitkaps/pagez","type":"module","exports":"./index.js"}',
+    );
+    writeFileSync(
+      join(old, "index.js"),
+      "export const html = (strings, ...values) => ({ strings, values });",
+    );
+    writeFileSync(
+      join(root, "card.js"),
+      'import { html } from "@amitkaps/pagez";\nexport const card = (x) => html`<i>${x}</i>`;\n',
+    );
+    writeFileSync(
+      join(root, "@x-card.html"),
+      '<template>\n  <script>\n    import { card } from "./card.js";\n  </script>\n  ${card("helped")}\n</template>\n',
+    );
+    writeFileSync(
+      join(root, "index.md"),
+      `${readFileSync(join(root, "index.md"), "utf8")}\n{@x-card /}\n`,
+    );
+    await run(root);
+    expect(readFileSync(join(root, "dist/index.html"), "utf8")).toContain(
+      "<x-card><i>helped</i></x-card>",
+    );
   });
 
   test("fails with the page's mistake, naming its file", async () => {

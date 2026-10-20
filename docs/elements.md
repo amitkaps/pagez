@@ -94,7 +94,7 @@ A `<script>` first in the template runs at build time. It's how an element uses 
 ```
 
 - [`element-build-script`]{#element-build-script}: A template holds at most one `<script>`, and it comes first. What it declares or imports is in the markup's scope, with no `export`, and none of it ships (`element-template-script`, `tests/vite.test.ts`).
-- [`element-html-import`]{#element-html-import}: The build script has `html` with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own (`tests/elements/file.test.ts`).
+- [`element-html-import`]{#element-html-import}: The build script has `html` with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own, even with another copy of Pagez installed beside the site (`tests/elements/file.test.ts`, `tests/vite.test.ts`).
 - [`element-script-end`]{#element-script-end}: `</script>` inside a script's string ends the script, as in any HTML, so it fails, asking for `<\/script>`. `<template>` in a string is safe (`tests/elements/file.test.ts`).
 
 ### `html`
