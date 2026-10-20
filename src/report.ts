@@ -16,6 +16,7 @@
  * 2 pages and 1 redirect in 240 ms → dist · pagez 0.1.0
  * ```
  */
+import { createLogger, type Logger } from "vite-plus";
 
 /** A page as the report shows it. */
 export interface Reported {
@@ -37,6 +38,20 @@ export interface Report {
   ms: number;
   out: string;
   version: string;
+}
+
+/** @prose
+ * A logger that prints the report and Vite's warnings and errors, and none of Vite's other lines.
+ * Vite lists each file it wrote, which the report says page by page, so `pagez build` prints the
+ * report alone. The build also runs at `logLevel: "warn"`, which stops Vite's progress lines.
+ */
+export function reportOnly(): Logger {
+  const logger = createLogger();
+  const info = logger.info.bind(logger);
+  logger.info = (message, options) => {
+    if (/ · pagez \S+$/.test(message)) info(message, options);
+  };
+  return logger;
 }
 
 export function report({ pages, css, js, redirects, ms, out, version }: Report): string {

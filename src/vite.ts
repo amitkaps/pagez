@@ -134,7 +134,12 @@ export default function pagez(): Plugin[] {
         appType: "mpa",
         base: user.base ?? "./",
         build: {
-          rollupOptions: { input: [...entries(site(real(resolve(user.root ?? ".")))).keys()] },
+          rollupOptions: {
+            input: [...entries(site(real(resolve(user.root ?? ".")))).keys()],
+            // Compiling the pages is the build, and happens in `load`, so Rolldown's warning that
+            // plugins took most of its time is always true and says nothing.
+            checks: { bundlerTimings: false },
+          },
           // A page has one module, so there's nothing to preload.
           modulePreload: { polyfill: false },
         },

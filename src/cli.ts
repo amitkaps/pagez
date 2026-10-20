@@ -17,6 +17,7 @@ import { resolve } from "node:path";
 import { build, createServer, preview } from "vite-plus";
 import { readArgs, USAGE } from "./args.ts";
 import { check } from "./check.ts";
+import { reportOnly } from "./report.ts";
 import { printedRule } from "./rules.ts";
 import pagez from "./vite.ts";
 
@@ -62,7 +63,7 @@ const config = {
 };
 try {
   if (command === "build") {
-    await build(config);
+    await build({ ...config, customLogger: reportOnly(), logLevel: "warn" });
   } else {
     const server = command === "dev" ? await createServer(config) : await preview(config);
     if ("listen" in server) await server.listen();

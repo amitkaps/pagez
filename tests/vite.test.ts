@@ -18,7 +18,8 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { build, createLogger, createServer, preview, type InlineConfig } from "vite-plus";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, test, vi } from "vite-plus/test";
+import { reportOnly } from "../src/report.ts";
 import pagez from "../src/vite.ts";
 
 /** A copy of a test page, or a test site, to build in a folder of its own. */
@@ -112,6 +113,31 @@ describe("pagez()", () => {
     );
     // A `dist/` outside the current folder is named by its whole path, not by a climb of `../`.
     expect(shown).not.toContain("→ ..");
+  });
+
+  test("prints the report alone in `pagez build`, without Vite's list of files", async () => {
+    const root = folder("blog", "sites");
+    const printed: string[] = [];
+    const log = vi.spyOn(console, "log").mockImplementation((line) => void printed.push(line));
+    const write = vi.spyOn(process.stdout, "write").mockImplementation((line) => {
+      printed.push(String(line));
+      return true;
+    });
+    try {
+      await build({
+        root,
+        configFile: false,
+        customLogger: reportOnly(),
+        logLevel: "warn",
+        plugins: [pagez()],
+      });
+    } finally {
+      log.mockRestore();
+      write.mockRestore();
+    }
+    expect(printed).toHaveLength(1);
+    expect(printed[0]).toMatch(/^\npage +html +time\n/);
+    expect(printed[0]).toMatch(/5 pages and 2 redirects in .* · pagez \S+$/);
   });
 
   test("sends an old address on to its page in dev and preview, as a host does", async () => {
