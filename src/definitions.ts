@@ -16,7 +16,7 @@
 import { readFileSync } from "node:fs";
 import { basename, relative } from "node:path";
 import { position, walk, type Document, type NodeId } from "@amitkaps/markz";
-import { FileError } from "./elements/errors.ts";
+import { FileError, type Problem } from "./elements/errors.ts";
 import { nameOf, readElement, type ElementFile } from "./elements/file.ts";
 import { attribute, scan } from "./elements/markup.ts";
 import { siteFiles } from "./site.ts";
@@ -48,6 +48,7 @@ export function readDefinitions(file: string, doc: Document, root: string): Defi
         ? `at line ${lines.get(name)}`
         : `in ${relative(root, other.file)}`;
       throw new FileError(
+        lines.has(name) ? "error-name-duplicate-page" : "error-name-duplicate-file",
         file,
         `line ${line}: <${name}> is already defined ${where}. A name has one definition, wherever it sits. Remove one, or rename the element.`,
       );
@@ -81,7 +82,7 @@ export function pageElements(
       const source = blankedTo(doc.source, value, range.start);
       const line = at(range.start + first.start).line;
       const problem = nameProblem(name);
-      if (problem) throw new FileError(file, `line ${line}: ${problem}`);
+      if (problem) throw new FileError(problem.id, file, `line ${line}: ${problem.problem}`);
       found.push({ node, element: readElement(file, SCOPE, source, name), line });
     },
   });
@@ -111,10 +112,17 @@ export function readFiles(root: string): Map<string, ElementFile> {
   for (const file of files) {
     const name = nameOf(file);
     const problem = nameProblem(name);
-    if (problem) throw new FileError(file, `${problem} An element's file is named for it.`);
+    if (problem) {
+      throw new FileError(
+        problem.id,
+        file,
+        `${problem.problem} An element's file is named for it.`,
+      );
+    }
     const other = elements.get(name);
     if (other) {
       throw new FileError(
+        "error-name-two-files",
         file,
         `<${name}> is also in ${relative(root, other.file)}. A name has one definition, wherever it sits. Remove one, or rename the element.`,
       );
@@ -155,15 +163,24 @@ const RESERVED = new Set([
 ]);
 
 /** What's wrong with an element's name, if anything. */
-export function nameProblem(name: string): string | undefined {
+export function nameProblem(name: string): Problem | undefined {
   if (name !== name.toLowerCase() && NAME.test(name.toLowerCase())) {
-    return `${name} has capitals, and an element's name is lowercase, as a tag is. Write ${name.toLowerCase()}.`;
+    return {
+      id: "error-name-uppercase",
+      problem: `${name} has capitals, and an element's name is lowercase, as a tag is. Write ${name.toLowerCase()}.`,
+    };
   }
   if (!NAME.test(name)) {
-    return `${name} isn't an element's name, which is lowercase, starts with a letter and has a hyphen, as in call-out.`;
+    return {
+      id: "error-name-invalid",
+      problem: `${name} isn't an element's name, which is lowercase, starts with a letter and has a hyphen, as in call-out.`,
+    };
   }
   if (RESERVED.has(name)) {
-    return `${name} is a name HTML keeps for its own elements. Rename the element.`;
+    return {
+      id: "error-name-reserved",
+      problem: `${name} is a name HTML keeps for its own elements. Rename the element.`,
+    };
   }
   return undefined;
 }

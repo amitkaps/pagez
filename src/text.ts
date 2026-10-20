@@ -31,7 +31,7 @@ import {
 } from "@amitkaps/markz";
 import type { Definitions } from "./definitions.ts";
 import { openTag, renderElement, type Host } from "./elements/elements.ts";
-import { FileError } from "./elements/errors.ts";
+import { FileError, type Problem } from "./elements/errors.ts";
 import { attributeValue, interpolated, printed } from "./expressions.ts";
 import type { Metadata } from "./head.ts";
 import { exists, isRelative, linkTarget, type Links } from "./references.ts";
@@ -58,9 +58,9 @@ export async function textHtml(
   links: Links,
 ): Promise<{ html: string; undefined: Undefined[] }> {
   const at = position(doc.source);
-  const fail = (offset: number, message: string) => {
+  const fail = (offset: number, { id, problem }: Problem) => {
     const { line, column } = at(offset);
-    return new FileError(file, `line ${line}, column ${column + 1}: ${message}`);
+    return new FileError(id, file, `line ${line}, column ${column + 1}: ${problem}`);
   };
   const swapped = new Map<NodeId, object>();
   const texts = new Set<NodeId>();
@@ -83,7 +83,7 @@ export async function textHtml(
       if (type === "expression") {
         const { code, range } = doc.data(node, "expression");
         const result = printed(code, page);
-        if ("problem" in result) throw fail(range.start, result.problem);
+        if ("problem" in result) throw fail(range.start, result);
         texts.add(node);
         swapped.set(node, { value: result.text });
         const heading = headingOf(doc, node);
@@ -95,20 +95,21 @@ export async function textHtml(
         let { destination } = data;
         if (data.expressions.length > 0) {
           const result = interpolated(destination, page);
-          if ("problem" in result) throw fail(data.expressions[0]!.start, result.problem);
+          if ("problem" in result) throw fail(data.expressions[0]!.start, result);
           destination = result.text;
           swapped.set(node, { destination });
         }
         const { line } = at(data.destinationRange.start);
         if (type === "image" && isRelative(destination) && !exists(dir, destination)) {
           throw new FileError(
+            "error-relative-missing",
             file,
             `line ${line}: ${destination} isn't there. Add the file, or fix the path.`,
           );
         }
         const target = linkTarget(links, dir, destination, type === "link");
         if (target && "problem" in target) {
-          throw new FileError(file, `line ${line}: ${target.problem}`);
+          throw new FileError(target.id, file, `line ${line}: ${target.problem}`);
         }
       }
       if (type === "raw" && blocks.has(node)) {
@@ -121,7 +122,7 @@ export async function textHtml(
           const values: Record<string, unknown> = {};
           for (const item of items) {
             const result = attributeValue(item.value, page);
-            if ("problem" in result) throw fail(item.start, result.problem);
+            if ("problem" in result) throw fail(item.start, result);
             const before = values[item.key];
             values[item.key] =
               item.key === "class" && typeof before === "string"
@@ -133,7 +134,8 @@ export async function textHtml(
           if (typeof values.data === "string") {
             const read = host.data(values.data);
             const item = items.findLast((item) => item.key === "data")!;
-            if ("problem" in read) throw fail(item.start, `<${name}> ${read.problem}`);
+            if ("problem" in read)
+              throw fail(item.start, { ...read, problem: `<${name}> ${read.problem}` });
             data = read;
             delete values.data;
           }
@@ -149,7 +151,7 @@ export async function textHtml(
           node,
           items.map((item) => {
             const result = interpolated(item.value, page);
-            if ("problem" in result) throw fail(item.start, result.problem);
+            if ("problem" in result) throw fail(item.start, result);
             return { key: item.key, value: result.text };
           }),
         );
@@ -248,6 +250,7 @@ function paragraphSafe(file: string, doc: Document, node: NodeId, name: string, 
   if (!tag) return;
   const { line } = position(doc.source)(doc.start(node));
   throw new FileError(
+    "error-inline-block",
     file,
     `line ${line}: {@${name}} is used inline, but its template writes a <${tag.toLowerCase()}>, which ends a paragraph. Write inline HTML, such as a <span>.`,
   );

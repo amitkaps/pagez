@@ -11,16 +11,11 @@
  * This reads CSS only as far as the check needs, which is comments, strings, brackets and blocks.
  * What isn't valid CSS is left to the bundler.
  */
-import type { FileError } from "./errors.ts";
-import type { Part } from "./file.ts";
+import type { Fail, Part } from "./file.ts";
 
 const GROUPS = new Set(["media", "supports", "container", "layer", "scope", "starting-style"]);
 
-export function checkStyle(
-  style: Part,
-  name: string,
-  fail: (at: number, message: string) => FileError,
-): void {
+export function checkStyle(style: Part, name: string, fail: Fail): void {
   // Comments and strings blanked, so a brace or a comma in one is never read as CSS.
   const css = style.text.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (s) =>
     s[0] === "/" ? " ".repeat(s.length) : s[0] + "x".repeat(s.length - 2) + s[0],
@@ -48,6 +43,7 @@ export function checkStyle(
           if (trimmed && !own.test(trimmed)) {
             const start = style.start + offset + selector.indexOf(trimmed);
             throw fail(
+              "error-style-selector",
               start,
               `the rule ${trimmed} doesn't start with ${name}. Every top-level selector in an element's <style> starts with its tag, as in ${name} ${trimmed}, so its CSS stays its own.`,
             );

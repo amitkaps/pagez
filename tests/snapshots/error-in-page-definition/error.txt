@@ -1,1 +1,1 @@
-error-in-page-definition/index.md: line 13: an element has one slot, with no name, where its content goes. Remove the name.
+error-in-page-definition/index.md: line 13: an element has one slot, with no name, where its content goes. Remove the name. [error-slot-named]

@@ -20,6 +20,7 @@ import { elementCss, checkImports, pageScript, usedElements } from "./browser.ts
 import { readDefinitions, readFiles } from "./definitions.ts";
 import { renderElements, type Host } from "./elements/elements.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT, type Metadata } from "./head.ts";
+import type { Problem, WarningId } from "./elements/errors.ts";
 import { createLoader, type Loader } from "./parts.ts";
 import { checkCss, checkHtml, relink, siteLinks } from "./references.ts";
 import { nearest, pagePath, pageUrl, readSite, type Site, type SitePage } from "./site.ts";
@@ -42,7 +43,7 @@ export interface Page {
   script?: string;
   /** The elements it uses that have behavior, by name. */
   behavior: string[];
-  /** What's worth fixing that doesn't stop the build, each as `line N: message`. */
+  /** What's worth fixing that doesn't stop the build, each as `line N: message [id]`. */
   warnings: string[];
 }
 
@@ -134,11 +135,12 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const elements = elementCss(used, out);
     const script = pageScript(used, out);
     const sheets = [css, ...styles(html), elements ?? ""].join("\n");
+    const undefinedTag: WarningId = "undefined-tag";
     const warnings = text.undefined
       .filter(({ name }) => !selects(sheets, name))
       .map(
         ({ name, line }) =>
-          `line ${line}: {@${name}} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as ${name}:not(:defined) { visibility: hidden; }.`,
+          `line ${line}: {@${name}} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as ${name}:not(:defined) { visibility: hidden; }. [${undefinedTag}]`,
       );
     return {
       file,
@@ -203,17 +205,24 @@ function selects(css: string, name: string): boolean {
  * The parsed JSON a `data` attribute names, beside the page, or what is wrong with the path.
  * Where data lives is still open ([plan.md](../docs/plan.md#open-questions)).
  */
-function readData(dir: string, path: string): { value: unknown } | { problem: string } {
+function readData(dir: string, path: string): { value: unknown } | Problem {
   const file = resolve(dir, path);
   const written = `data="${path}"`;
-  if (extname(file) !== ".json") return { problem: `${written} isn't JSON, which data is.` };
+  if (extname(file) !== ".json")
+    return { id: "error-data-not-json", problem: `${written} isn't JSON, which data is.` };
   if (!statSync(file, { throwIfNoEntry: false })?.isFile()) {
-    return { problem: `${written} isn't there: no file at ${relative(dir, file)}.` };
+    return {
+      id: "error-data-missing",
+      problem: `${written} isn't there: no file at ${relative(dir, file)}.`,
+    };
   }
   try {
     return { value: JSON.parse(readFileSync(file, "utf8")) };
   } catch (error) {
-    return { problem: `${written} isn't valid JSON: ${(error as Error).message}` };
+    return {
+      id: "error-data-invalid",
+      problem: `${written} isn't valid JSON: ${(error as Error).message}`,
+    };
   }
 }
 

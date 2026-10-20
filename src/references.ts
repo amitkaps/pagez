@@ -16,7 +16,7 @@
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import { FileError } from "./elements/errors.ts";
+import { FileError, type ErrorId, type Problem } from "./elements/errors.ts";
 import { attribute, decode, encode, scan, type Tag } from "./elements/markup.ts";
 import { spellings, type Site } from "./site.ts";
 
@@ -35,8 +35,8 @@ export function linksFile(href: string): boolean {
   return isRelative(href) && !/\.md$/i.test(href.split(/[?#]/)[0]!);
 }
 
-const missing = (file: string, where: string, reference: string) =>
-  new FileError(file, `${where}${reference} isn't there. Add the file, or fix the path.`);
+const missing = (id: ErrorId, file: string, where: string, reference: string) =>
+  new FileError(id, file, `${where}${reference} isn't there. Add the file, or fix the path.`);
 
 /** @prose
  * Each reference in `html` and its `<style>`s, from `dir`. A mistake names `file`, and its line
@@ -57,7 +57,8 @@ export function checkHtml(file: string, dir: string, html: string, lines = false
     for (const name of names) {
       const value = decode(attribute(tag, name)?.value ?? "");
       if (tag.name === "a" && !linksFile(value)) continue;
-      if (isRelative(value) && !exists(dir, value)) throw missing(file, at(tag.start), value);
+      if (isRelative(value) && !exists(dir, value))
+        throw missing("error-relative-missing", file, at(tag.start), value);
     }
   }
 }
@@ -70,12 +71,14 @@ export function checkCss(file: string, dir: string, css: string, where = ""): vo
   for (const [, , path] of css.matchAll(IMPORT)) {
     if (!isRelative(path!) || path!.startsWith(".")) continue;
     throw new FileError(
+      "error-style-import-package",
       file,
       `${where}@import "${path}" names a package, which the page's folder doesn't serve. Import it by its full URL, or keep a copy beside the page and import that, as "./${path!.split("/").at(-1)}".`,
     );
   }
   for (const [, , path] of [...css.matchAll(IMPORT), ...css.matchAll(URL_FUNCTION)]) {
-    if (isRelative(path!) && !exists(dir, path!)) throw missing(file, where, path!);
+    if (isRelative(path!) && !exists(dir, path!))
+      throw missing("error-style-missing", file, where, path!);
   }
   // A stylesheet it imports has references of its own, from where it is.
   for (const [, , path] of css.matchAll(IMPORT)) {
@@ -117,29 +120,40 @@ export interface Links {
   /** Each page this run builds, by its file and by its path, `/about/`: the folder it's built in. */
   pages: Map<string, string>;
   /** Each page that can't be linked to, by its file and by its path, and why. */
-  closed: Map<string, string>;
+  closed: Map<string, Problem>;
 }
 
 /** What a link in the site can reach. */
 export function siteLinks(site: Site): Links {
   const { root } = site;
   const pages = new Map<string, string>();
-  const closed = new Map<string, string>();
+  const closed = new Map<string, Problem>();
   for (const page of site.pages) {
     const dir = join(root, page.path);
     pages.set(page.file, dir).set(`/${page.path}`, dir);
   }
   for (const page of site.all) {
     if (pages.has(page.file)) continue;
-    const why =
+    const why: Problem =
       page === site.notFound
-        ? "is the page a host serves for a path that isn't there, not one to link to. Link to a page that is."
-        : "is a draft, which build leaves out. Publish it, with draft: false, or remove the link.";
+        ? {
+            id: "error-link-not-found",
+            problem:
+              "is the page a host serves for a path that isn't there, not one to link to. Link to a page that is.",
+          }
+        : {
+            id: "error-link-draft",
+            problem:
+              "is a draft, which build leaves out. Publish it, with draft: false, or remove the link.",
+          };
     closed.set(page.file, why).set(`/${page.path}`, why);
   }
   for (const [address, { to }] of site.redirects) {
     for (const path of spellings(address)) {
-      closed.set(path, `redirects to /${to.path}. Link to that, where the page is now.`);
+      closed.set(path, {
+        id: "error-link-redirect",
+        problem: `redirects to /${to.path}. Link to that, where the page is now.`,
+      });
     }
   }
   return { root, pages, closed };
@@ -161,31 +175,38 @@ export function linkTarget(
   from: string,
   href: string,
   anchor: boolean,
-): { page: string } | { problem: string } | undefined {
+): { page: string } | Problem | undefined {
   const cut = href.search(/[?#]/);
   const path = decodeURI(cut === -1 ? href : href.slice(0, cut));
   if (isSitePath(href)) {
     if (statSync(join(links.root, "public", path), { throwIfNoEntry: false })?.isFile()) {
       return undefined;
     }
-    if (!anchor)
-      return { problem: `${href} isn't a file in public/. Add it there, or fix the path.` };
+    if (!anchor) {
+      return {
+        id: "error-public-missing",
+        problem: `${href} isn't a file in public/. Add it there, or fix the path.`,
+      };
+    }
     const key = path.endsWith("/") || path.endsWith(".html") ? path : `${path}/`;
     const page = links.pages.get(key);
     if (page !== undefined) return { page };
     const why = links.closed.get(key);
-    return {
-      problem: why
-        ? `${href} ${why}`
-        : `${href} isn't a page of this site or a file in public/. Link to one that is, or fix the path.`,
-    };
+    return why
+      ? { id: why.id, problem: `${href} ${why.problem}` }
+      : {
+          id: "error-link-site-path",
+          problem: `${href} isn't a page of this site or a file in public/. Link to one that is, or fix the path.`,
+        };
   }
   if (!anchor || !isRelative(href) || linksFile(href)) return undefined;
   const file = resolve(from, path);
   const page = links.pages.get(file);
   if (page !== undefined) return { page };
   const why = links.closed.get(file);
-  return { problem: why ? `${href} ${why}` : notAPage(href) };
+  return why
+    ? { id: why.id, problem: `${href} ${why.problem}` }
+    : { id: "error-link-missing", problem: notAPage(href) };
 }
 
 /** @prose
@@ -212,7 +233,7 @@ export function relink(
       const target = linkTarget(links, from, value, tag.name === "a");
       if (target && "problem" in target) {
         const at = lines ? `line ${html.slice(0, tag.start).split("\n").length}: ` : "";
-        throw new FileError(file, at + target.problem);
+        throw new FileError(target.id, file, at + target.problem);
       }
       if (target) {
         const cut = value.search(/[?#]/);

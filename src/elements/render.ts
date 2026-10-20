@@ -5,6 +5,7 @@
  * tokenizer makes of it there. The rules are in
  * [elements.md](../../docs/elements.md#html), and `render.test.ts` holds a case for each.
  */
+import type { ErrorId } from "./errors.ts";
 import { isRaw, isTemplate, raw, type Template } from "./html.ts";
 
 /** @prose
@@ -13,6 +14,14 @@ import { isRaw, isTemplate, raw, type Template } from "./html.ts";
  */
 export class TemplateError extends Error {
   override name = "TemplateError";
+
+  constructor(
+    readonly id: ErrorId,
+    message: string,
+  ) {
+    super(message);
+  }
+
   /** The innermost template it failed in, and the value's place in it. */
   in?: { template: Template; index: number };
 }
@@ -51,6 +60,7 @@ function at(template: Template, index: number, fn: () => void): void {
 function resolve(value: unknown): unknown {
   if (typeof (value as { then?: unknown } | null)?.then === "function") {
     throw new TemplateError(
+      "error-template-promise",
       "a template holds a promise, and rendering doesn't wait. Read data with a data attribute, or compute the value without await.",
     );
   }
@@ -70,7 +80,10 @@ function text(value: unknown): string {
 /** A value in an attribute is text, so a template there fails. */
 function attribute(value: unknown): string {
   if (isRaw(value) || (Array.isArray(value) && value.some((item) => isRaw(item)))) {
-    throw new TemplateError("a template can't go in an attribute, which holds only text.");
+    throw new TemplateError(
+      "error-template-in-attribute",
+      "a template can't go in an attribute, which holds only text.",
+    );
   }
   if (Array.isArray(value)) value.forEach(attribute);
   return stringOf(value ?? "");
@@ -83,13 +96,17 @@ function attribute(value: unknown): string {
 function stringOf(value: unknown): string {
   if (typeof value === "function") throw functionError();
   if (isPlainObject(value)) {
-    throw new TemplateError("a template holds an object where text goes. Write one of its fields.");
+    throw new TemplateError(
+      "error-template-object",
+      "a template holds an object where text goes. Write one of its fields.",
+    );
   }
   return String(value as string);
 }
 
 const functionError = () =>
   new TemplateError(
+    "error-template-function",
     "a template holds a function, which can't run at build time. An event handler belongs in the element's <script>, which runs in the browser.",
   );
 
@@ -172,6 +189,7 @@ class Scanner {
         const content = isRaw(value) ? value.value : stringOf(value);
         if (new RegExp(`</${this.tagName}[\\s/>]`, "i").test(content + " ")) {
           throw new TemplateError(
+            "error-template-closes",
             `a value in <${this.tagName}> holds </${this.tagName}>, which would end it early.`,
           );
         }
@@ -182,6 +200,7 @@ class Scanner {
         return;
       default:
         throw new TemplateError(
+          "error-template-name",
           "a template holds a value where a tag's name or an attribute's name goes. A value can only be an attribute's value, written name=${value} or name=\"${value}\".",
         );
     }

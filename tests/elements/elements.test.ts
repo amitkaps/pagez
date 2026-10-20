@@ -45,7 +45,9 @@ const host: Host = {
   elements,
   load: evaluate,
   data: (path) =>
-    path === "rows.json" ? { value: [1, 2, 3] } : { problem: `data="${path}" isn't there.` },
+    path === "rows.json"
+      ? { value: [1, 2, 3] }
+      : { id: "error-data-missing", problem: `data="${path}" isn't there.` },
   context: { page: { url: "/about/" } },
 };
 const render = (source: string) => renderElements(host, source, "/site/code/index.html", []);
@@ -112,6 +114,7 @@ describe("renderElements", () => {
   test("fails on an element that is never closed, naming the file", async () => {
     const error = await fails("<main><site-note>text</main>");
     expect(error.file).toBe("/site/code/index.html");
+    expect(error.id).toBe("error-element-unclosed");
     expect(error.message).toBe(
       "<site-note> is never closed. Write </site-note> after its content, or <site-note /> if it has none.",
     );
@@ -120,17 +123,20 @@ describe("renderElements", () => {
   test("fails on an element that ends up inside itself, naming the chain and the file that wrote it", async () => {
     const error = await fails("<site-a></site-a>");
     expect(error.file).toBe("/site/code/@site-b.html");
+    expect(error.id).toBe("error-element-inside-itself");
     expect(error.message).toBe(
       "this writes <site-a>, which ends up inside itself: <site-a> → <site-b> → <site-a>. Remove one of them, or the element would never finish.",
     );
   });
 
   test("fails on content with no slot, on two slots, and on a promise", async () => {
+    expect((await fails("<site-bare>x</site-bare>")).id).toBe("error-slot-missing");
     expect((await fails("<site-bare>x</site-bare>")).message).toBe(
       "<site-bare> is given content, and its template has no <slot></slot> for it. Write one where the content goes.",
     );
     expect(await render("<site-bare></site-bare>")).toBe("<site-bare><p>No place.</p></site-bare>");
     expect((await fails("<site-twice></site-twice>")).message).toMatch(/writes 2 slots/);
+    expect((await fails("<site-twice></site-twice>")).id).toBe("error-slot-two");
     const error = await fails("<site-wait></site-wait>");
     expect(error.file).toBe("/site/code/@site-wait.html");
     expect(error.message).toMatch(/^a template holds a promise/);

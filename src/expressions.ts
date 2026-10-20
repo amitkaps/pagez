@@ -13,10 +13,11 @@
  *   to read as text, so each fails, and an element writes it. An attribute takes any value, since
  *   it goes to a template.
  */
+import type { Problem } from "./elements/errors.ts";
 import type { Metadata } from "./head.ts";
 
 /** What a path names in `page`, or what's wrong with it. */
-export type Found = { value: unknown } | { problem: string };
+export type Found = { value: unknown } | Problem;
 
 const PATH = /^[A-Za-z_$][\w$]*(?:\.[\w$]+)*$/;
 
@@ -26,12 +27,14 @@ export function evaluate(code: string, page: Metadata): Found {
   const written = `\${${path}}`;
   if (!PATH.test(path)) {
     return {
+      id: "error-expression-call",
       problem: `${written} isn't a path into page. Prose reads a value, such as \${page.title}, and an element computes one.`,
     };
   }
   const [first, ...keys] = path.split(".");
   if (first !== "page") {
     return {
+      id: "error-expression-scope",
       problem: `${written} reads ${first}, and prose sees only page, as in \${page.title}.`,
     };
   }
@@ -47,6 +50,7 @@ export function evaluate(code: string, page: Metadata): Found {
     if (n === 0) {
       const name = keys.slice(0, at + 1).join(".");
       return {
+        id: "error-expression-missing",
         problem: `${written}: page has no ${name}. Add it to the metadata, or fix the name.`,
       };
     }
@@ -57,7 +61,7 @@ export function evaluate(code: string, page: Metadata): Found {
 }
 
 /** The value as prose prints it, or why it can't. */
-export function printed(code: string, page: Metadata): { text: string } | { problem: string } {
+export function printed(code: string, page: Metadata): { text: string } | Problem {
   const found = evaluate(code, page);
   if ("problem" in found) return found;
   const { value } = found;
@@ -71,6 +75,7 @@ export function printed(code: string, page: Metadata): { text: string } | { prob
         ? String(value)
         : "not text";
   return {
+    id: "error-expression-value",
     problem: `\${${code.trim()}} is ${what}, which prose doesn't print. An element writes it, given the value as an attribute.`,
   };
 }
@@ -88,15 +93,12 @@ export function attributeValue(written: string, page: Metadata): Found {
 }
 
 /** Text with each `${…}` in it printed, as in a link's destination. */
-export function interpolated(
-  written: string,
-  page: Metadata,
-): { text: string } | { problem: string } {
-  let problem: string | undefined;
+export function interpolated(written: string, page: Metadata): { text: string } | Problem {
+  let problem: Problem | undefined;
   const text = written.replace(/\$\{([^}]*)\}/g, (match, code: string) => {
     const result = printed(code, page);
-    if ("problem" in result) problem ??= result.problem;
+    if ("problem" in result) problem ??= result;
     return "text" in result ? result.text : match;
   });
-  return problem ? { problem } : { text };
+  return problem ?? { text };
 }

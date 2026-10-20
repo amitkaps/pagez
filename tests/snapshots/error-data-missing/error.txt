@@ -1,0 +1,1 @@
+error-data-missing/index.md: line 7, column 10: <x-rows> data="gone.json" isn't there: no file at gone.json. [error-data-missing]

@@ -77,40 +77,62 @@ describe("readFrame", () => {
       "no lang",
       frame.replace(' lang="en"', ""),
       /^<html> has no lang\. Add it, such as <html lang="en">/,
+      "error-frame-lang",
     ],
-    ["an empty lang", frame.replace('lang="en"', 'lang=""'), /^<html> has no lang/],
+    [
+      "an empty lang",
+      frame.replace('lang="en"', 'lang=""'),
+      /^<html> has no lang/,
+      "error-frame-lang",
+    ],
     [
       "no charset",
       frame.replace('    <meta charset="utf-8" />\n', ""),
       /^there's no charset\. Add <meta charset="utf-8" \/>/,
+      "error-frame-charset",
     ],
     [
       "no viewport",
       frame.replace(/ *<meta name="viewport".*\n/, ""),
       /^there's no viewport\. Add <meta name="viewport" content="width=device-width, initial-scale=1" \/>/,
+      "error-frame-viewport",
     ],
-    ["no slot", frame.replace("<slot></slot>", ""), /^there's no <slot><\/slot>\./],
-    ["two slots", frame.replace("</main>", "</main><slot></slot>"), /^line 10: there are 2 slots/],
+    [
+      "no slot",
+      frame.replace("<slot></slot>", ""),
+      /^there's no <slot><\/slot>\./,
+      "error-frame-no-slot",
+    ],
+    [
+      "two slots",
+      frame.replace("</main>", "</main><slot></slot>"),
+      /^line 10: there are 2 slots/,
+      "error-frame-two-slots",
+    ],
     [
       "a canonical link",
       frame.replace("</head>", '<link rel="canonical" href="/" /></head>'),
       /^line 8: this writes a canonical link, but Pagez writes it, from the page's url\. Remove <link rel="canonical" href="\/" \/>$/,
+      "error-frame-head-tag",
     ],
     [
       "an Open Graph tag",
       frame.replace("</head>", '<meta property="og:title" content="x" /></head>'),
       /^line 8: this writes an Open Graph tag.*Remove <meta property="og:title" content="x" \/>$/,
+      "error-frame-head-tag",
     ],
     [
       "a Twitter tag",
       frame.replace("</head>", '<meta name="twitter:card" content="summary" /></head>'),
       /^line 8: this writes a Twitter tag/,
+      "error-frame-head-tag",
     ],
-  ])("fails on %s, naming frame.html", (_, source, message) => {
+  ])("fails on %s, naming frame.html", (_, source, message, id) => {
     const error = read(source);
     expect(error).toBeInstanceOf(FileError);
     expect((error as FileError).file).toMatch(/frame\.html$/);
     expect((error as FileError).message).toMatch(message);
+    expect((error as FileError).id).toBe(id);
   });
 
   test("keeps a social tag Pagez doesn't write, such as the site's Twitter handle", () => {
@@ -135,7 +157,7 @@ describe("headFields", () => {
     try {
       return headFields("page.md", page);
     } catch (error) {
-      if (error instanceof FileError) return error.message;
+      if (error instanceof FileError) return error;
       throw error;
     }
   };
@@ -162,13 +184,21 @@ describe("headFields", () => {
   });
 
   test.each([
-    [{ title: 3 }, /^title is 3, and it must be text/],
-    [{ description: "  " }, /^description is "  "/],
-    [{ lang: null }, /^lang is null/],
-    [{ url: "/essays/" }, /^url is \/essays\/, and it must be the page's full address/],
-    [{ image: "cover.svg" }, /^image is cover\.svg, and Open Graph needs a full address/],
-  ])("fails on %j", (page, message) => {
-    expect(fields(page)).toMatch(message);
+    [{ title: 3 }, /^title is 3, and it must be text/, "error-head-text"],
+    [{ description: "  " }, /^description is "  "/, "error-head-text"],
+    [{ lang: null }, /^lang is null/, "error-head-text"],
+    [
+      { url: "/essays/" },
+      /^url is \/essays\/, and it must be the page's full address/,
+      "error-head-url",
+    ],
+    [
+      { image: "cover.svg" },
+      /^image is cover\.svg, and Open Graph needs a full address/,
+      "error-image-no-url",
+    ],
+  ])("fails on %j", (page, message, id) => {
+    expect(fields(page)).toMatchObject({ message: expect.stringMatching(message), id });
   });
 });
 

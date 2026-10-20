@@ -11,7 +11,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
-import { FileError } from "../src/elements/errors.ts";
+import { FileError, printedError } from "../src/elements/errors.ts";
 import { compile, write } from "../src/page.ts";
 import { createLoader, type Loader } from "../src/parts.ts";
 import theme from "../src/theme.css?built";
@@ -52,8 +52,8 @@ describe("the test pages", () => {
           error = thrown;
         }
         expect(error).toBeInstanceOf(FileError);
-        const { file, message } = error as FileError;
-        await expect(`${relative(pages, file)}: ${message}\n`).toMatchFileSnapshot(
+        const failed = error as FileError;
+        await expect(`${printedError(failed, relative(pages, failed.file))}\n`).toMatchFileSnapshot(
           `snapshots/${page}/error.txt`,
         );
       });

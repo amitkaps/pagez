@@ -1,1 +1,1 @@
-error-link-site-path/index.md: line 3: /gone/ isn't a page of this site or a file in public/. Link to one that is, or fix the path.
+error-link-site-path/index.md: line 3: /gone/ isn't a page of this site or a file in public/. Link to one that is, or fix the path. [error-link-site-path]

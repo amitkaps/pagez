@@ -1,0 +1,1 @@
+error-redirects-value/index.md: redirects is 3: write the paths that used to reach this page, such as redirects: [/old-name/]. [error-redirects-value]

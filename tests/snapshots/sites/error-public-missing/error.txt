@@ -1,0 +1,1 @@
+error-public-missing/index.md: line 3: /files/logo.svg isn't a file in public/. Add it there, or fix the path. [error-public-missing]

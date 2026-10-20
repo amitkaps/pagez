@@ -1,0 +1,7 @@
+<template><p>A file</p></template>
+
+<script>
+  import { readFileSync } from "node:fs";
+
+  export default (el) => (el.textContent = readFileSync("x", "utf8"));
+</script>

@@ -33,7 +33,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { parse, type Document } from "@amitkaps/markz";
-import { FileError } from "./elements/errors.ts";
+import { FileError, type ErrorId } from "./elements/errors.ts";
 import type { Metadata } from "./head.ts";
 
 /** The site's metadata file, at the root. */
@@ -115,6 +115,7 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
     if (file === join(root, SITE_FILE)) continue;
     if (file.endsWith(`${sep}${SITE_FILE}`)) {
       throw new FileError(
+        "error-site-file-below",
         file,
         `${SITE_FILE} is the site's metadata, at its root, and a folder's address follows from the root's. Move its keys into ${relative(dirname(file), join(root, SITE_FILE))}, or rename it if it's a page.`,
       );
@@ -126,6 +127,7 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
     if (other) {
       const [first, second] = [other.file, file].sort() as [string, string];
       throw new FileError(
+        "error-path-twice",
         second,
         `/${path} also comes from ${relative(root, first)}. A path has one page: rename or remove one of them.`,
       );
@@ -133,6 +135,7 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
     const built = join(root, html);
     if (existsSync(built)) {
       throw new FileError(
+        "error-built-file",
         built,
         `${html} is what Pagez writes from ${relative(root, file)}, so it can't be in the folder. A frame is frame.html.`,
       );
@@ -142,6 +145,7 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
   }
   if (all.length === 0) {
     throw new FileError(
+      "error-no-page",
       join(root, "index.md"),
       "there's no page here. Each .md is one, and index.md is the folder's own.",
     );
@@ -151,6 +155,7 @@ export function readSite(root: string, { drafts = false }: { drafts?: boolean } 
   const notFound = all.find((page) => page.html === "404.html");
   if (notFound && typeof metadata.url !== "string") {
     throw new FileError(
+      "error-not-found-url",
       notFound.file,
       `a host serves 404.html at any path that isn't there, so its links are written from the site's root, which needs its address. Add url to ${SITE_FILE}, such as url: https://example.com/`,
     );
@@ -175,6 +180,7 @@ function checkUrl(metadata: Metadata, page: SitePage): void {
   const address = pageUrl(url, page.path);
   if (typeof own === "string" && URL.canParse(own) && new URL(own).href === address) return;
   throw new FileError(
+    "error-page-url",
     page.file,
     `url is ${JSON.stringify(own)}, and a page's address is pagez.md's url and its path, ${address}. Remove url, or move the file.`,
   );
@@ -192,7 +198,10 @@ function siteMetadata(file: string): Metadata {
     typeof value === "string" && /^https?:\/\/[^/\s]/.test(value)
       ? undefined
       : "write a full address, such as https://example.com/";
-  check(file, doc, metadata, { url: address, repo: address });
+  check(file, doc, metadata, {
+    url: ["error-site-url", address],
+    repo: ["error-site-url", address],
+  });
   return metadata;
 }
 
@@ -206,14 +215,24 @@ function pageMetadata(file: string): Pick<SitePage, "metadata" | "draft" | "redi
   const doc = parse(readFileSync(file, "utf8"));
   const metadata: Metadata = { ...doc.metadata };
   check(file, doc, metadata, {
-    draft: (value) =>
-      typeof value === "boolean" ? undefined : "write draft: true or draft: false",
-    redirects: (value) =>
-      typeof value === "string" ||
-      (Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string"))
-        ? undefined
-        : "write the paths that used to reach this page, such as redirects: [/old-name/]",
-    path: () => "a page's path is its file's, so move the file instead, and remove path",
+    draft: [
+      "error-draft-yes",
+      (value) => (typeof value === "boolean" ? undefined : "write draft: true or draft: false"),
+    ],
+    redirects: [
+      "error-redirects-value",
+      (value) =>
+        typeof value === "string" ||
+        (Array.isArray(value) &&
+          value.length > 0 &&
+          value.every((item) => typeof item === "string"))
+          ? undefined
+          : "write the paths that used to reach this page, such as redirects: [/old-name/]",
+    ],
+    path: [
+      "error-path-set",
+      () => "a page's path is its file's, so move the file instead, and remove path",
+    ],
   });
   const listed = metadata.redirects;
   return {
@@ -227,23 +246,27 @@ function pageMetadata(file: string): Pick<SitePage, "metadata" | "draft" | "redi
 /** What's wrong with a key's value, if anything. */
 type Rule = (value: unknown) => string | undefined;
 
-function check(file: string, doc: Document, metadata: Metadata, rules: Record<string, Rule>): void {
+/** Each key's rule, with the id it fails with. */
+function check(
+  file: string,
+  doc: Document,
+  metadata: Metadata,
+  rules: Record<string, [ErrorId, Rule]>,
+): void {
   for (const { code, start, end } of doc.warnings) {
     if (code !== "metadata-value") continue;
     const line = /^([^:]+):\s*(.*)$/.exec(doc.source.slice(start, end));
     const key = line?.[1]?.trim();
     if (key && key in rules && !(key in metadata)) {
-      throw new FileError(
-        file,
-        `${key} is ${JSON.stringify(line?.[2])}: ${rules[key]!(line?.[2])}.`,
-      );
+      const [id, rule] = rules[key]!;
+      throw new FileError(id, file, `${key} is ${JSON.stringify(line?.[2])}: ${rule(line?.[2])}.`);
     }
   }
-  for (const [key, rule] of Object.entries(rules)) {
+  for (const [key, [id, rule]] of Object.entries(rules)) {
     if (!(key in metadata)) continue;
     const value = metadata[key];
     const problem = value === null ? "leave the line out, or give it a value" : rule(value);
-    if (problem) throw new FileError(file, `${key} is ${JSON.stringify(value)}: ${problem}.`);
+    if (problem) throw new FileError(id, file, `${key} is ${JSON.stringify(value)}: ${problem}.`);
   }
 }
 
@@ -285,11 +308,12 @@ function readRedirects(
   const redirects = new Map<string, { from: string; to: SitePage }>();
   for (const page of pages) {
     for (const from of page.redirects) {
-      const fail = (problem: string) =>
-        new FileError(page.file, `redirects lists ${from}: ${problem}`);
+      const fail = (id: ErrorId, problem: string) =>
+        new FileError(id, page.file, `redirects lists ${from}: ${problem}`);
       const address = redirectAddress(from);
       if (address === undefined) {
         throw fail(
+          "error-redirect-path",
           "write each old path from the site's root, such as /old-name/ or /old-name.html.",
         );
       }
@@ -297,6 +321,7 @@ function readRedirects(
       const whose = other === page ? "this page" : other && relative(root, other.file);
       if (other && from === address) {
         throw fail(
+          "error-redirect-page",
           other === page
             ? "that's this page's own path. List the paths that used to reach it."
             : `that's the path of ${whose}.`,
@@ -304,18 +329,24 @@ function readRedirects(
       }
       if (other) {
         throw fail(
+          "error-redirect-shadowed",
           `that's ${address} spelled another way, which is ${whose}, and a host sends it there itself.${other === page ? " Remove it." : ""}`,
         );
       }
       const listed = redirects.get(address);
       if (listed?.to === page) {
         throw fail(
+          "error-redirect-twice",
           `that's ${address} again, and one redirect sends ${spellings(address)
             .join(", ")
             .replace(/, (?=[^,]*$)/, " and ")}. List it once.`,
         );
       }
-      if (listed) throw fail(`${relative(root, listed.to.file)} lists it too. Keep one.`);
+      if (listed)
+        throw fail(
+          "error-redirect-two-pages",
+          `${relative(root, listed.to.file)} lists it too. Keep one.`,
+        );
       redirects.set(address, { from, to: page });
     }
   }
