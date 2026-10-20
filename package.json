@@ -37,8 +37,11 @@
     "check": "vp check",
     "fix": "vp check --fix",
     "test": "vp test --run",
+    "size": "node tests/speed/size.ts",
+    "speed": "node tests/speed/speed.ts",
+    "hotspots": "node tests/speed/speed.ts --profile",
     "prose": "prose",
-    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build",
+    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build && pnpm size",
     "pr": "craftz pr",
     "gone": "craftz gone",
     "craftz": "craftz"
