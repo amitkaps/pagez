@@ -13,6 +13,7 @@
  * blanked. So its lines are the page's, and a mistake in it names the page's line, as one in a file
  * names the file's.
  */
+import { readFileSync } from "node:fs";
 import { basename, relative } from "node:path";
 import { position, walk, type Document, type NodeId } from "@amitkaps/markz";
 import { FileError } from "./elements/errors.ts";
@@ -118,9 +119,25 @@ function readFiles(root: string): Map<string, ElementFile> {
         `<${name}> is also in ${relative(root, other.file)}. A name has one definition, wherever it sits. Remove one, or rename the element.`,
       );
     }
-    elements.set(name, readElement(file, SCOPE));
+    elements.set(name, read(file));
   }
   return elements;
+}
+
+/** Each element file as it was last read, since every page reads every one. */
+const checked = new Map<string, ElementFile>();
+
+/** @prose
+ * `file`, read and checked again only when its text has changed. So a site's pages share each
+ * file's work, and `dev` still sees an edit on the next request.
+ */
+function read(file: string): ElementFile {
+  const source = readFileSync(file, "utf8");
+  const known = checked.get(file);
+  if (known?.source === source) return known;
+  const element = readElement(file, SCOPE, source);
+  checked.set(file, element);
+  return element;
 }
 
 // A custom element's name: lowercase, starting with a letter, with a hyphen.
