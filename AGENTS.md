@@ -21,4 +21,5 @@ After writing prose, run `pnpm prose style <files>` on the files you changed, an
 
 ## This repository
 
-- Nothing yet beyond the standard. What's particular to pagez goes here.
+- The docs describe Pagez alone, with no other tool's history and no one site's names in them. Package and tool names stay, such as `@amitkaps/pagez` and craftz's URLs, since they're what's published. History keeps its reason and drops its source, and evidence keeps its finding with a neutral example.
+- The plan looks forward: what's next, in order, and what works now. What a piece of work taught goes in `docs/lessons.md`, and what it shipped is in git and the release notes.
