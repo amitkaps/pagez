@@ -42,7 +42,7 @@
     "craftz": "craftz"
   },
   "devDependencies": {
-    "@amitkaps/craftz": "^0.1.1",
+    "@amitkaps/craftz": "^0.1.2",
     "@amitkaps/markz": "^0.6.0",
     "@amitkaps/prose": "^0.8.0",
     "@types/node": "^26.6.5",
