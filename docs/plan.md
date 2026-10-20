@@ -1,10 +1,16 @@
 # Plan
 
-Pagez 0.1.0 is on npm, and `main` builds one page or a site of folders to `dist/` through Vite. What each release changed is in its [notes on GitHub](https://github.com/amitkaps/pagez/releases). This plan says what's next, in order, and what works now. [Pages](pages.md) and [elements](elements.md) state the rules, [the design](design.md) says why, and [the lessons](lessons.md) are what building it taught.
+Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/` through Vite. What each release changed is in its [notes on GitHub](https://github.com/amitkaps/pagez/releases). This plan says what's next, in order, and what works now. [Pages](pages.md) and [elements](elements.md) state the rules, [the design](design.md) says why, and [the lessons](lessons.md) are what building it taught.
 
 ## Next, in order
 
-Nothing is queued before the next release.
+1. **A dashboard in dev.** `pagez dev` serves a page about the site at `/__pagez/` and prints its address beside the site's, `pagez http://localhost:5173/__pagez/`. It's a readable page in the theme, not an app, and never written to `dist/`. It shows:
+   - the pages as a folder tree, recently edited first, with drafts marked
+   - the elements each page uses, and the data each imports
+   - each page's links in and out, and the pages nothing links to
+   - the redirects
+   - `pagez check`'s warnings and failures, live
+   - each page's render time, and its sizes from the last build, marked with when that build ran, since dev's sizes aren't a build's A public sitemap stays the site's own page. The docs show a `@site-map` element written from `pages`.
 
 ## Where it is
 
@@ -18,7 +24,7 @@ Nothing is queued before the next release.
 - **Speed and size.** `pnpm speed` times a change on a site of about 300 pages against `main`, `pnpm hotspots` shows where its time goes, and `pnpm size` holds the theme, the head and the runtime to a budget in `verify` ([development](development.md#speed-and-size)).
 - **Tests.** Each page in `tests/pages/` and each site in `tests/sites/` builds to its reviewed snapshot or fails with its reviewed error. Every rule in the docs cites the cases that hold it, and every case is cited by a rule.
 - **Ids.** Each error and warning ends with its id, such as `[error-link-draft]`, a row of [the Errors table](pages.md#errors) or [the Warnings table](pages.md#warnings). A test holds the ids in `src/` and the rows to each other, so a mistake can't ship without one.
-- **Releases.** 0.1.0 was published by hand. Later versions are staged by the release workflow through npm's trusted publishing.
+- **Releases.** 0.1.0 was published by hand. Later versions, from 0.2.0, are staged by the release workflow through npm's trusted publishing.
 
 ## Later
 
