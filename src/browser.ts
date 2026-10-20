@@ -7,7 +7,7 @@
  * use ships nothing. A page with no behavior loads no JavaScript.
  *
  * - **Their CSS** is each element's once, unlayered, in a `<style>` after Pagez's theme and before
- *   the page's `style.css` ([Element CSS](../docs/design.md#element-css)). A path in it is the element's,
+ *   the page's `style.css` ([Element CSS](../docs/elements.md#element-css-once)). A path in it is the element's,
  *   from its own folder, so it's written from the page's.
  * - **Their behavior** is one module, which Vite bundles: the elements' runtime, then each
  *   element's `setup`, defined under its tag. The tag comes from the file's name or the page's

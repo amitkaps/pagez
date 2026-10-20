@@ -2,7 +2,7 @@
  * # The page's text
  *
  * The page as Markz writes it, with three of its nodes Pagez's
- * ([Markz and Pagez](../docs/design.md#markz-and-pagez)): each `${…}` printed from `page`, each
+ * ([Markz and Pagez](../docs/design.md#what-it-is)): each `${…}` printed from `page`, each
  * element with a definition rendered from it, and each definition's block left out. Everything
  * else is Markz's own HTML, raw `=html` blocks included.
  *
@@ -234,7 +234,7 @@ function uniqueIds(doc: Document, renamed: NodeId[], swapped: Map<NodeId, object
 
 /** @prose
  * An inline element's output can't hold a start tag that closes a paragraph
- * ([Wrapping](../docs/elements.md#wrapping)). These are the tags the HTML parser closes an open
+ * ([`element-inline`](../docs/elements.md#element-inline)). These are the tags the HTML parser closes an open
  * `<p>` for, so the build fails exactly where a browser would break the page.
  */
 const CLOSING_TAGS =

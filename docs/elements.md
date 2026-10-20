@@ -1,6 +1,6 @@
 # Elements
 
-An element is one `@name.html` file that holds its markup, written at build time, its CSS and its behavior. This is what an element is. Where a page uses one and where its file lives are the page's, in [design.md](design.md#elements).
+An element is one `@name.html` file that holds its markup, written at build time, its CSS and its behavior. This page is what goes in the file, rule by rule, in the form [pages](pages.md) uses. How a page uses an element is in [pages](pages.md#elements-in-a-page).
 
 The code is `src/elements/`, which imports nothing else from Pagez, so what an element is stays apart from how a page uses it.
 
@@ -47,24 +47,15 @@ The file has three parts, and each is HTML's own. Where a part sits says when it
 | top-level `<style>` | ships | the element's CSS, unlayered, before the page's |
 | top-level `<script>` | browser | `setup(el, { signal })`, which may return a cleanup function |
 
-Each part is optional. A template with no `${…}` is static markup, and an element whose markup the text writes has no template, or an empty one.
+An element's scripts are JavaScript, and TypeScript stays for the modules they import.
 
-Pagez adds six rules to the three parts, each in its part below: a value or markup in `${…}`, the template's scope, the build script, the slot, the style's selectors, and `setup`. Everything else is HTML or JavaScript.
-
-Colocation is why. A treemap written as a site's scripts was three places to read, its two scripts and about 70 lines of `style.css`, for one idea. Vue and Svelte keep a component in one file for this reason. An element does it without what they bring with it.
-
-- **No template language.** The template is JavaScript's own template literal, tagged with `html`. Loops are `.map`, and conditions are `? :`.
-- **HTML already marks the time.** A browser never renders or runs a template's content, so "written at build time, never shipped" is what `<template>` means. A top-level `<script>` runs in the browser, as it would in any page.
-- **Nothing is serialized.** Behavior reads only the page's HTML, so there are no props and nothing to hydrate.
-- **One suffix to learn.** Four kinds of file become one, with one place in it for each of markup, style and behavior.
+- [`element-parts`]{#element-parts}: The top level holds at most one `<template>`, one `<style>` and one `<script>`, and anything else there fails. Each part is optional (`element-behavior-only`, `tests/elements/file.test.ts`).
+- [`element-name`]{#element-name}: The file's name is the tag. A name is lowercase, starts with a letter, has a hyphen and isn't reserved, or it fails (`error-name-no-hyphen`, `error-name-uppercase`, `error-name-reserved`).
+- [`element-attribute`]{#element-attribute}: `<template element="x-tag">` is optional in a file, and must match the file's name, so the two can't drift (`element-file-named`, `error-name-mismatch`).
 
 ## The template
 
-Pagez reads the template as raw text and evaluates it as an `html` literal, so `${…}` in an attribute survives.
-
-### A value or markup
-
-A value goes in bare, and markup goes in `html`.
+Pagez reads the template as raw text and evaluates it as an `html` literal, so `${…}` in an attribute survives. Loops are `.map`, and conditions are `? :` or `&&`.
 
 ```html
 <p>${attrs.title}</p>
@@ -79,26 +70,17 @@ ${attrs.note && html`
 `}
 ```
 
-The first two write values. The last two write markup, repeated or maybe, so each piece of it is an `html` literal. A string can't say which of its parts are the author's tags and which are data, and `html` can. Its literal parts are markup, and every value in it is escaped. So `<li>` stays a tag and `Tom & Jerry` stays text.
+The first two write values. The last two write markup, repeated or maybe, so each piece of it is an `html` literal. Its literal parts are markup, and every value in it is escaped. So `<li>` stays a tag and `Tom & Jerry` stays text.
 
-### The scope
-
-The template's scope is the host's context and the element's own.
-
-- `attrs` holds the element's attributes, each a string as HTML has it, or the value itself when the page writes one, as in `tags=${page.tags}`. `data="talks.json"` arrives parsed, as `attrs.data`, since the host reads it first. Whether `data` stays is open ([plan.md](plan.md#open-questions), "Where data lives").
-- `page` is the page's metadata, with its `path` from the site's root and its `url`. `pages` is every page the site builds, each the same, and `site` is `pagez.md`'s metadata ([Pages of a site](design.md#pages-of-a-site)).
-- `html` is in scope, since the template is its literal.
-- The template's `<script>` adds whatever it declares or imports. A name like anything above fails, naming it.
-
-Attributes live under `attrs`, so they can't collide with `page` or `site`, and no attribute name is reserved.
-
-Rendering is synchronous. No site has async build code, and the page's single pass can't wait. Data arrives through `data="…"`, which the host reads before the element renders.
+- [`element-markup`]{#element-markup}: A value goes in bare, and markup goes in `html` (`element-nested`, `tests/elements/render.test.ts`).
+- [`element-scope`]{#element-scope}: The template has `attrs`, `page`, `pages`, `site` and `html`, and whatever its build script declares or imports. A build script name like one of those fails (`element-in-page`, `blog`, `tests/elements/render.test.ts`).
+- [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. A `data="talks.json"` attribute arrives parsed, as `attrs.data` (`element-attr-expression`, `tests/elements/elements.test.ts`).
+- [`element-sync`]{#element-sync}: Rendering is synchronous, so a promise fails (`tests/elements/elements.test.ts`).
+- [`element-render`]{#element-render}: A template that throws as it renders fails, at its line in the file (`error-template-render`).
 
 ### The build script
 
-A `<script>` first in the template runs at build time. It's how an element uses code that isn't its own. That might be a library such as d3, a layout it shares with its browser script, or markup it shares with other elements. On one site, four of seven elements have one, each for an import.
-
-A template literal holds no local variables. An element whose markup needs intermediate values, such as the treemap's layout, declares one function and its template is one line.
+A `<script>` first in the template runs at build time. It's how an element uses code that isn't its own, such as d3, a layout it shares with its browser script, or markup it shares with other elements.
 
 ```html
 <!-- notes/@notes-treemap.html -->
@@ -111,36 +93,24 @@ A template literal holds no local variables. An element whose markup needs inter
 </template>
 ```
 
-The script is the top of the template's module, so whatever it declares or imports is in the markup's scope, with no `export`. It has `html` too, with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own, so the page's folder needn't install Pagez. A literal backtick or `${` in the template's markup is escaped, as in any template literal.
-
-`export` was required once, as the list of what the markup used. It said nothing the module didn't, and an author had to remember it on every helper.
+- [`element-build-script`]{#element-build-script}: A template holds at most one `<script>`, and it comes first. What it declares or imports is in the markup's scope, with no `export`, and none of it ships (`element-template-script`, `tests/vite.test.ts`).
+- [`element-html-import`]{#element-html-import}: The build script has `html` with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own (`tests/elements/file.test.ts`).
+- [`element-script-end`]{#element-script-end}: `</script>` inside a script's string ends the script, as in any HTML, so it fails, asking for `<\/script>`. `<template>` in a string is safe (`tests/elements/file.test.ts`).
 
 ### `html`
 
-The template is an `html` literal, and a build script has `html` to write markup of its own. At build time `html` records its strings and values and renders nothing. The renderer turns that value into a string. It follows the HTML tokenizer through the template, so each place a value can go means what HTML makes of it there. The rules began as htl's, a library that makes DOM nodes from the same tag.
+At build time `html` records its strings and values and renders nothing. The renderer turns that value into a string, following the HTML tokenizer, so each place a value can go means what HTML makes of it there.
 
-- In text, a value is escaped (`& < > " '`). A nested template or Markz's HTML goes in as HTML, and an array is each of its items. `null`, `undefined` and `false` are nothing.
-- Right after `name=`, a value is the attribute's. `null`, `undefined` and `false` drop the attribute, and `true` leaves it bare. Anything else is written quoted and escaped.
-- Inside an attribute's value, quoted or not, a value is escaped text.
-- Inside `<script>` or `<style>`, a value goes in as it is, so a JSON-LD block stays JSON. One holding the element's closing tag fails.
-- In a comment, a value is dropped.
-
-Some templates fail, and the build names the file.
-
-- A function fails, since at build time it could only be an event handler.
-- A value where a tag's name or an attribute's name goes fails. htl would spread an object there as attributes, which is a second way to write `name=${value}`.
-- A template in an attribute fails, and so does a plain object anywhere. Each would write `[object Object]`.
-- A promise fails, since rendering is synchronous.
-
-`false` in text writes nothing, where htl writes the word. `${cond && html`…`}` is how a template says "maybe", and the word is never wanted.
-
-A template value is marked with `Symbol.for("pagez.template")`, not a class. The host loads the page's code through Vite's module runner and its own through Node. That makes two copies of the module, and `instanceof` fails between them.
-
-The renderer's job is correctness, not defense. The site's author writes all of its input, and a title with `&` must not break the page. The browser's Sanitizer API doesn't apply. It doesn't exist in Node, and it strips what it finds dangerous from HTML that's meant to be kept.
+- [`html-text`]{#html-text}: In text, a value is escaped (`& < > " '`). A nested template or Markz's HTML goes in as HTML, an array is each of its items, and `null`, `undefined` and `false` are nothing (`tests/elements/render.test.ts`).
+- [`html-attribute`]{#html-attribute}: Right after `name=`, a value is the attribute's. `null`, `undefined` and `false` drop the attribute, `true` leaves it bare, and anything else is quoted and escaped (`tests/elements/render.test.ts`).
+- [`html-quoted`]{#html-quoted}: Inside an attribute's value, quoted or not, a value is escaped text (`tests/elements/render.test.ts`).
+- [`html-raw-text`]{#html-raw-text}: Inside `<script>` or `<style>`, a value goes in as it is, so a JSON-LD block stays JSON. One holding the element's closing tag fails (`tests/elements/render.test.ts`).
+- [`html-comment`]{#html-comment}: In a comment, a value is dropped (`tests/elements/render.test.ts`).
+- [`html-fails`]{#html-fails}: A function fails, and so does a value where a tag's or an attribute's name goes. A template in an attribute and a plain object anywhere fail, since each would write `[object Object]` (`tests/elements/render.test.ts`).
 
 ### Content goes in `<slot>`
 
-An element's content goes where its `<slot>` is, as a page goes in its `frame.html`. Content is rendered inside-out, so an element only ever has it as finished HTML. It can place it or check that it's empty, and `<slot>` does both declaratively.
+An element's content goes where its `<slot>` is, as a page goes in its `frame.html`. Content renders first, so an element only ever has it as finished HTML.
 
 ```html
 <!-- @call-out.html -->
@@ -149,115 +119,35 @@ An element's content goes where its `<slot>` is, as a page goes in its `frame.ht
 </template>
 ```
 
-- The slot is filled after the template renders, so a slot in a helper's `html` works too.
-- The slot's own content is its fallback, shown only when the element has none, as in the platform.
-- One unnamed slot. Content with no slot fails, and so do two slots and a named one.
-- The template has no `<template shadowrootmode>`. That's declarative shadow DOM, and it fails.
-
-Elements use no shadow DOM. The content is written into the element in the light DOM, where the page's CSS reaches it, and `::slotted()` matches nothing. `<slot>` can't drop a wrapper when there is no content, which CSS's `:empty` can.
+- [`element-slot`]{#element-slot}: An element has one unnamed slot. Content with no slot fails, and so do two slots, a named one and `<template shadowrootmode>` (`error-in-page-definition`, `tests/elements/elements.test.ts`).
+- [`element-fallback`]{#element-fallback}: The slot's own content is its fallback, shown only when the element has none. A slot in a helper's `html` works too (`element-slot-fallback`).
+- [`element-light-dom`]{#element-light-dom}: Content is written into the element in the light DOM, where the page's CSS reaches it, so `::slotted()` matches nothing (`element-in-page`).
 
 ## The style
 
 An element's CSS is its own, and the page's has the last word.
 
-- Every top-level selector in the `<style>` starts with the tag. Nesting (`notes-treemap { & .frame { … } }`) writes the name once, and `x-tag li` passes too. A rule that doesn't start with the tag fails, naming the rule.
-- Element CSS isn't in a layer, and comes before the page's. Its selectors start with the tag, so `notes-treemap h2` outranks the page's `h2`, and the page's tag defaults don't reach in. The page has the last word by naming the element. Its own `notes-treemap h2` is as specific, and comes later. The host's own defaults, such as Pagez's theme, are in a layer, so any element beats them ([The cascade](design.md#the-cascade)).
-- The host ships each element's CSS once, and only for elements its pages use.
-- `:not(:defined)` styles an element before its script runs.
+- [`element-selectors`]{#element-selectors}: Every top-level selector starts with the tag, and nesting writes the name once. A rule that doesn't start with the tag fails, naming the rule (`style-css-elements`, `tests/elements/file.test.ts`).
+- [`element-css-once`]{#element-css-once}: The host ships each element's CSS once, unlayered, before the page's, and only for elements its pages use (`element-in-page`, `element-unused`).
+- [`element-css-files`]{#element-css-files}: A `url()` in an element's CSS is from the element's folder (`element-in-folder`, `tests/vite.test.ts`).
+- [`element-undefined`]{#element-undefined}: `:not(:defined)` styles an element before its script runs (`third-party-component`).
 
-Nesting isn't scoping. `notes-treemap .frame` also reaches a `.frame` in an element nested inside it. `@scope (notes-treemap)` doesn't stop that either. Only a lower boundary does (`to (…)`), and CSS has no selector for "any other element" to put there. What `@scope` changes is specificity, since its root adds none. Vite's default target is Baseline widely available (Chrome 111, Firefox 114, Safari 16.4 in Vite 8). Lightning CSS flattens nesting for it, and passes `@scope` through as written, so a browser without `@scope` drops the whole block.
+Nesting isn't scoping. `notes-treemap .frame` also reaches a `.frame` in an element nested inside it, and `@scope` doesn't stop that either.
 
 ## The script
 
-The top-level `<script>` default-exports `setup(el, { signal })`. The elements' runtime defines each element and calls `setup` once per connection with a fresh `AbortController`'s signal. On disconnect it aborts the signal and calls the cleanup `setup` returned, and a reconnect runs `setup` again. `setup` works on the DOM the build wrote. It mustn't depend on a child element having upgraded first.
+The top-level `<script>` default-exports `setup(el, { signal })`. It works on the DOM the build wrote, and reads its children and attributes, so nothing is sent twice. A large library loads inside `setup`, with `await import("d3")`, so only a page where the element connects fetches it.
 
-An element with behavior is a custom element, and its tag is the element's own name. The browser finds and upgrades a custom element by itself, where a `<div data-component>` would need a runtime to scan for it and watch for new ones. A custom element is also what Markz writes. Elements with behavior nest without any effort, since custom elements do.
-
-- **Behavior enhances HTML the build wrote.** On a slow load the script can run after first paint, so markup it inserted would move the page. In an early spike, filter buttons the script prepended pushed the grid below them down. So the template writes what the element shows, and `setup` wires it.
-- **It reads its children and its attributes.** No data is sent besides the page's HTML, so nothing is sent twice and there is nothing to hydrate.
-- **The two scripts stay apart.** The host cuts each from the file and gives it to its bundler as a module of its own. They share no variables. Code both need, such as the treemap's `treemap.js`, is a module both import if it has no Node imports. A browser script that imports `html` fails, since `html` renders at build time.
-- **A large library loads inside `setup`**, with `await import("d3")`, so only a page where the element connects fetches it.
-
-The runtime is a few lines in the page's one script, and it's all an element adds in the browser.
+- [`element-setup`]{#element-setup}: The elements' runtime calls `setup` once per connection with a fresh signal. On disconnect it aborts the signal and calls the cleanup `setup` returned (`element-behavior`, `tests/elements/runtime.test.ts`).
+- [`element-one-module`]{#element-one-module}: The runtime and each used element's `setup` are one module, which Vite bundles, with what they import. A library two elements share is in it once (`element-behavior`, `references-shared-import`).
+- [`element-script-imports`]{#element-script-imports}: A browser script can't import `html`, Pagez or Node's own modules, and a relative import must be there (`error-browser-import`, `error-package-missing`, `tests/vite.test.ts`).
 
 ## Nesting and wrapping
 
-Elements render inside-out. An element's content renders before its template, and the elements its template writes render after it, until none is left. An element that ends up inside itself fails, naming the chain. So an element can't inspect its content's structure at build time. Structure derived from it, such as a tab list, is built in `setup`, and without JavaScript the content simply shows.
+Elements render inside-out. An element's content renders before its template, and the elements its template writes render after it, until none is left.
 
-In HTML an element is a tag with a file. A tag with a hyphen and no file is plain, and holds whatever elements it holds. An element must be closed, or written `<x />`, which HTML itself ignores on a custom element. An attribute written twice keeps its first, as HTML does.
-
-### Wrapping
-
-The template writes the element's inner HTML, and the build writes the element around it with its attributes. A `data` attribute is left out, since the element has read it. So the tag is always in the page, where CSS and the element's `setup` look for it. Wrapping costs something for each kind of use.
-
-- **A leaf** (`{@video-embed id=x /}`) can never be a bare `<iframe>` or `<img>`. The page gets `<video-embed id="x"><iframe …></iframe></video-embed>`.
-- **A container** (`{@call-out}…{/call-out}`) holds block content in an element that is inline by default. Its `<style>` sets `display: block`.
-- **An inline element** (`[term]{@key-word}`) sits inside a `<p>`, so its output can't hold a tag that closes one, such as `<div>`, `<ul>` or `<p>`. The browser would end the paragraph there and pop the element with it, and the page would break silently. So the host fails the build, naming the line, the element and the tag. The list is the parser's, of the start tags that close an open `<p>`, so it fails exactly where a browser breaks. The check reads the output after nesting, and runs wherever the element is used inline, in a heading or a table cell too.
-
-Only the host knows how an element was used, from Markz, so the inline check is the host's.
-
-Ruled out:
-
-- **Replacing the tag with the element's output.** A component could then return `<aside class="call-out">`. The element's name is gone from the page, so its behavior never runs and its CSS never matches. A tag that is always there is worth more than choosing the root element.
-- **Passing the kind of use** (inline, leaf or container) to the element. An element that renders differently by where it's used is two elements, such as `{@cite}` and `{@cite-block}`. So a tag means the same everywhere, for CSS and for `setup`.
-
-### The element attribute
-
-`<template element="x-tag">` is optional in a file, and must match the file's name. A page needs it to name an element defined inside it, so allowing it in a file makes moving one out a cut and paste. A mismatch fails, so the two names can't drift.
-
-## What the build checks
-
-Each failure names the file and the line.
-
-- The top level holds at most one `<template>`, one `<style>` and one `<script>`. Anything else there fails.
-- A template holds at most one `<script>`, and it comes first.
-- A name in the build script that shadows the template's scope fails, and so does an import of `html`.
-- `</script>` inside a script's string ends the script, as in any HTML. It fails, asking for `<\/script>`. A script's text is otherwise read as code, so `<template>` in a string is safe.
-- A named slot, two slots, content with no slot, and `shadowrootmode` fail.
-- An `element` attribute that doesn't match the file's name fails.
-- A top-level CSS selector that doesn't start with the tag fails.
-- An invalid or reserved custom element name fails, and so do two files for one name.
-
-Element scripts are JavaScript. `.ts` stays for modules, since no site writes it in an element.
-
-## Ruled out
-
-- **Markers on each script** (`<script build>` and `<script browser>`, or `render` and `setup`). Position says the same thing with no attribute to learn.
-- **`@name.css` beside the scripts.** It kept CSS beside the element but added a fourth suffix.
-- **Separate files by time** (`.html.js` for build markup, `.browser.js` for behavior). They keep the two times apart by name, and an element is up to four places to read.
-- **A template holding markup or a script, never both.** The literal form covers both, so a static element and a computed one are the same shape.
-- **Markup without `html`.** Treating every backtick string in a template as markup would make the template something other than JavaScript, fail on `class=${`a ${b}`}`, and still leave `html` in helpers. A loop written in markup, such as `each="…"`, is a template language.
-- **`${children}`.** Content can only be placed or tested for emptiness, and the slot and its fallback do both in markup. It would also be a second way to say what a frame says with `<slot>`.
-- **One class, run at both times.** The build would run the element in a DOM in Node and save the HTML, and the browser would run it again. Its code would have to work twice, check whether it had already rendered, and couldn't read data files in the browser.
-- **A DOM at build time**, as htl makes nodes. The build would need a DOM in Node only to serialize it back to the string it wanted.
-- **A class as the default export.** It says what a function doesn't, where its argument comes from and that it's an element. In one file the file is the element, and the script's place says it runs in the browser. The class's repeated lines and its easy-to-miss second setup on a move are what the runtime absorbs.
-- **`define(name, setup)`, or `customElements.define` in the file.** It names the element a second time, after its file, and nothing checks that the two agree.
-- **`html` in the browser.** It was htl's, which made DOM nodes, so one name meant a string at build time and nodes in the browser. An element that renders in the browser imports a renderer from npm.
-- **`signal` and `effect`.** They held one value per element in every element written, which a variable holds as well. A site whose state crosses elements imports a signals library.
-- **Declarative behavior** (`click: { "button[data-tab]": "select" }`). It is a framework that grows a verb for every interaction nobody planned. A site that wants one imports Alpine or htmx.
-- **A `live` attribute on each use** (`{@tag-filter live}`). Behavior belongs to the element, not the use.
-- **A name of its own.** The element layer was elementz while it had two hosts. With one, it's Pagez's elements, and the line between them is kept in the code.
-- **Shadow DOM, async render, and rendering again in the browser.**
-
-## Costs
-
-- The host serves each part as a module of its own: the template, `setup` and the style. Each is the whole file with the other parts blanked, so an error's line is the file's.
-- An editor's IntelliSense is weaker in an inline script than in a `.js` file, and `${…}` in the template's HTML isn't highlighted.
-- `@amitkaps/prose` reads `.html` only for HTML comments. It must read an element file part by part, as it reads `.svelte`, or an element's prose goes missing.
-- `d3` imported in the build script sits a few lines from browser code that must not import it. The report's size per element is what catches a copied import.
-
-## Precedent
-
-- **[Enhance](https://enhance.dev)** has the same element model. The file name is the tag, an element is a pure function, and it renders in light DOM. It renders on a server, where Pagez writes static files.
-- **[WebC](https://www.11ty.dev/docs/languages/webc/)** keeps an element in one `.html` file and bundles its script only on the pages where its tag appears. Its `<slot>` places content in light DOM.
-- **[Lit](https://lit.dev)** writes markup with the same `html` tag, and adds binding prefixes (`.prop`, `@event`, `?attr`), reactive properties and shadow DOM, since it renders in the browser.
-- **Vue and Svelte** keep a component in one file, with a template language and a compiler.
-
-## Open questions
-
-- **Re-rendering behavior.** Behavior changes the nodes the build wrote. That covers hiding, toggling and text. An element that re-renders a list would lose focus and input state, and would import a diffing renderer, such as uhtml, from npm.
-- **Data for behavior.** An element that needs rows of data would get them as a JSON `<script>` child. That needs rules for what crosses, such as a `Date` becoming a string, and how big it may get.
-- **Markup from a library.** `html` escapes every value, and `raw` isn't exported. So Vega's SVG, a syntax highlighter or KaTeX can't be used in an element. Data Portraits drew its charts with d3 and `html` instead. Exporting `raw` waits until a site needs such a library.
-- **Meaning.** `<call-out>` means nothing to a screen reader, where `<aside>` is a landmark. When the meaning matters on every use, the template writes the `<aside>`.
-- **Child inspection.** Whether an element ever needs its content's structure at build time. Deferred until a real element needs it.
-- **Moves** with `connectedMoveCallback`, once connect and disconnect are proven.
+- [`element-nesting`]{#element-nesting}: An element that ends up inside itself fails, naming the chain. An element that's never closed fails too, and `<x />` is closed (`element-nested`, `tests/elements/elements.test.ts`).
+- [`element-plain-tag`]{#element-plain-tag}: A hyphenated tag with no file is plain, and holds whatever elements it holds (`tests/elements/elements.test.ts`).
+- [`element-wrap`]{#element-wrap}: The template writes the element's inner HTML, and the build writes the tag around it with its attributes, less `data`. So the tag is always in the page (`element-in-page`, `tests/elements/elements.test.ts`).
+- [`element-block`]{#element-block}: A container holds block content in an element that is inline by default, so its `<style>` sets `display: block` (`element-in-page`).
+- [`element-inline`]{#element-inline}: An inline element's output can't hold a tag that closes a `<p>`, such as `<div>` or `<ul>`. The build fails, naming the line, the element and the tag (`element-nested`, `error-inline-block`).

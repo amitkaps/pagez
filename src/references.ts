@@ -1,7 +1,7 @@
 /** @prose
  * # References
  *
- * A page links the files beside it as they're written ([The folder](../docs/design.md#the-folder)).
+ * A page links the files beside it as they're written ([Files and links](../docs/pages.md#files-and-links)).
  * So Pagez checks that each one is there, and the build fails on one that isn't rather than the
  * page showing a broken image.
  *

@@ -6,7 +6,7 @@
  *
  * `vp build` writes `dist/` with its CSS, images and fonts hashed and minified, `vp dev` serves it
  * while it's written, and `vp preview` serves what was built. `public/` is copied as it is, as Vite
- * does ([folders.md](../docs/folders.md#the-rules)). Pagez's other plugin serves the elements'
+ * does ([pages](../docs/pages.md#folder-public)). Pagez's other plugin serves the elements'
  * parts (`parts.ts`), so Vite bundles each element's `setup` into its page's one module.
  *
  * The pages' templates run at build time in a Vite server. It's `dev`'s own, so a change is seen on

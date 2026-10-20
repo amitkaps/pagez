@@ -1,7 +1,7 @@
 /** @prose
  * # `${…}` in prose
  *
- * Prose refers to values, and elements compute ([design.md](../docs/design.md#expressions)). So a
+ * Prose refers to values, and elements compute ([pages](../docs/pages.md#values-in-prose)). So a
  * `${…}` in a page is a path into `page`, the page's metadata, such as `${page.title}`, and nothing
  * else: no call, no operator and no other name. Anything more fails, at the expression.
  *

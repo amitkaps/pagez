@@ -7,7 +7,7 @@ does. Each folder holds an `index.md` and whatever sits beside it, such as `@x-t
 - A page opens with a `<!-- Expect: … -->` comment, which says what it builds to, or where it
   fails.
 - `Open:` in that comment marks what the design hasn't decided yet. `grep -rn "Open:" tests/pages`
-  lists them all, and each is settled in [design.md](../../docs/design.md) before the compiler
+  lists them all, and each is settled in [the docs](../../docs/README.md) before the compiler
   needs it.
 - A folder named `error-…` is a page that must fail, at the place its comment names.
 - A small element used once is defined in its page, as an author would write it. It's in a file
@@ -21,14 +21,4 @@ changes. A page that warns has its warnings in `warnings.txt`. What only a build
 
 ## The cases
 
-| Group      | What they cover                                                                                  |
-| ---------- | ------------------------------------------------------------------------------------------------ |
-| Pages      | `plain`, `no-metadata`, `head`, `raw-html`, `native-tags`, `prose`                               |
-| CSS        | `style-css`, `style-css-elements`, `page-css`, `page-css-wins`                                   |
-| Real pages | `stories`, a stand-in with the shape of a real Jekyll page                                       |
-| Prose      | `expressions`, `expressions-dotted-key`                                                          |
-| Elements   | `element-…`: in the page, a file or a folder, slots, nesting, attributes, scripts, behavior      |
-| Frames     | `frame`, `frame-elements`                                                                        |
-| Tags       | `undefined-tag`, `third-party-component`                                                         |
-| References | `references-…`: images and CSS linked and checked, scripts, packages, URLs, shared imports, links |
-| Errors     | `error-…`: names, expressions, positions inside definitions, missing files, the frame, the image |
+Each case is cited by the rule it holds, in [pages](../../docs/pages.md) and [elements](../../docs/elements.md). Each `error-…` case is a row of [the Errors table](../../docs/pages.md#errors). `tests/docs.test.ts` keeps the docs and the cases in line.

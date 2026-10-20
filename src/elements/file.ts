@@ -9,7 +9,7 @@
  * part becomes a module of its own whose lines are the file's lines (`templateModule`,
  * `setupModule`), and an error in one names the line the author wrote. Every check
  * that needs only the file runs here, and fails naming the file and the line
- * ([elements.md](../../docs/elements.md#what-the-build-checks)).
+ * ([elements.md](../../docs/elements.md#element-parts)).
  */
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";

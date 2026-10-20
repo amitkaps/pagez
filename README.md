@@ -30,7 +30,7 @@ import pagez from "@amitkaps/pagez/vite";
 export default { plugins: [pagez()] };
 ```
 
-0.1 builds one page without elements or `${…}`. Elements, `${…}` and many pages are built since, and what's left comes next, in [the plan](docs/plan.md#next-in-order). [folders.md](docs/folders.md) is where it's going.
+[Usage](docs/usage.md) says how to build with it, and [pages](docs/pages.md) has the rules a page and a site follow. 0.1 builds one page without elements or `${…}`. Elements, `${…}` and many pages are built since, and what's left comes next, in [the plan](docs/plan.md#next-in-order).
 
 ## Install
 

@@ -11,12 +11,12 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 ## Where the output goes
 
 - **One standalone file didn't scale.** Pagez first wrote each page as one file, with every image, font and stylesheet inlined as a data URL. The real page built to 1 MB of base64 that couldn't be read, cached or shared. Ship files as files, hashed, so a browser caches them.
-- **Output beside the source mixed them.** Then Pagez wrote `index.html` beside `index.md`, which opened from disk with no build step. For a site, that's generated files in every folder of the source. Build to `dist/`, apart from the source ([The folder](design.md#the-folder)).
+- **Output beside the source mixed them.** Then Pagez wrote `index.html` beside `index.md`, which opened from disk with no build step. For a site, that's generated files in every folder of the source. Build to `dist/`, apart from the source ([The folder](pages.md#the-folder)).
 
 ## CSS
 
-- **A layer lost to every unlayered rule.** Element CSS was in `@layer elements`, so a page's `h2` restyled every element's headings. Element CSS is unlayered now, before the page's, and its selectors start with the tag. Put only the host's defaults in a layer, never what must win ([The cascade](design.md#the-cascade)).
-- **Custom properties didn't survive a page's own CSS.** A reset and a prose stylesheet of about 400 lines had eight custom properties, and a `style.css` replaced both. So an element that used `--prose-step-3` lost it on any page with CSS of its own. One theme with nothing to configure replaced them, and a page that wants another look writes its `style.css` ([The theme](design.md#the-theme)).
+- **A layer lost to every unlayered rule.** Element CSS was in `@layer elements`, so a page's `h2` restyled every element's headings. Element CSS is unlayered now, before the page's, and its selectors start with the tag. Put only the host's defaults in a layer, never what must win ([CSS](pages.md#css)).
+- **Custom properties didn't survive a page's own CSS.** A reset and a prose stylesheet of about 400 lines had eight custom properties, and a `style.css` replaced both. So an element that used `--prose-step-3` lost it on any page with CSS of its own. One theme with nothing to configure replaced them, and a page that wants another look writes its `style.css` ([CSS](pages.md#css)).
 
 ## Elements
 

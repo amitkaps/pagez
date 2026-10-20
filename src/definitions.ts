@@ -2,7 +2,7 @@
  * # A page's elements
  *
  * A page's elements are defined in one of two places
- * ([design.md](../docs/design.md#where-definitions-live)). One is an `@x-tag.html` anywhere in the
+ * ([pages](../docs/pages.md#elements-in-a-page)). One is an `@x-tag.html` anywhere in the
  * site, kept with the pages that use it. The other is a definition in the page, one `=html` block
  * holding `<template element="x-tag">` and its `<style>` and `<script>`.
  *
