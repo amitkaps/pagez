@@ -28,8 +28,8 @@ export class TemplateError extends Error {
 
 /** @prose
  * Renders a template, or any value as text. Rendering is synchronous, so a promise anywhere in it
- * fails ([elements.md](../../docs/elements.md#the-template)). Data reaches an element through its
- * `data` attribute, read before it renders.
+ * fails ([elements.md](../../docs/elements.md#the-template)). Data reaches an element through an
+ * import in its build script, read before it renders.
  */
 export function render(value: unknown): string {
   if (isTemplate(value)) return renderTemplate(value);
@@ -61,7 +61,7 @@ function resolve(value: unknown): unknown {
   if (typeof (value as { then?: unknown } | null)?.then === "function") {
     throw new TemplateError(
       "error-template-promise",
-      "a template holds a promise, and rendering doesn't wait. Read data with a data attribute, or compute the value without await.",
+      "a template holds a promise, and rendering doesn't wait. Import data in the build script, or compute the value without await.",
     );
   }
   if (isTemplate(value)) return raw(renderTemplate(value));

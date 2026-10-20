@@ -17,7 +17,7 @@
  * up inside itself would never end, so it fails, naming the chain.
  */
 import { parseAst } from "vite-plus";
-import { FileError, type Problem } from "./errors.ts";
+import { FileError } from "./errors.ts";
 import type { ElementFile } from "./file.ts";
 import { lineOf, namedSlot, templateModule } from "./file.ts";
 import { html } from "./html.ts";
@@ -30,8 +30,6 @@ export interface Host {
   elements: Map<string, ElementFile>;
   /** The module of an element's template (`templateModule`), whose default export renders it. */
   load(element: ElementFile): Promise<Record<string, unknown>>;
-  /** The parsed data a `data` attribute names, or what is wrong with the path. */
-  data(path: string): { value: unknown } | Problem;
   /** What the host adds to every template's scope, such as `page`. */
   context: Record<string, unknown>;
 }
@@ -43,15 +41,13 @@ let counter = 0;
  *
  * An attribute is a string, as HTML has it, or any value a host gives, such as a list from the
  * page's metadata. `content` is HTML that is already rendered, or nothing for an element with none.
- * `data` is read by the caller, who knows where the attribute was written. `chain` is the elements
- * this one is inside, by their output. An element with no template writes its content as it is.
+ * `chain` is the elements this one is inside, by their output. An element with no template writes its content as it is.
  */
 export async function renderElement(
   host: Host,
   name: string,
   attributes: Record<string, unknown>,
   content: string | undefined,
-  data: { value: unknown } | undefined,
   chain: string[],
 ): Promise<string> {
   const element = host.elements.get(name);
@@ -63,10 +59,9 @@ export async function renderElement(
   const module = await host.load(element);
   const fn = module.default as (scope: object) => unknown;
   const fix = module.fix as ((error: Error) => void) | undefined;
-  const attrs = { ...attributes, ...(data && { data: data.value }) };
   const out = inSlot(
     element,
-    rendered(element, () => fn({ ...host.context, attrs, html }), fix),
+    rendered(element, () => fn({ ...host.context, attrs: attributes, html }), fix),
     content && token,
   );
   const written = await renderElements(host, out, file, [...chain, name]);
@@ -283,15 +278,8 @@ async function written(
   for (const { name: key, value } of node.open.attributes) {
     if (!(key in attributes)) attributes[key] = decode(value ?? "");
   }
-  let data: { value: unknown } | undefined;
-  if ("data" in attributes) {
-    const found = host.data(attributes.data!);
-    if ("problem" in found) throw new FileError(found.id, file, `<${name}> ${found.problem}`);
-    data = found;
-    delete attributes.data;
-  }
   const content = inner.trim() === "" ? undefined : inner;
-  const out = await renderElement(host, name, attributes, content, data, chain);
+  const out = await renderElement(host, name, attributes, content, chain);
   return `${openTag(name, attributes)}${out}</${name}>`;
 }
 

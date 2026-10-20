@@ -71,7 +71,6 @@ export async function textHtml(
     node: NodeId;
     name: string;
     attributes: Record<string, unknown>;
-    data?: { value: unknown };
   }[] = [];
   const undefinedTags: Undefined[] = [];
   const dir = dirname(file);
@@ -129,19 +128,9 @@ export async function textHtml(
                 ? `${before} ${String(result.value)}`
                 : result.value;
           }
-          // A data attribute's file is read for the element, and the page doesn't carry it.
-          let data: { value: unknown } | undefined;
-          if (typeof values.data === "string") {
-            const read = host.data(values.data);
-            const item = items.findLast((item) => item.key === "data")!;
-            if ("problem" in read)
-              throw fail(item.start, { ...read, problem: `<${name}> ${read.problem}` });
-            data = read;
-            delete values.data;
-          }
           swapped.set(node, { name: `pagez-element-${found.length}` });
           markers.add(node);
-          found.push({ node, name, attributes: values, data });
+          found.push({ node, name, attributes: values });
           return;
         }
         if (name.includes("-")) undefinedTags.push({ name, line: at(doc.start(node)).line });
@@ -173,13 +162,12 @@ export async function textHtml(
     const start = out.indexOf(open);
     const end = out.indexOf(close, start);
     const content = out.slice(start + open.length, end);
-    const { node, name, attributes: values, data } = found[i]!;
+    const { node, name, attributes: values } = found[i]!;
     const inner = await renderElement(
       host,
       name,
       values,
       content.trim() === "" ? undefined : content,
-      data,
       [],
     );
     if (doc.data(node, "element").kind === "inline") paragraphSafe(file, doc, node, name, inner);

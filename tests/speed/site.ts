@@ -8,7 +8,7 @@
  * - three folders of posts, each with an index that lists its posts from `pages`
  * - shared elements, one with behavior
  * - a template that imports a large package, `happy-dom`
- * - data beside the pages
+ * - data an element imports
  * - a frame and a `style.css`
  * - links between pages
  * - redirects
@@ -91,10 +91,15 @@ const count = (text) => {
 </template>
 `,
   );
+  const rows = Array.from({ length: 20 }, (_, i) => ({ name: words(i, 2), value: i * 3 }));
+  write(join(dir, "rows.json"), JSON.stringify(rows));
   write(
     join(dir, "@data-table.html"),
     `<template>
-<table>\${attrs.data.map((row) => html\`<tr><td>\${row.name}</td><td>\${row.value}</td></tr>\`)}</table>
+<script>
+import rows from "./rows.json" with { type: "json" };
+</script>
+<table>\${rows.map((row) => html\`<tr><td>\${row.name}</td><td>\${row.value}</td></tr>\`)}</table>
 </template>
 `,
   );
@@ -131,8 +136,6 @@ const count = (text) => {
       join(dir, folder, "index.md"),
       `---\ntitle: ${folder}\n---\n\n# ${folder}\n\n{@post-list under="/${folder}/" /}\n`,
     );
-    const rows = Array.from({ length: 20 }, (_, i) => ({ name: words(i, 2), value: i * 3 }));
-    write(join(dir, folder, "rows.json"), JSON.stringify(rows));
   }
   for (let n = 0; n < pages; n++) {
     const folder = FOLDERS[n % FOLDERS.length]!;
@@ -159,7 +162,7 @@ ${words(n + 1, 30)}.
 
 {/fold-out}
 
-{@data-table data="rows.json" /}
+{@data-table /}
 
 ${words(n + 2, 40)}.
 `,

@@ -13,14 +13,14 @@
  * there, and is written from where the page is built. A relative image in the Markdown fails at its
  * line. One in raw HTML or a stylesheet fails naming it, and one in the frame at the frame's line.
  */
-import { readFileSync, statSync } from "node:fs";
-import { basename, dirname, extname, join, relative, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { basename, dirname, extname, join, relative } from "node:path";
 import { headings, parse, position } from "@amitkaps/markz";
 import { elementCss, checkImports, pageScript, usedElements } from "./browser.ts";
 import { readDefinitions, readFiles } from "./definitions.ts";
 import { renderElements, type Host } from "./elements/elements.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT, type Metadata } from "./head.ts";
-import type { Problem, WarningId } from "./elements/errors.ts";
+import type { WarningId } from "./elements/errors.ts";
 import { createLoader, type Loader } from "./parts.ts";
 import { checkCss, checkHtml, relink, siteLinks } from "./references.ts";
 import { nearest, pagePath, pageUrl, readSite, type Site, type SitePage } from "./site.ts";
@@ -98,7 +98,6 @@ export async function compile(file: string, options: Options = {}): Promise<Page
         checkImports(element, "template");
         return (await loader()).load(element);
       },
-      data: (path) => readData(dir, path),
       context: {
         page,
         pages: site.pages.map((page) => listed(site, page)),
@@ -208,31 +207,6 @@ function styles(html: string): string[] {
 function selects(css: string, name: string): boolean {
   const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
   return new RegExp(`(^|[\\s,>+~(}{])${name}(?![\\w-])`).test(code);
-}
-
-/** @prose
- * The parsed JSON a `data` attribute names, beside the page, or what is wrong with the path.
- * Where data lives is still open ([plan.md](../docs/plan.md#open-questions)).
- */
-function readData(dir: string, path: string): { value: unknown } | Problem {
-  const file = resolve(dir, path);
-  const written = `data="${path}"`;
-  if (extname(file) !== ".json")
-    return { id: "error-data-not-json", problem: `${written} isn't JSON, which data is.` };
-  if (!statSync(file, { throwIfNoEntry: false })?.isFile()) {
-    return {
-      id: "error-data-missing",
-      problem: `${written} isn't there: no file at ${relative(dir, file)}.`,
-    };
-  }
-  try {
-    return { value: JSON.parse(readFileSync(file, "utf8")) };
-  } catch (error) {
-    return {
-      id: "error-data-invalid",
-      problem: `${written} isn't valid JSON: ${(error as Error).message}`,
-    };
-  }
 }
 
 /** @prose

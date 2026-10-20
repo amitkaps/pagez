@@ -25,5 +25,6 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 
 ## Elements
 
+- **A reserved attribute was the wrong owner for data.** `data="notes.json"` was written eleven times in one essay, and every grid named the one file it always read. The file belonged to the element, so an import beside it replaced the attribute, and `data` became a plain string like any other. Give data to whoever always reads it.
 - **Two copies of a module broke `instanceof`.** A template loads Pagez through Vite's module runner, and the build loads it through Node, so a class's check failed between the two. Mark a value shared across that line with a registered symbol, `Symbol.for`, as `src/elements/html.ts` does.
 - **A name of its own outlived its reason.** The element layer was named elementz while it had two hosts. With one, it's Pagez's elements, and the line between them is kept in the code, which imports nothing else from Pagez.

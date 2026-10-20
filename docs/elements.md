@@ -74,7 +74,7 @@ The first two write values. The last two write markup, repeated or maybe, so eac
 
 - [`element-markup`]{#element-markup}: A value goes in bare, and markup goes in `html` (`element-nested`, `tests/elements/render.test.ts`).
 - [`element-scope`]{#element-scope}: The template has `attrs`, `page`, `pages`, `site` and `html`, and whatever its build script declares or imports. A build script name like one of those fails (`element-in-page`, `blog`, `tests/elements/render.test.ts`, `tests/elements/file.test.ts`).
-- [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. A `data="talks.json"` attribute arrives parsed, as `attrs.data`, and a file that isn't there, isn't `.json` or isn't valid JSON fails, at the attribute (`element-attr-expression`, `tests/elements/elements.test.ts`, `error-data-invalid`, `error-data-missing`, `error-data-not-json`).
+- [`element-attrs`]{#element-attrs}: `attrs` holds each attribute as a string, or as the value itself when the page writes one, as in `tags=${page.tags}`. No name is special, so `data="…"` is a string too (`element-attr-expression`, `element-data-import`, `tests/elements/elements.test.ts`).
 - [`element-sync`]{#element-sync}: Rendering is synchronous, so a promise fails (`tests/elements/elements.test.ts`, `tests/elements/render.test.ts`).
 - [`element-render`]{#element-render}: A template that throws as it renders fails, at its line in the file. So does a value the renderer refuses, at the line of its `${…}`, in a nested template too (`error-template-render`, `error-template-object`).
 
@@ -87,7 +87,8 @@ A `<script>` first in the template runs at build time. It's how an element uses 
 <template>
   <script>
     import { layout, place } from "./treemap.js";
-    const chart = ({ data, year, fill, slider, play }) => { …; return html`…`; };
+    import notes from "./notes.json" with { type: "json" };
+    const chart = ({ year, fill, slider, play }) => { …; return html`…`; };
   </script>
   ${chart(attrs)}
 </template>
@@ -96,6 +97,16 @@ A `<script>` first in the template runs at build time. It's how an element uses 
 - [`element-build-script`]{#element-build-script}: A template holds at most one `<script>`, and it comes first. What it declares or imports is in the markup's scope, with no default export, and none of it ships. A module it imports that doesn't compile fails, naming the module (`element-template-script`, `tests/vite.test.ts`, `error-module-load`, `tests/elements/file.test.ts`).
 - [`element-html-import`]{#element-html-import}: The build script has `html` with no import, and importing it fails. A module it imports that writes markup imports `html` from `@amitkaps/pagez`, which the host resolves to its own, even with another copy of Pagez installed beside the site (`tests/elements/file.test.ts`, `tests/vite.test.ts`).
 - [`element-script-end`]{#element-script-end}: `</script>` inside a script's string ends the script, as in any HTML, so it fails, asking for `<\/script>`. `<template>` in a string is safe (`tests/elements/file.test.ts`).
+
+### Data is an import
+
+An element's data is a JSON file its build script imports, beside the element, so the page writes the element alone, `{@talk-list /}`. The path is the element's, and is checked as any import's is.
+
+```js
+import talks from "./talks.json" with { type: "json" };
+```
+
+- [`element-data-import`]{#element-data-import}: The build script imports JSON with `with { type: "json" }`, and the template reads its rows. A path that isn't there fails at the import's line (`element-data-import`, `error-relative-missing`).
 
 ### `html`
 
@@ -148,6 +159,6 @@ Elements render inside-out. An element's content renders before its template, an
 
 - [`element-nesting`]{#element-nesting}: An element that ends up inside itself fails, naming the chain. An element that's never closed fails too, and `<x />` is closed (`element-nested`, `tests/elements/elements.test.ts`).
 - [`element-plain-tag`]{#element-plain-tag}: A hyphenated tag with no file is plain, and holds whatever elements it holds (`tests/elements/elements.test.ts`).
-- [`element-wrap`]{#element-wrap}: The template writes the element's inner HTML, and the build writes the tag around it with its attributes, less `data`. So the tag is always in the page (`element-in-page`, `tests/elements/elements.test.ts`).
+- [`element-wrap`]{#element-wrap}: The template writes the element's inner HTML, and the build writes the tag around it with its attributes. So the tag is always in the page (`element-in-page`, `tests/elements/elements.test.ts`).
 - [`element-block`]{#element-block}: A container holds block content in an element that is inline by default, so its `<style>` sets `display: block` (`element-in-page`).
 - [`element-inline`]{#element-inline}: An inline element's output can't hold a tag that closes a `<p>`, such as `<div>` or `<ul>`. The build fails, naming the line, the element and the tag (`element-nested`, `error-inline-block`).
