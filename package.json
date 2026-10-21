@@ -41,13 +41,13 @@
     "speed": "node tests/speed/speed.ts",
     "hotspots": "node tests/speed/speed.ts --profile",
     "prose": "prose",
-    "verify": "pnpm check && pnpm prose check && pnpm test && pnpm build && pnpm size",
+    "verify": "pnpm check && pnpm prose check && pnpm craftz check && pnpm test && pnpm build && pnpm size",
     "pr": "craftz pr",
     "gone": "craftz gone",
     "craftz": "craftz"
   },
   "devDependencies": {
-    "@amitkaps/craftz": "^0.1.2",
+    "@amitkaps/craftz": "^0.3.0",
     "@amitkaps/markz": "^0.6.0",
     "@amitkaps/prose": "^0.8.0",
     "@types/node": "^26.6.5",

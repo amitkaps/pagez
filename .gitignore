@@ -24,3 +24,4 @@ Thumbs.db
 
 # A test page's own packages, which it bundles from beside it
 !tests/pages/*/node_modules/
+.wrangler
