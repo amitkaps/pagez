@@ -151,8 +151,8 @@ export async function textHtml(
   // A heading that prints a value is named for what it prints, not for what's written.
   const base = view(doc, swapped, texts, markers, attributes);
   for (const heading of new Set(headings)) {
-    const { idExplicit } = doc.data(heading, "heading");
-    if (!idExplicit) swapped.set(heading, { id: slug(textContent(base, heading)) });
+    const { written } = doc.data(heading, "heading");
+    if (!written) swapped.set(heading, { id: slug(textContent(base, heading)) });
   }
   uniqueIds(doc, headings, swapped);
 

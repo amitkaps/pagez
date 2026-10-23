@@ -14,12 +14,11 @@ import { isRaw, isTemplate, raw, type Template } from "./html.ts";
  */
 export class TemplateError extends Error {
   override name = "TemplateError";
+  readonly id: ErrorId;
 
-  constructor(
-    readonly id: ErrorId,
-    message: string,
-  ) {
+  constructor(id: ErrorId, message: string) {
     super(message);
+    this.id = id;
   }
 
   /** The innermost template it failed in, and the value's place in it. */
