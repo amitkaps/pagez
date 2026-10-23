@@ -125,7 +125,7 @@ export async function compile(file: string, options: Options = {}): Promise<Page
       [],
     );
     const fields = headFields(file, page);
-    const fallback = headings(doc)[0]?.text ?? basename(file, extname(file));
+    const fallback = headings(doc)[0]?.label ?? basename(file, extname(file));
     const written = pageHead(shell, fields, fallback).replace(SLOT, () =>
       body ? `\n${body}\n` : "",
     );
