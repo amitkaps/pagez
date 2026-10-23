@@ -50,7 +50,7 @@ The file has three parts, and each is HTML's own. Where a part sits says when it
 An element's scripts are JavaScript, and TypeScript stays for the modules they import.
 
 - [`element-parts`]{#element-parts}: The top level holds at most one `<template>`, one `<style>` and one `<script>`, and anything else there fails. Each part is optional (`element-behavior-only`, `tests/elements/file.test.ts`).
-- [`element-name`]{#element-name}: The file's name is the tag. A name is lowercase, starts with a letter, has a hyphen and isn't reserved, or it fails (`error-name-no-hyphen`, `error-name-uppercase`, `error-name-reserved`).
+- [`element-tag`]{#element-tag}: The file's name is the tag. A name is lowercase, starts with a letter, has a hyphen and isn't reserved, or it fails (`error-name-no-hyphen`, `error-name-uppercase`, `error-name-reserved`).
 - [`element-attribute`]{#element-attribute}: `<template element="x-tag">` is optional in a file, and must match the file's name, so the two can't drift (`element-file-named`, `error-name-mismatch`).
 
 ## The template

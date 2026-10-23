@@ -177,11 +177,11 @@ A mistake fails the build, and the error names its file and line, or the referen
 | [`error-module-load`]{#error-module-load} | a module a template's script imports doesn't compile | [`element-build-script`](elements.md#element-build-script) |
 | [`error-name-duplicate-file`]{#error-name-duplicate-file} | the page and a file define one name | [`use-one-definition`](#use-one-definition) |
 | [`error-name-duplicate-page`]{#error-name-duplicate-page} | the page defines one name twice | [`use-one-definition`](#use-one-definition) |
-| [`error-name-invalid`]{#error-name-invalid} | a name isn't lowercase with a hyphen, as in `call-out` | [`element-name`](elements.md#element-name) |
+| [`error-name-invalid`]{#error-name-invalid} | a name isn't lowercase with a hyphen, as in `call-out` | [`element-tag`](elements.md#element-tag) |
 | [`error-name-mismatch`]{#error-name-mismatch} | a file's `element` attribute isn't its name | [`element-attribute`](elements.md#element-attribute) |
-| [`error-name-reserved`]{#error-name-reserved} | a name is reserved, such as `font-face` | [`element-name`](elements.md#element-name) |
+| [`error-name-reserved`]{#error-name-reserved} | a name is reserved, such as `font-face` | [`element-tag`](elements.md#element-tag) |
 | [`error-name-two-files`]{#error-name-two-files} | two files define one name | [`use-one-definition`](#use-one-definition) |
-| [`error-name-uppercase`]{#error-name-uppercase} | a name isn't lowercase | [`element-name`](elements.md#element-name) |
+| [`error-name-uppercase`]{#error-name-uppercase} | a name isn't lowercase | [`element-tag`](elements.md#element-tag) |
 | [`error-no-page`]{#error-no-page} | a site has no page | [`folder-page`](#folder-page) |
 | [`error-not-found-url`]{#error-not-found-url} | a site has a `404.md` and no `url` in `pagez.md` | [`site-404`](#site-404) |
 | [`error-package-missing`]{#error-package-missing} | an import names a package that isn't installed | [`files-packages`](#files-packages) |
