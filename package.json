@@ -2,6 +2,7 @@
   "name": "@amitkaps/pagez",
   "version": "0.2.1",
   "description": "pagez — Markdown, as pages.",
+  "homepage": "https://pagez.amitkaps.com",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -41,10 +42,11 @@
     "speed": "node tests/speed/speed.ts",
     "hotspots": "node tests/speed/speed.ts --profile",
     "prose": "prose",
-    "verify": "pnpm check && pnpm prose check && pnpm craftz check && pnpm test && pnpm build && pnpm size",
+    "verify": "pnpm check && pnpm prose check && pnpm craftz check && pnpm test && pnpm build && pnpm size && pnpm prose build",
     "pr": "craftz pr",
     "gone": "craftz gone",
-    "craftz": "craftz"
+    "craftz": "craftz",
+    "ship": "craftz deploy"
   },
   "devDependencies": {
     "@amitkaps/craftz": "0.5.0",
