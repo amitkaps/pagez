@@ -11,6 +11,7 @@ Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/
    - the redirects
    - `pagez check`'s warnings and failures, live
    - each page's render time, and its sizes from the last build, marked with when that build ran, since dev's sizes aren't a build's A public sitemap stays the site's own page. The docs show a `@site-map` element written from `pages`.
+2. **Rules composed with markz's.** `pagez rules` reads pages.md and elements.md with markz's [`rules`](https://github.com/amitkaps/markz/blob/main/docs/plan.md), in place of its regexes and its copy of markz's codes, and prints markz's rules after its own. A link prints resolved against the site, where it's stripped today. An error and a warning print in markz's line, `pagez: error: …: error-link-draft: …`, where the id ends the line today. The docs test reads the ids the same way. It waits for markz's subpath.
 
 ## Where it is
 
