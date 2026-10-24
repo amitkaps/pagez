@@ -11,12 +11,15 @@
  * of its own. A mistake in a page prints its file and what to change, and exits with 1.
  *
  * `pagez check` lists every page's mistake and every warning, and exits with 1 if there's any, so
- * a warning is fixed before it ships (`check.ts`). `pagez rules <id>` prints a rule (`rules.ts`).
+ * a warning is fixed before it ships (`check.ts`). `pagez rules <id>` prints a rule (`rules.ts`),
+ * and `pagez help <command>` what a command does (`commands.ts`).
  */
 import { resolve } from "node:path";
 import { build, createServer, preview } from "vite-plus";
 import { readArgs, USAGE } from "./args.ts";
 import { check } from "./check.ts";
+import { printHelp } from "@amitkaps/markz/rules";
+import { commands } from "./commands.ts";
 import { reportOnly } from "./report.ts";
 import { printedRule } from "./rules.ts";
 import pagez from "./vite.ts";
@@ -25,6 +28,15 @@ const args = readArgs(process.argv.slice(2));
 if ("print" in args) {
   (args.code ? console.error : console.log)(args.print);
   process.exit(args.code);
+}
+if (args.command === "help") {
+  const help = printHelp(commands, args.name);
+  if (help === undefined) {
+    console.error(`${args.name} isn't a command. pagez help lists the commands.\n${USAGE}`);
+    process.exit(1);
+  }
+  console.log(help);
+  process.exit(0);
 }
 if (args.command === "rules") {
   const rule = printedRule(args.id);

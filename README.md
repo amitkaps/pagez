@@ -23,7 +23,10 @@ pagez preview site   # serves what was built
 pagez preview site --port 4173   # on that port, or fails if it's taken
 pagez check site     # lists what to fix in every page, and writes nothing
 pagez rules folder-page   # prints a rule, an error or a warning
+pagez help build     # prints what a command does
 ```
+
+[Usage](docs/usage.md) states each command once: [`build`](docs/usage.md#build), [`dev`](docs/usage.md#dev), [`preview`](docs/usage.md#preview), [`check`](docs/usage.md#check), [`rules`](docs/usage.md#rules) and [`help`](docs/usage.md#help).
 
 A folder with its own Vite config adds the plugin instead:
 

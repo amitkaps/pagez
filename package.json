@@ -14,7 +14,8 @@
   "files": [
     "dist",
     "docs/pages.md",
-    "docs/elements.md"
+    "docs/elements.md",
+    "docs/usage.md"
   ],
   "type": "module",
   "exports": {
@@ -50,7 +51,7 @@
   },
   "devDependencies": {
     "@amitkaps/craftz": "0.6.0",
-    "@amitkaps/markz": "0.8.0",
+    "@amitkaps/markz": "0.9.0",
     "@amitkaps/prose": "0.9.0",
     "@types/node": "26.6.5",
     "happy-dom": "21.0.4",
