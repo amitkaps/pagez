@@ -10,7 +10,11 @@ pnpm add -D @amitkaps/pagez vite-plus
 
 It needs Node 26 or newer, the Node it's built and tested on. `vite-plus` is a peer dependency, since Pagez builds through it.
 
-## Build
+## Build a folder
+
+- [`pagez build [folder]`]{#build}: builds the pages in a folder to its `dist/`.
+- [`pagez dev [folder] [--port <n>]`]{#dev}: serves the pages while they're written.
+- [`pagez preview [folder] [--port <n>]`]{#preview}: serves what was built.
 
 The smallest site is one page.
 
@@ -25,15 +29,29 @@ pagez build site     # writes site/dist/
 pagez dev site       # serves it while it's written
 pagez preview site   # serves what was built
 pagez preview site --port 4173   # on that port, or fails if it's taken
-pagez check site     # lists what to fix in every page, and writes nothing
-pagez rules folder-page   # prints a rule, an error or a warning
 ```
 
 Each command takes the folder, or works in the current one, and `dev` and `preview` take `--port`. They're Vite's own commands with Pagez's plugin, and they never write to the folder outside `dist/`. A mistake prints its file, its line and what to change, and exits with 1. `build` then prints each page's size and the CSS and JavaScript the pages share.
 
-`check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, ending with its id. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships. `rules` prints a rule, an error or a warning by its id, from the docs of the version installed, and every rule with no id.
-
 `dist/` needs a server, as any built site does. Its base is `./`, so it works at a site's root or under a path.
+
+## Check a folder
+
+- [`pagez check [folder]`]{#check}: lists what to fix in every page, and writes nothing.
+
+`check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, ending with its id. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships.
+
+## Rules and help
+
+- [`pagez rules [id]`]{#rules}: prints a rule, an error or a warning by its id, or every rule.
+- [`pagez help [command]`]{#help}: prints each command, or what one does.
+
+```sh
+pagez rules folder-page   # prints a rule, an error or a warning
+pagez help build          # prints what build does
+```
+
+`rules` reads the docs of the version installed, so an agent reads the rules for the version it runs. `help` reads this page the same way, and `pagez --help` prints each command.
 
 ## In a Vite config
 
