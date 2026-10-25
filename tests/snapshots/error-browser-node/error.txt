@@ -1,1 +1,1 @@
-error-browser-node/@x-file.html: line 4: this imports node:fs, which is Node's, and the browser doesn't have it. Read files in the template's script, which runs at build time. [error-browser-node]
+pagez: error: error-browser-node/@x-file.html:4: error-browser-node: this imports node:fs, which is Node's, and the browser doesn't have it. Read files in the template's script, which runs at build time.

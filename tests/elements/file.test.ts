@@ -14,7 +14,11 @@ const fails = (source: string) => {
   try {
     read(source);
   } catch (error) {
-    if (error instanceof FileError) return `${error.message} [${error.id}]`;
+    if (error instanceof FileError) {
+      const at =
+        error.line && `line ${error.line}${error.column ? `, column ${error.column}` : ""}: `;
+      return `${at || ""}${error.message} [${error.id}]`;
+    }
     throw error;
   }
   throw new Error("expected it to fail");

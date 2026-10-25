@@ -39,7 +39,7 @@ Each command takes the folder, or works in the current one, and `dev` and `previ
 
 - [`pagez check [folder]`]{#check}: lists what to fix in every page, and writes nothing.
 
-`check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, ending with its id. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships.
+`check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, in Markz's form: `pagez: error: index.md:12: error-link-draft: …`. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships.
 
 ## Rules and help
 

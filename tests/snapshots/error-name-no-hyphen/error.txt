@@ -1,1 +1,1 @@
-error-name-no-hyphen/index.md: line 10: callout isn't an element's name, which is lowercase, starts with a letter and has a hyphen, as in call-out. [error-name-invalid]
+pagez: error: error-name-no-hyphen/index.md:10: error-name-invalid: callout isn't an element's name, which is lowercase, starts with a letter and has a hyphen, as in call-out.

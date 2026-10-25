@@ -1,1 +1,1 @@
-error-name-duplicate-file/index.md: line 14: <call-out> is already defined in @call-out.html. A name has one definition, wherever it sits. Remove one, or rename the element. [error-name-duplicate-file]
+pagez: error: error-name-duplicate-file/index.md:14: error-name-duplicate-file: <call-out> is already defined in @call-out.html. A name has one definition, wherever it sits. Remove one, or rename the element.

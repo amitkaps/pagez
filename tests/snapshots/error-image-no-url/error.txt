@@ -1,1 +1,1 @@
-error-image-no-url/index.md: image is cover.svg, and Open Graph needs a full address. Add the page's url, which it's found from, or write the image's full address. [error-image-no-url]
+pagez: error: error-image-no-url/index.md: error-image-no-url: image is cover.svg, and Open Graph needs a full address. Add the page's url, which it's found from, or write the image's full address.

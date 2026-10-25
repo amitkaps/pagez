@@ -1,1 +1,1 @@
-error-expression-value/index.md: line 9, column 15: ${page.tags} is a list, which prose doesn't print. An element writes it, given the value as an attribute. [error-expression-value]
+pagez: error: error-expression-value/index.md:9:15: error-expression-value: ${page.tags} is a list, which prose doesn't print. An element writes it, given the value as an attribute.

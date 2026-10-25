@@ -4,8 +4,7 @@ Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/
 
 ## Next, in order
 
-1. **Rules composed with markz's.** `pagez rules` reads pages.md and elements.md with markz's [`rules`](https://github.com/amitkaps/markz/blob/main/docs/plan.md), in place of its regexes and its copy of markz's codes, and prints markz's rules after its own. A link prints resolved against the site, where it's stripped today. An error and a warning print in markz's line, `pagez: error: …: error-link-draft: …`, where the id ends the line today. The docs test reads the ids the same way. markz 0.9.0 has the subpath, `@amitkaps/markz/rules`, and `pagez help` reads its commands with it already.
-2. **A dashboard in dev.** `pagez dev` serves a page about the site at `/__pagez/` and prints its address beside the site's, `pagez http://localhost:5173/__pagez/`. It's a readable page in the theme, not an app, and never written to `dist/`. It shows:
+1. **A dashboard in dev.** `pagez dev` serves a page about the site at `/__pagez/` and prints its address beside the site's, `pagez http://localhost:5173/__pagez/`. It's a readable page in the theme, not an app, and never written to `dist/`. It shows:
    - the pages as a folder tree, recently edited first, with drafts marked
    - the elements each page uses, and the data each imports
    - each page's links in and out, and the pages nothing links to
@@ -24,7 +23,7 @@ Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/
 - **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it, and `pagez check` lists what to fix in every page. Files are checked, then hashed in `dist/assets/`. An undefined tag warns, as Markz's warnings do, `pagez rules <id>` prints the rule behind any id, and `pagez help <command>` what a command does, each stated once in [usage](usage.md).
 - **Speed and size.** `pnpm speed` times a change on a site of about 300 pages against `main`, `pnpm hotspots` shows where its time goes, and `pnpm size` holds the theme, the head and the runtime to a budget in `verify` ([development](development.md#speed-and-size)).
 - **Tests.** Each page in `tests/pages/` and each site in `tests/sites/` builds to its reviewed snapshot or fails with its reviewed error. Every rule in the docs cites the cases that hold it, and every case is cited by a rule.
-- **Ids.** Each error and warning ends with its id, such as `[error-link-draft]`, a row of [the Errors table](pages.md#errors) or [the Warnings table](pages.md#warnings). A test holds the ids in `src/` and the rows to each other, so a mistake can't ship without one.
+- **Ids.** Each error and warning prints in Markz's one line, with its id, such as `pagez: error: index.md:12: error-link-draft: …`. The id is a row of [the Errors table](pages.md#errors) or [the Warnings table](pages.md#warnings). A test holds the ids in `src/` and the rows to each other, so a mistake can't ship without one. `pagez rules` reads the rules and the rows with Markz's reader, and prints Markz's rules after Pagez's, each link resolved against the site.
 - **Releases.** 0.1.0 was published by hand. Later versions, from 0.2.0, are staged by the release workflow through npm's trusted publishing.
 
 ## Later

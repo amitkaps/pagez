@@ -259,7 +259,7 @@ describe("pagez()", () => {
   test("fails on an element's import that isn't there, at its line", async () => {
     const root = folder("error-package-missing");
     await expect(run(root)).rejects.toThrow(
-      /@x-chart\.html: line 4: this imports no-such-package, which isn't in a node_modules beside the page/,
+      /@x-chart\.html:4: error-package-missing: this imports no-such-package, which isn't in a node_modules beside the page/,
     );
   });
 
@@ -309,6 +309,8 @@ describe("pagez()", () => {
 
   test("fails with the page's mistake, naming its file", async () => {
     const root = folder("error-relative-missing");
-    await expect(run(root)).rejects.toThrow(/index\.md: line 7: \.\/missing\.svg isn't there/);
+    await expect(run(root)).rejects.toThrow(
+      /index\.md:7: error-[a-z-]+: \.\/missing\.svg isn't there/,
+    );
   });
 });

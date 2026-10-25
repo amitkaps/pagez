@@ -12,6 +12,7 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 - **A table of cases missed the mistakes no case made.** The Errors table had a row for each `error-…` case, 35 of them, and the source failed in 78 ways. 14 had no test at all, and a case written for one found that a module a template imports named its file wrong. Key a table of failures by the ids the source throws, and hold the two to each other.
 - **A warning nobody had to read was never read.** Markz warned 79 times across the test pages, at element lines beside text, and nothing printed it, since a build that passes isn't read. `pagez check` fails on a warning, so one shows where it's written, and the pages were fixed to pass it.
 - **A command stated in three places drifted.** The usage line in `args.ts`, the shell block in usage.md and the README each listed the commands, and none had `help`. Each command is now an item with its id in usage.md, `pagez help` prints it, and a test holds the ids to the command's branches.
+- **A regex per layout read each doc its own way.** `pagez rules` and the docs test each kept regexes for a rule's line and a table's row. They stripped a rule's links, and printed a Markz code in a form of their own. Markz's reader reads both now, as prose's and craftz's rules are read. An error prints in the same line as theirs, so one pattern finds the id in any tool's output.
 
 ## Where the output goes
 

@@ -1,1 +1,1 @@
-undefined-tag/index.md: line 8: {@x-typo} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as x-typo:not(:defined) { visibility: hidden; }. [undefined-tag]
+pagez: warning: undefined-tag/index.md:8: undefined-tag: {@x-typo} has no definition, and nothing in the page's CSS selects it; write the right name if it's a typo, or a rule such as x-typo:not(:defined) { visibility: hidden; } if a script defines it

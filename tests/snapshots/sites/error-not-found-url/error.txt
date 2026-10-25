@@ -1,1 +1,1 @@
-error-not-found-url/404.md: a host serves 404.html at any path that isn't there, so its links are written from the site's root, which needs its address. Add url to pagez.md, such as url: https://example.com/ [error-not-found-url]
+pagez: error: error-not-found-url/404.md: error-not-found-url: a host serves 404.html at any path that isn't there, so its links are written from the site's root, which needs its address. Add url to pagez.md, such as url: https://example.com/

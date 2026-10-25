@@ -1,5 +1,5 @@
-error-module-load/words.js: Parse failure: Parse failed with 1 error:
+pagez: error: error-module-load/words.js: error-module-load: Parse failure: Parse failed with 1 error:
 Unexpected token
 1: export const count = (text) => text.split(" ").length +;
                                                           ^
-At file: /error-module-load/words.js:1:55 [error-module-load]
+At file: /error-module-load/words.js:1:55

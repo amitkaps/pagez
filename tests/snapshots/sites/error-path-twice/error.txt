@@ -1,1 +1,1 @@
-error-path-twice/about/index.md: /about/ also comes from about.md. A path has one page: rename or remove one of them. [error-path-twice]
+pagez: error: error-path-twice/about/index.md: error-path-twice: /about/ also comes from about.md. A path has one page: rename or remove one of them.

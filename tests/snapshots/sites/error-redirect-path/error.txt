@@ -1,1 +1,1 @@
-error-redirect-path/index.md: redirects lists old-home: write each old path from the site's root, such as /old-name/ or /old-name.html. [error-redirect-path]
+pagez: error: error-redirect-path/index.md: error-redirect-path: redirects lists old-home: write each old path from the site's root, such as /old-name/ or /old-name.html.

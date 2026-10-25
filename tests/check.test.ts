@@ -2,7 +2,8 @@
  * # Checking a site, and its rules
  *
  * `check` lists every page's failure and every warning, a line each, with its id, and writes
- * nothing. `printedRule` prints a rule, an error or a warning from the docs the package ships.
+ * nothing. `printedRule` prints a rule, an error or a warning from the docs the package ships,
+ * and Markz's rules after Pagez's.
  */
 import { cpSync, existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -31,45 +32,48 @@ describe("check", () => {
     writeFileSync(join(root, "notes.md"), "# Notes\n\nAt https://example.com/ and ${page.nope}.\n");
     const { failures, warnings } = await check(root, root);
     expect(failures).toEqual([
-      expect.stringMatching(/^about\.md: line 3: .* \[error-link-missing\]$/),
-      expect.stringMatching(/^notes\.md: line 3[,:] .* \[error-expression-missing\]$/),
+      expect.stringMatching(/^pagez: error: about\.md:3: error-link-missing: /),
+      expect.stringMatching(/^pagez: error: notes\.md:3(:\d+)?: error-expression-missing: /),
     ]);
     expect(warnings).toEqual([]);
     writeFileSync(join(root, "notes.md"), "# Notes\n\nAt https://example.com/.\n");
     expect((await check(root, root)).warnings).toEqual([
-      expect.stringMatching(/^notes\.md: line 3: bare URL\. .* \[bare-url\]$/),
+      expect.stringMatching(/^pagez: warning: notes\.md:3: bare-url: bare URL; write /),
     ]);
   });
 
   test("gives a mistake the site's pages share as its one line", async () => {
     const root = folder("error-site-url");
     expect(await check(root, root)).toEqual({
-      failures: [expect.stringMatching(/^pagez\.md: .* \[error-site-url\]$/)],
+      failures: [expect.stringMatching(/^pagez: error: pagez\.md: error-site-url: /)],
       warnings: [],
     });
   });
 });
 
 describe("printedRule", () => {
-  test("prints a rule, an error or a warning with its rule, and a Markz code", () => {
+  test("prints a rule, an error or a warning with its rule, and a Markz code with Markz's", () => {
     expect(printedRule("folder-page")).toMatch(
-      /^folder-page: A page is a `\.md`, at its folder's path\./,
+      /^- `folder-page`: A page is a `\.md`, at its folder's path\./,
+    );
+    expect(printedRule("folder-page")).toContain(
+      "https://pagez.amitkaps.com/docs/pages.md#folder-page",
     );
     expect(printedRule("error-link-missing")).toMatch(
-      /^error-link-missing: Fails when .*\.\n\nlinks-checked: A link must reach a page/,
+      /^error-link-missing \(error\): .*\n.*\n\n- `links-checked`: A link must reach a page/,
     );
+    expect(printedRule("links-checked")).toContain("Checked by `error-link-draft`, ");
     expect(printedRule("undefined-tag")).toMatch(
-      /^undefined-tag: Warns when .*\n\nuse-undefined: /,
+      /^undefined-tag \(warning\): .*\n.*\n\n- `use-undefined`: /,
     );
-    expect(printedRule("bare-url")).toMatch(/^bare-url: Markz warns at bare URL\. Instead: /);
-    expect(printedRule("element-setup")).toMatch(/^element-setup: /);
+    expect(printedRule("bare-url")).toMatch(/^bare-url \(warning\): bare URL; write /);
+    expect(printedRule("element-setup")).toMatch(/^- `element-setup`: /);
   });
 
-  test("prints every rule with no id, and nothing for an id that names none", () => {
-    const all = printedRule()!.split("\n");
-    expect(all).toContain(printedRule("folder-page"));
-    expect(all.every((line) => /^[a-z][a-z0-9-]*: \S/.test(line))).toBe(true);
+  test("prints every rule with no id, Markz's after Pagez's, and nothing for an id that names none", () => {
+    const all = printedRule()!;
+    expect(all).toMatch(/^# pagez\n\n## The folder\n\n- `folder-page`: /);
+    expect(all.indexOf("# markz\n")).toBeGreaterThan(all.indexOf("`element-setup`"));
     expect(printedRule("nope")).toBeUndefined();
-    expect(printedRule("toString")).toBeUndefined();
   });
 });
