@@ -1,1 +1,1 @@
-error-link-missing/index.md: line 5: gone.md isn't a page of this site. Link to a .md that's there, or fix the path. [error-link-missing]
+pagez: error: error-link-missing/index.md:5: error-link-missing: gone.md isn't a page of this site. Link to a .md that's there, or fix the path.

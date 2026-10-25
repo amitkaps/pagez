@@ -1,1 +1,1 @@
-error-redirect-page/about.md: redirects lists /: that's the path of index.md. [error-redirect-page]
+pagez: error: error-redirect-page/about.md: error-redirect-page: redirects lists /: that's the path of index.md.

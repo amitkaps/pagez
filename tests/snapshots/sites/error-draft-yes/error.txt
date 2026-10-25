@@ -1,1 +1,1 @@
-error-draft-yes/index.md: draft is "yes": write draft: true or draft: false. [error-draft-yes]
+pagez: error: error-draft-yes/index.md: error-draft-yes: draft is "yes": write draft: true or draft: false.

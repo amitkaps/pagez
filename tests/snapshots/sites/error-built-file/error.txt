@@ -1,1 +1,1 @@
-error-built-file/about/index.html: about/index.html is what Pagez writes from about.md, so it can't be in the folder. A frame is frame.html. [error-built-file]
+pagez: error: error-built-file/about/index.html: error-built-file: about/index.html is what Pagez writes from about.md, so it can't be in the folder. A frame is frame.html.

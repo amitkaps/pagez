@@ -1,1 +1,1 @@
-error-link-draft/index.md: line 3: draft.md is a draft, which build leaves out. Publish it, with draft: false, or remove the link. [error-link-draft]
+pagez: error: error-link-draft/index.md:3: error-link-draft: draft.md is a draft, which build leaves out. Publish it, with draft: false, or remove the link.

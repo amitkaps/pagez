@@ -1,1 +1,1 @@
-error-path-set/index.md: path is "/home/": a page's path is its file's, so move the file instead, and remove path. [error-path-set]
+pagez: error: error-path-set/index.md: error-path-set: path is "/home/": a page's path is its file's, so move the file instead, and remove path.

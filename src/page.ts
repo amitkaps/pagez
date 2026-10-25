@@ -20,7 +20,7 @@ import { elementCss, checkImports, pageScript, usedElements } from "./browser.ts
 import { readDefinitions, readFiles } from "./definitions.ts";
 import { renderElements, type Host } from "./elements/elements.ts";
 import { addToHead, headFields, pageHead, readFrame, SLOT, type Metadata } from "./head.ts";
-import type { WarningId } from "./elements/errors.ts";
+import type { Warning, WarningId } from "./elements/errors.ts";
 import { createLoader, type Loader } from "./parts.ts";
 import { checkCss, checkHtml, relink, siteLinks } from "./references.ts";
 import { nearest, pagePath, pageUrl, readSite, type Site, type SitePage } from "./site.ts";
@@ -43,8 +43,8 @@ export interface Page {
   script?: string;
   /** The elements it uses that have behavior, by name. */
   behavior: string[];
-  /** What's worth fixing that doesn't stop the build, each as `line N: message [id]`. */
-  warnings: string[];
+  /** What's worth fixing that doesn't stop the build, each at its line, with its id. */
+  warnings: Warning[];
 }
 
 /** @prose
@@ -136,20 +136,22 @@ export async function compile(file: string, options: Options = {}): Promise<Page
     const sheets = [css, ...styles(html), elements ?? ""].join("\n");
     const undefinedTag: WarningId = "undefined-tag";
     const lineOf = position(doc.source);
-    const warnings = [
+    const warnings: Warning[] = [
       ...doc.warnings.map(({ code, message, instead, start }) => ({
         line: lineOf(start).line,
-        text: `${message}. Instead: ${instead}. [${code}]`,
+        code,
+        message,
+        instead,
       })),
       ...text.undefined
         .filter(({ name }) => !selects(sheets, name))
         .map(({ name, line }) => ({
           line,
-          text: `{@${name}} has no definition, and nothing in the page's CSS selects it. If it's a typo, fix the name. If a script defines it, give it a rule, such as ${name}:not(:defined) { visibility: hidden; }. [${undefinedTag}]`,
+          code: undefinedTag,
+          message: `{@${name}} has no definition, and nothing in the page's CSS selects it`,
+          instead: `the right name if it's a typo, or a rule such as ${name}:not(:defined) { visibility: hidden; } if a script defines it`,
         })),
-    ]
-      .toSorted((a, b) => a.line - b.line)
-      .map(({ line, text }) => `line ${line}: ${text}`);
+    ].toSorted((a, b) => a.line - b.line);
     return {
       file,
       path,

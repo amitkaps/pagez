@@ -1,1 +1,1 @@
-error-no-page/index.md: there's no page here. Each .md is one, and index.md is the folder's own. [error-no-page]
+pagez: error: error-no-page/index.md: error-no-page: there's no page here. Each .md is one, and index.md is the folder's own.

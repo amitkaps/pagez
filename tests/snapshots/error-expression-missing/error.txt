@@ -1,1 +1,1 @@
-error-expression-missing/index.md: line 8, column 19: ${page.subtitle}: page has no subtitle. Add it to the metadata, or fix the name. [error-expression-missing]
+pagez: error: error-expression-missing/index.md:8:19: error-expression-missing: ${page.subtitle}: page has no subtitle. Add it to the metadata, or fix the name.

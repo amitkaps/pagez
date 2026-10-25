@@ -1,1 +1,1 @@
-error-browser-import/@x-chart.html: line 4: this imports @amitkaps/pagez, whose html renders at build time. An element's <script> works on the page's DOM the build wrote, with nothing from Pagez. [error-browser-import]
+pagez: error: error-browser-import/@x-chart.html:4: error-browser-import: this imports @amitkaps/pagez, whose html renders at build time. An element's <script> works on the page's DOM the build wrote, with nothing from Pagez.

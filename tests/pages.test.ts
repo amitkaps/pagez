@@ -11,7 +11,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
-import { FileError, printedError } from "../src/elements/errors.ts";
+import { FileError, printedError, printedWarning, type Warning } from "../src/elements/errors.ts";
 import { compile, write } from "../src/page.ts";
 import { createLoader, type Loader } from "../src/parts.ts";
 import theme from "../src/theme.css?built";
@@ -28,7 +28,7 @@ beforeAll(async () => {
 });
 afterAll(() => loader.close());
 
-async function build(page: string): Promise<{ html: string; warnings: string[] }> {
+async function build(page: string): Promise<{ html: string; warnings: Warning[] }> {
   const compiled = await compile(join(pages, page, "index.md"), { loader });
   compiled.css = compiled.css.map((css) => {
     const found = own.find((file) => file.css === css);
@@ -61,7 +61,7 @@ describe("the test pages", () => {
       test(`${page} builds`, async () => {
         const { html, warnings } = await build(page);
         await expect(html).toMatchFileSnapshot(`snapshots/${page}/page.html`);
-        const shown = warnings.map((warning) => `${page}/index.md: ${warning}\n`).join("");
+        const shown = warnings.map((w) => `${printedWarning(w, `${page}/index.md`)}\n`).join("");
         if (shown) await expect(shown).toMatchFileSnapshot(`snapshots/${page}/warnings.txt`);
         // A page that stops warning loses its snapshot, so the snapshot never says it still does.
         else

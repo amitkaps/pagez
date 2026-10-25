@@ -9,7 +9,7 @@
  * fail with it.
  */
 import { relative } from "node:path";
-import { FileError, printedError } from "./elements/errors.ts";
+import { FileError, printedError, printedWarning } from "./elements/errors.ts";
 import { checkShared, compile } from "./page.ts";
 import { createLoader } from "./parts.ts";
 import { readSite } from "./site.ts";
@@ -47,7 +47,7 @@ export async function check(root: string, from: string = process.cwd()): Promise
     for (const { file } of pages) {
       try {
         const page = await compile(file, { site, loader });
-        warnings.push(...page.warnings.map((warning) => `${named(file)}: ${warning}`));
+        warnings.push(...page.warnings.map((warning) => printedWarning(warning, named(file))));
       } catch (error) {
         if (!(error instanceof FileError)) throw error;
         failures.add(printedError(error, named(error.file)));

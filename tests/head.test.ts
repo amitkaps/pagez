@@ -131,7 +131,8 @@ describe("readFrame", () => {
     const error = read(source);
     expect(error).toBeInstanceOf(FileError);
     expect((error as FileError).file).toMatch(/frame\.html$/);
-    expect((error as FileError).message).toMatch(message);
+    const { line, message: said } = error as FileError;
+    expect(`${line ? `line ${line}: ` : ""}${said}`).toMatch(message);
     expect((error as FileError).id).toBe(id);
   });
 

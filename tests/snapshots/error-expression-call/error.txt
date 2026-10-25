@@ -1,1 +1,1 @@
-error-expression-call/index.md: line 7, column 13: ${page.title.toUpperCase()} isn't a path into page. Prose reads a value, such as ${page.title}, and an element computes one. [error-expression-call]
+pagez: error: error-expression-call/index.md:7:13: error-expression-call: ${page.title.toUpperCase()} isn't a path into page. Prose reads a value, such as ${page.title}, and an element computes one.

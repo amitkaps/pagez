@@ -1,1 +1,1 @@
-error-template-object/@post-list.html: line 8: a template holds an object where text goes. Write one of its fields. [error-template-object]
+pagez: error: error-template-object/@post-list.html:8: error-template-object: a template holds an object where text goes. Write one of its fields.
