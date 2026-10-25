@@ -5,7 +5,10 @@
  * wrong, with the usage.
  */
 import { describe, expect, test } from "vite-plus/test";
-import { readArgs, USAGE } from "../src/args.ts";
+import { readFileSync } from "node:fs";
+import { COMMANDS, readArgs } from "../src/args.ts";
+import { printHelp } from "@amitkaps/markz/rules";
+import { commands } from "../src/commands.ts";
 
 describe("readArgs", () => {
   test("reads a command, its folder, and the current one when there's none", () => {
@@ -28,8 +31,10 @@ describe("readArgs", () => {
     expect(readArgs(["dev", "--port=3000"])).toEqual({ command: "dev", folder: ".", port: 3000 });
   });
 
-  test("prints the usage for --help, and exits with 0", () => {
-    expect(readArgs(["--help"])).toEqual({ print: USAGE, code: 0 });
+  test("reads help and the command it prints, and --help as help", () => {
+    expect(readArgs(["help", "build"])).toEqual({ command: "help", name: "build" });
+    expect(readArgs(["help"])).toEqual({ command: "help" });
+    expect(readArgs(["--help"])).toEqual({ command: "help" });
   });
 
   test("prints one line and the usage for a mistake, and exits with 1", () => {
@@ -41,6 +46,7 @@ describe("readArgs", () => {
       [["build", "--port", "4173"], "build serves nothing, so it takes no --port."],
       [["check", "--port", "4173"], "check serves nothing, so it takes no --port."],
       [["rules", "a", "b"], "Give one id."],
+      [["help", "a", "b"], "Give one command."],
       [["dev", "--port", "http"], "--port is http, and a port is a whole number from 1 to 65535."],
     ] as const) {
       const read = readArgs([...args]);
@@ -49,5 +55,20 @@ describe("readArgs", () => {
       expect(print.split("\n")[0]).toContain(line);
       expect(print.split("\n").length).toBeLessThanOrEqual(2);
     }
+  });
+});
+
+describe("the commands", () => {
+  test("are the ones the usage doc states, each once", () => {
+    expect(new Set(commands.commands.map((c) => c.id))).toEqual(new Set(COMMANDS));
+  });
+
+  test("each has its own branch in the command, and help prints it", () => {
+    const cli = readFileSync(new URL("../src/cli.ts", import.meta.url), "utf8");
+    const branched = [...cli.matchAll(/command === "([a-z]+)"/g)].map((m) => m[1]);
+    // preview is the branch dev's test leaves.
+    expect(new Set([...branched, "preview"])).toEqual(new Set(COMMANDS));
+    for (const name of COMMANDS) expect(printHelp(commands, name)).toContain(`{#${name}}`);
+    expect(printHelp(commands, "serve")).toBeUndefined();
   });
 });

@@ -14,7 +14,8 @@
   "files": [
     "dist",
     "docs/pages.md",
-    "docs/elements.md"
+    "docs/elements.md",
+    "docs/usage.md"
   ],
   "type": "module",
   "exports": {
