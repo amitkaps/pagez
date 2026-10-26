@@ -4,6 +4,7 @@ What building pagez taught, for whoever changes it next. Each lesson says what h
 
 ## Designing on real pages
 
+- **Measuring a page settled the framework.** A course listing, built with Svelte's islands, loaded 206 KB of JavaScript, and the same page built without a framework loaded 2 KB. So pagez writes HTML at build time, and an element ships only the script its behavior needs. Measure a page before choosing what renders it.
 - **Test pages came before the compiler.** 49 pages were written first, each saying what it builds to or fails with, and their `Open:` notes were design questions. The compiler then turned them from todos into reviewed snapshots, one piece at a time. Write the test page for a feature before its code, so the question shows before the code needs an answer.
 - **Rebuilding a real page settled the design.** A Jekyll page of six chapters and 41 images, rebuilt as one Markz page, took its CSS from 208 lines to about 70. It also showed a frame needs social tags Pagez doesn't write, such as `twitter:site`, so a frame may write them. Judge a change on a real page beside the one it replaces, block for block, wide and on a phone.
 - **A section's files were larger than they needed to be.** svgo, WebP where smaller and a font subset took that page's SVGs from 528 KB to 308 KB, its photos from 229 KB to 130 KB and its font from 39 KB to 26 KB. Pagez doesn't do this. Run them on a page's files in its source.
