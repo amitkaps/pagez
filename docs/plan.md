@@ -4,13 +4,13 @@ Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/
 
 ## Next, in order
 
-1. **A dashboard in dev.** `pagez dev` serves a page about the site at `/__pagez/` and prints its address beside the site's, `pagez http://localhost:5173/__pagez/`. It's a readable page in the theme, not an app, and never written to `dist/`. It shows:
-   - the pages as a folder tree, recently edited first, with drafts marked
-   - the elements each page uses, and the data each imports
-   - each page's links in and out, and the pages nothing links to
-   - the redirects
-   - `pagez check`'s warnings and failures, live
-   - each page's render time, and its sizes from the last build, marked with when that build ran, since dev's sizes aren't a build's A public sitemap stays the site's own page. The docs show a `@site-map` element written from `pages`.
+- [ ] **A dashboard in dev.** `pagez dev` serves a page about the site at `/__pagez/` and prints its address beside the site's, `pagez http://localhost:5173/__pagez/`. It's a readable page in the theme, not an app, and never written to `dist/`. It shows:
+  - the pages as a folder tree, recently edited first, with drafts marked
+  - the elements each page uses, and the data each imports
+  - each page's links in and out, and the pages nothing links to
+  - the redirects
+  - `pagez check`'s warnings and failures, live
+  - each page's render time, and its sizes from the last build, marked with when that build ran, since dev's sizes aren't a build's A public sitemap stays the site's own page. The docs show a `@site-map` element written from `pages`.
 
 ## Where it is
 
