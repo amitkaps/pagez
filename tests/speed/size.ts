@@ -2,7 +2,7 @@
  * # Size
  *
  * `pnpm size` measures what Pagez adds to a page, gzipped, as a browser pays for it, and fails
- * past a budget, so growth shows in the pull request that causes it. `verify` runs it. It builds
+ * past a budget, so growth shows in the pull request that causes it. `verify` runs it after `build`. It builds
  * two test pages with the built plugin, `dist/`:
  *
  * - **the theme**, the `<style>` a page with no CSS of its own gets
