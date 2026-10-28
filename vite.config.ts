@@ -7,7 +7,6 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { defineConfig } from "vite-plus";
-import { craftz } from "@amitkaps/craftz";
 import { format } from "vite-plus/fmt";
 
 /** @prose
@@ -51,7 +50,7 @@ const built = {
 const ignored = ["tests/pages/**", "tests/sites/**", "tests/snapshots/**"];
 
 export default defineConfig({
-  plugins: [craftz(), built],
+  plugins: [built],
 
   pack: {
     entry: ["src/index.ts", "src/cli.ts", "src/vite.ts"],
@@ -70,12 +69,32 @@ export default defineConfig({
     plugins: [built],
   },
 
-  // Oxfmt and Oxlint — `vp check`. What they leave alone, beside the rules craftz() sets.
-  fmt: { ignorePatterns: ignored },
-  lint: { ignorePatterns: ignored },
+  // Oxfmt and Oxlint — `vp check`. What they leave alone, beside what craftz's rules set.
+  fmt: { ignorePatterns: ignored, proseWrap: "never" },
+  lint: {
+    ignorePatterns: ignored,
+    plugins: ["typescript", "unicorn", "import"],
+    categories: { correctness: "error" },
+    options: { typeAware: true, typeCheck: true },
+  },
 
   test: {
     expect: { requireAssertions: true },
     include: ["tests/**/*.test.ts"],
+  },
+
+  /** @prose
+   * # Verify
+   *
+   * `verify` runs `all`, whose tasks run side by side, as
+   * [craftz's rules](https://craftz.amitkaps.com/docs/rules.md#scripts-verify) say. The size
+   * budget builds its pages with the plugin in `dist/`, so `budget` waits for `build`.
+   */
+  run: {
+    cache: false,
+    tasks: {
+      budget: { command: "pnpm size", dependsOn: ["build"] },
+      all: { command: "true", dependsOn: ["check", "test", "build", "budget", "site"] },
+    },
   },
 });
