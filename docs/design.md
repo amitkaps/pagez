@@ -70,7 +70,7 @@ What it costs is that words and code mix in a folder, and `_` and subfolders suc
 
 Each item is out, with why in a line. What's still open is in [the plan](plan.md#open-questions).
 
-- **Not a framework.** No JSX, decorators, framework template syntax or attribute languages. A loop written in markup, such as `each="…"`, is a template language. A page built with a framework's islands loaded 100 times the JavaScript of one built without it ([lessons](lessons.md#designing-on-real-pages)).
+- **Not a framework.** No JSX, decorators, framework template syntax or attribute languages. A loop written in markup, such as `each="…"`, is a template language. A page built with a framework's islands loaded 100 times the JavaScript of one built without it ([lessons](lessons.md#measure-before-changing)).
 - **Not a browser renderer.** No DOM at build time, hydration, virtual DOM, reactive state or props. The build would need a DOM in Node only to serialize it back to a string. A site that renders in the browser imports a renderer, and one whose state crosses elements imports a signals library.
 - **No shadow DOM.** Content is in the light DOM, where the page's CSS reaches it.
 - **No async render or streaming.** The page's single pass can't wait, and an element's data is read before it renders.
