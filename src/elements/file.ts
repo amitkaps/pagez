@@ -217,7 +217,9 @@ function scriptEnds(source: string, script: Part, close: Tag, fail: Fail): void 
   try {
     parseAst(script.text, { lang: "js" });
     return;
-  } catch {}
+  } catch {
+    // A script that doesn't parse is the one a `</script>` inside may have cut short.
+  }
   const after = source.slice(close.end, source.indexOf("\n", close.end) + 1 || source.length);
   if (!inside(script.text, /\S/.test(after))) return;
   throw fail(

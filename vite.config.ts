@@ -76,6 +76,7 @@ export default defineConfig({
     plugins: ["typescript", "unicorn", "import"],
     categories: { correctness: "error" },
     options: { typeAware: true, typeCheck: true },
+    rules: { "no-empty": "error" },
   },
 
   test: {
