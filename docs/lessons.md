@@ -10,6 +10,12 @@ The rule is [Write the spec first](https://craftz.amitkaps.com/docs/rules.md#wri
 
 - **Writing the test page first showed the question.** 49 pages were written before the compiler, each saying what it builds to or fails with, and their `Open:` notes were design questions. Write the test page for a feature before its code.
 
+## Draw the boundaries first
+
+The rule is [Draw the boundaries first](https://craftz.amitkaps.com/docs/rules.md#draw-the-boundaries-first). What the host already does is left to it.
+
+- **Pages that stood in for the host doubled a moved site.** A site listed two old addresses for each of 45 pages, and pagez wrote 90 pages that refresh. Its host reads `_redirects`, and already sends `/x` and `/x.html` to `/x/`. Write what the host reads, not pages that stand in for it.
+
 ## Measure before changing
 
 The rule is [Measure before changing](https://craftz.amitkaps.com/docs/rules.md#measure-before-changing). `pnpm speed` times a change against `main`, and `pnpm hotspots` profiles the large site.
@@ -35,7 +41,6 @@ The rule is [Parse, don't match text](https://craftz.amitkaps.com/docs/rules.md#
 
 The rule is [Build only what gets used](https://craftz.amitkaps.com/docs/rules.md#build-only-what-gets-used).
 
-- **Pages that stood in for the host doubled a moved site.** A site listed two old addresses for each of 45 pages, and pagez wrote 90 pages that refresh. Its host reads `_redirects`, and already sends `/x` and `/x.html` to `/x/`. Write what the host reads, not pages that stand in for it.
 - **A name of its own outlived its reason.** The element layer was named elementz while it had two hosts. With one, it's pagez's elements, and the line between them is kept in the code.
 
 ## Try it on the real thing
