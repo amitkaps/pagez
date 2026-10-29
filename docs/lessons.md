@@ -31,17 +31,17 @@ The rule is [Don't repeat yourself](https://craftz.amitkaps.com/docs/rules.md#do
 - **A list kept apart from the code drifted from it.** The usage line in `args.ts`, usage.md and the README each listed the commands, and none had `help`. The Errors table had 35 rows, and the source failed in 78 ways, 14 with no test. A case written for one of them found a module that named its file wrong. Key a list by the ids the code uses, and hold the two to each other.
 - **A reserved attribute was the wrong owner for data.** `data="notes.json"` was written eleven times in one essay, and every grid named the one file it always read. Give data to whoever always reads it, which here was an import beside the element.
 
+## One name, one meaning
+
+The rule is [One name, one meaning](https://craftz.amitkaps.com/docs/rules.md#one-name-one-meaning).
+
+- **A name of its own outlived its reason.** The element layer was named elementz while it had two hosts. With one, it's pagez's elements, and the line between them is kept in the code.
+
 ## Parse, don't match text
 
 The rule is [Parse, don't match text](https://craftz.amitkaps.com/docs/rules.md#parse-dont-match-text). Markz's reader reads the docs' rules and tables.
 
 - **A regex per layout read each doc its own way.** `pagez rules` and the docs test each kept regexes for a rule's line and a table's row. They stripped a rule's links, and printed a Markz code in a form of their own. Read a doc with Markz's reader, and print an error in the same line as prose's and craftz's.
-
-## Build only what gets used
-
-The rule is [Build only what gets used](https://craftz.amitkaps.com/docs/rules.md#build-only-what-gets-used).
-
-- **A name of its own outlived its reason.** The element layer was named elementz while it had two hosts. With one, it's pagez's elements, and the line between them is kept in the code.
 
 ## Try it on the real thing
 
