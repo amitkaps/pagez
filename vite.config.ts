@@ -92,10 +92,19 @@ export default defineConfig({
    * budget builds its pages with the plugin in `dist/`, so `budget` waits for `build`.
    */
   run: {
-    cache: false,
+    cache: { scripts: false, tasks: true },
     tasks: {
-      budget: { command: "pnpm size", dependsOn: ["build"] },
-      all: { command: "true", dependsOn: ["check", "test", "build", "budget", "site"] },
+      budget: { command: "pnpm size", dependsOn: ["built"] },
+      all: {
+        command: "true",
+        dependsOn: ["check", "tested", "built", "budget", "site"],
+        cache: false,
+      },
+      tested: {
+        command: "pnpm run test",
+        cache: { input: [{ auto: true }, "!.prose/**", "!dist/**"] },
+      },
+      built: { command: "pnpm run build", cache: { input: [{ auto: true }, "!.prose/**"] } },
     },
   },
 });

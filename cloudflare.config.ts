@@ -17,7 +17,7 @@ export default {
       // Serve /src/page.ts from src/page.ts.html, with no redirect.
       htmlHandling: "auto-trailing-slash",
     },
-    compatibilityDate: "2026-11-04",
+    compatibilityDate: "2026-11-10",
     workersDev: false,
     previewUrls: false,
   },
