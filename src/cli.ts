@@ -18,13 +18,19 @@ import { resolve } from "node:path";
 import { build, createServer, preview } from "vite-plus";
 import { readArgs, USAGE } from "./args.ts";
 import { check } from "./check.ts";
-import { printHelp } from "@amitkaps/markz/rules";
+import { printHelp, write } from "@amitkaps/markz/rules";
 import { commands } from "./commands.ts";
 import { reportOnly } from "./report.ts";
 import { printedRule } from "./rules.ts";
 import pagez from "./vite.ts";
 
 const args = readArgs(process.argv.slice(2));
+/** Help and rules, in colour in a terminal and as Markdown anywhere else, as markz writes them. */
+const show = (markdown: string) =>
+  write(
+    markdown,
+    commands.commands.map((each) => each.label),
+  );
 if ("print" in args) {
   (args.code ? console.error : console.log)(args.print);
   process.exit(args.code);
@@ -35,7 +41,7 @@ if (args.command === "help") {
     console.error(`${args.name} isn't a command. pagez help lists the commands.\n${USAGE}`);
     process.exit(1);
   }
-  console.log(help);
+  show(help);
   process.exit(0);
 }
 if (args.command === "rules") {
@@ -46,7 +52,7 @@ if (args.command === "rules") {
     );
     process.exit(1);
   }
-  console.log(rule);
+  show(rule);
   process.exit(0);
 }
 if (args.command === "check") {
