@@ -1,6 +1,6 @@
 # Plan
 
-Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/` through Vite. What each release changed is in its [notes on GitHub](https://github.com/amitkaps/pagez/releases). This plan says what's next, in order, and what works now. [Pages](pages.md) and [elements](elements.md) state the rules, [the design](design.md) says why, and [the lessons](lessons.md) are what building it taught.
+Pagez 0.4.0 is on npm, and `main` builds one page or a site of folders to `dist/` through Vite. What each release changed is in its [notes on GitHub](https://github.com/amitkaps/pagez/releases). This plan says what's next, in order, and what works now. [Pages](pages.md) and [elements](elements.md) state the rules, [the design](design.md) says why, and [the lessons](lessons.md) are what building it taught.
 
 ## Next, in order
 
@@ -20,7 +20,7 @@ Pagez 0.2.0 is on npm, and `main` builds one page or a site of folders to `dist/
 - **Values in prose.** `${…}` prints a path into `page`, and anything more fails at its line and column ([Values in prose](pages.md#values-in-prose)).
 - **The head and the frame.** The frame is checked, and the head is written from the page's metadata ([The head and the frame](pages.md#the-head-and-the-frame)).
 - **The theme.** A page with no `style.css` and no frame gets one readable column, light or dark, in `@layer theme` ([CSS](pages.md#css)).
-- **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it, and `pagez check` lists what to fix in every page. Files are checked, then hashed in `dist/assets/`. An undefined tag warns, as Markz's warnings do, `pagez rules <id>` prints the rule behind any id, and `pagez help <command>` what a command does, each stated once in [usage](usage.md).
+- **Through Vite.** `pagez()`, from `@amitkaps/pagez/vite`, and `pagez build|dev|preview` build the folder without writing to it, and `pagez check` lists what to fix in every page. Files are checked, then hashed in `dist/assets/`. An undefined tag warns, as Markz's warnings do, `pagez rules <id>` prints the rule behind any id, and `pagez help <command>` what a command does, each stated once in [usage](usage.md) and shown in colour in a terminal.
 - **Speed and size.** `pnpm speed` times a change on a site of about 300 pages against `main`, `pnpm hotspots` shows where its time goes, and `pnpm size` holds the theme, the head and the runtime to a budget in `verify` ([development](development.md#speed-and-size)).
 - **Tests.** Each page in `tests/pages/` and each site in `tests/sites/` builds to its reviewed snapshot or fails with its reviewed error. Every rule in the docs cites the cases that hold it, and every case is cited by a rule.
 - **Ids.** Each error and warning prints in Markz's one line, with its id, such as `pagez: error: index.md:12: error-link-draft: …`. The id is a row of [the Errors table](pages.md#errors) or [the Warnings table](pages.md#warnings). A test holds the ids in `src/` and the rows to each other, so a mistake can't ship without one. `pagez rules` reads the rules and the rows with Markz's reader, and prints Markz's rules after Pagez's, each link resolved against the site.
