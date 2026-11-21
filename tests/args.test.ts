@@ -68,7 +68,8 @@ describe("the commands", () => {
     const branched = [...cli.matchAll(/command === "([a-z]+)"/g)].map((m) => m[1]);
     // preview is the branch dev's test leaves.
     expect(new Set([...branched, "preview"])).toEqual(new Set(COMMANDS));
-    for (const name of COMMANDS) expect(printHelp(commands, name)).toContain(`{#${name}}`);
+    for (const { id, label } of commands.commands)
+      expect(printHelp(commands, id)).toContain(`- \`${label}\`: `);
     expect(printHelp(commands, "serve")).toBeUndefined();
   });
 });
