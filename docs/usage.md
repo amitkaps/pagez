@@ -12,9 +12,9 @@ It needs Node 26 or newer, the Node it's built and tested on. `vite-plus` is a p
 
 ## Build a folder
 
-- [`pagez build [folder]`]{#build}: builds the pages in a folder to its `dist/`.
-- [`pagez dev [folder] [--port <n>]`]{#dev}: serves the pages while they're written.
-- [`pagez preview [folder] [--port <n>]`]{#preview}: serves what was built.
+- [`pagez build [<folder>]`]{#build}: builds the pages in a folder to its `dist/`.
+- [`pagez dev [<folder>] [--port <n>]`]{#dev}: serves the pages while they're written.
+- [`pagez preview [<folder>] [--port <n>]`]{#preview}: serves what was built.
 
 The smallest site is one page.
 
@@ -37,14 +37,14 @@ Each command takes the folder, or works in the current one, and `dev` and `previ
 
 ## Check a folder
 
-- [`pagez check [folder]`]{#check}: lists what to fix in every page, and writes nothing.
+- [`pagez check [<folder>]`]{#check}: lists what to fix in every page, and writes nothing.
 
 `check` compiles every page `build` would, without bundling, and prints each page's failure and each warning, a line each, in Markz's form: `pagez: error: index.md:12: error-link-draft: …`. A warning passes `build`, and fails `check`, so a script or an agent that runs `check` fixes it before it ships.
 
 ## Rules and help
 
-- [`pagez rules [id]`]{#rules}: prints a rule, an error or a warning by its id, or every rule.
-- [`pagez help [command]`]{#help}: prints each command, or what one does.
+- [`pagez rules [<id>]`]{#rules}: prints a rule, an error or a warning by its id, or every rule.
+- [`pagez help [<command>]`]{#help}: prints each command, or what one does.
 
 ```sh
 pagez rules folder-page   # prints a rule, an error or a warning

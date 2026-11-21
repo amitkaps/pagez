@@ -1,8 +1,8 @@
 /** @prose
  * # The command's arguments
  *
- * `pagez build|check|dev|preview [folder] [--port <n>]`, `pagez rules [id]` or `pagez help
- * [command]`, read into what to
+ * `pagez build|check|dev|preview [<folder>] [--port <n>]`, `pagez rules [<id>]` or `pagez help
+ * [<command>]`, read into what to
  * run, or into what to print and the code to exit with. A mistake is one line and the usage, never
  * a stack. `--port` is for `dev` and `preview`, and serves on that port or fails, so a script gets
  * the port it asked for.
@@ -10,7 +10,7 @@
 import { parseArgs } from "node:util";
 
 export const USAGE =
-  "Usage: pagez build|check|dev|preview [folder] [--port <n>], pagez rules [id], or pagez help [command]";
+  "Usage: pagez build|check|dev|preview [<folder>] [--port <n>], pagez rules [<id>], or pagez help [<command>]";
 
 /** The commands `pagez` runs, each stated once in the usage doc. */
 export const COMMANDS = ["build", "check", "dev", "preview", "rules", "help"] as const;
