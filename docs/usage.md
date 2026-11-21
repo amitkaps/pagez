@@ -53,6 +53,8 @@ pagez help build          # prints what build does
 
 `rules` reads the docs of the version installed, so an agent reads the rules for the version it runs. `help` reads this page the same way, and `pagez --help` prints each command.
 
+In a terminal, `help` and `rules` show their Markdown in colour, without its marks, and wrap it to the window. Anywhere else, like a pipe, an agent's shell or with `NO_COLOR` set, they print the Markdown as it is.
+
 ## In a Vite config
 
 A folder with a Vite config of its own adds the plugin to it.
