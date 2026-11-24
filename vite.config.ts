@@ -82,6 +82,7 @@ export default defineConfig({
   test: {
     expect: { requireAssertions: true },
     include: ["tests/**/*.test.ts"],
+    exclude: ["**/node_modules/**", "**/.git/**", ".claude/worktrees/**"],
   },
 
   /** @prose
