@@ -52,10 +52,10 @@
     "outline": "prose outline"
   },
   "devDependencies": {
-    "@amitkaps/craftz": "0.31.0",
+    "@amitkaps/craftz": "0.31.1",
     "@amitkaps/markz": "0.10.0",
     "@amitkaps/prose": "0.14.1",
-    "@types/node": "26.6.10",
+    "@types/node": "26.6.11",
     "happy-dom": "21.0.4",
     "publint": "0.3.25",
     "vite-plus": "1.8.0"
